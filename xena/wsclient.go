@@ -32,7 +32,6 @@ type WsOption func(s *wsClient)
 // WsClient websocket client interface
 type WsClient interface {
 	IsConnected() bool
-	//OnConnect(ConnectHandler)
 	Connect()
 	With(opt WsOption)
 	Close()
@@ -94,17 +93,6 @@ func (c *wsClient) Connect() {
 		}
 	}()
 }
-
-/*
-// OnConnect register the main handler that will be called after establishing the connection
-func (c *wsClient) OnConnect(fnc ConnectHandler) {
-	c.With(WithConnectHandler(fnc))
-	go func() {
-		_ = c.connect()
-	}()
-}
-
-*/
 
 // IsConnected return true if connection was established
 func (c *wsClient) IsConnected() bool {

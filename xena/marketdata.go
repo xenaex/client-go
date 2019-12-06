@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	wsMdURL = "ws://localhost/api/ws/market-data"
+	wsMdURL = "wss://trading.xena.exchange/api/ws/market-data"
 )
 
 // DOMHandler called on order book updated

@@ -2,6 +2,17 @@ package xena
 
 import "time"
 
+const (
+	localWsMdURL = "ws://localhost/api/ws/market-data"
+)
+
+// WithURL set localhost... url for connection
+func WithLocalURL() WsOption {
+	return func(c *wsClient) {
+		c.url = localWsMdURL
+	}
+}
+
 // WithURL set URL for connection
 func WithURL(url string) WsOption {
 	return func(c *wsClient) {

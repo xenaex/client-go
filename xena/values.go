@@ -10,7 +10,6 @@ const (
 	BTCUSDT Symbol = "BTC/USDT"
 	ETHSDT  Symbol = "ETH/USDT"
 	XBTUSD  Symbol = "XBTUSD"
-	XGRAM   Symbol = "XGRAM"
 	ETHUSD  Symbol = "ETHUSD"
 
 	SideBuy  Side = "1"

@@ -15,10 +15,9 @@ func main() {
 	md := xena.NewMarketData(xena.WithDebug())
 
 	//id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.AggregateBook10, xena.ThrottleDOM5s)
-	//id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.ThrottleDOM5s)
+	id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.ThrottleDOM500ms)
 	//id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.AggregateBook10)
-
-	id, err := md.SubscribeOnDOM(xena.XBTUSD, domHandler)
+	//id, err := md.SubscribeOnDOM(xena.XBTUSD, domHandler)
 	log.Println(id, err)
 
 	interrupt := make(chan os.Signal, 1)
