@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package api;
+
+// MsgType header for JSON deserialization
+message MsgTypeHeader {
+  string MsgType = 35;
+}
+
+message Heartbeat {
+  string MsgType = 35;
+  string TestReqID = 112;
+  int64 TransactTime = 60;
+}

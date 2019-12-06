@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package api;
+
+message AccountStatusReportRequest {
+  string MsgType = 35;
+  uint64 Account = 1;
+}
+
+message Position {
+  string Currency = 15;
+  string AvgPx = 6;
+  uint64 PositionID = 1618;
+  int64 PositionOpenTime = 1805;
+  string RealizedPL = 1806;
+}
+
+message Balance {
+  uint64 Account = 1;
+  string Currency = 15;
+  int64 LastUpdateTime = 779;
+  string Available = 1801;
+  string OnHold = 1802;
+  string Settled = 1803;
+  string Equity = 1791;
+  string Bonus = 52313;
+  repeated Position Positions = 1804;
+}
+
+message BalanceIncrementalRefresh {
+  string MsgType = 35;
+  uint64 Account = 1;
+  int64 LastUpdateTime = 779;
+  repeated Balance Balances = 1800;
+  // reject fields
+  string RejectReason = 380;
+  string Text = 58;
+}
+
+message BalanceSnapshotRefresh {
+  string MsgType = 35;
+  uint64 Account = 1;
+  int64 LastUpdateTime = 779;
+  repeated Balance Balances = 1800;
+  // reject fields
+  string RejectReason = 380;
+  string Text = 58;
+}

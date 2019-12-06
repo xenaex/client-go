@@ -1,0 +1,71 @@
+/*
+*   Market Data FIX messages
+*
+*   Common rules for all FIX messages:
+*   - Field tags are equal to FIX tags, non-FIX fields should have tags 2040 and below (greater than 1800)
+*   - Enums with non-numeric values should provice custom JSON serialization
+*   - Enums with meaningfull 0 value in FIX should have values shifted by 1 (1 instead of 0 etc) and provide
+*       custom JSON serialization into corresponding FIX values (to prevent skipping "zero-valued" fields during JSON serialization)
+*/
+
+syntax = "proto3";
+
+package api;
+
+message MDEntry {
+  string Symbol = 55; 
+  string MDUpdateAction = 279;
+  string MDEntryType = 269;
+  string MDEntryPx = 270;
+  string MDEntrySize = 271;
+  uint32 NumberOfOrders = 346;
+  int64 TransactTime = 60;
+  string TradeID = 1003;
+  string AggressorSide = 1501;
+  string FirstPx = 1025;
+  string LastPx = 31;
+  string HighPx = 332;
+  string LowPx = 333;
+  string BuyVolume = 330;
+  string SellVolume = 331;
+  string Bid = 1502;
+  string Ask = 1503;
+  string LowRangePx = 35601;
+  string HighRangePx = 35602;
+  string LowLimitPx = 35603;
+  string HighLimitPx = 35604;
+  string ClearingPx = 35605;
+}
+
+message MarketDataRefresh {
+  string MsgType = 35;
+  string MDStreamID = 1500;
+  int64 LastUpdateTime = 779;
+  string MDBookType = 1021;
+  string Symbol = 55;
+  string LowRangePx = 35601;
+  string HighRangePx = 35602;
+  string LowLimitPx = 35603;
+  string HighLimitPx = 35604;
+  string ClearingPx = 35605;
+  string BestBid = 1502;
+  string BestAsk = 1503;
+  repeated MDEntry MDEntry = 268;
+  repeated MDEntry Ratios = 1504;
+}
+
+message MarketDataRequest {
+  string MsgType = 35;
+  string MDStreamID = 1500;
+  string SubscriptionRequestType = 263;
+  string ThrottleType = 1612;
+  int64 ThrottleTimeInterval = 1614;
+  string ThrottleTimeUnit = 1615;
+  int64 AggregatedBook = 266;
+}
+
+message MarketDataRequestReject {
+  string MsgType = 35;
+  string MDStreamID = 1500;
+  string RejectText = 1328;
+}

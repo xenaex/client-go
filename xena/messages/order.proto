@@ -1,0 +1,281 @@
+/*
+*   Order FIX messages
+*
+*   Common rules for all FIX messages:
+*   - Field tags are equal to FIX tags, non-FIX fields should have tags 2040 and below (greater than 1800)
+*   - Enums with non-numeric values should provice custom JSON serialization
+*   - Enums with meaningfull 0 value in FIX should have values shifted by 1 (1 instead of 0 etc) and provide
+*       custom JSON serialization into corresponding FIX values (to prevent skipping "zero-valued" fields during JSON serialization)
+*/
+
+syntax = "proto3";
+
+package api;
+
+message TriggeringInstruction {
+    string RefClOrdID = 1806;
+    string TriggerAction = 1101;
+    string TriggerType = 1100;
+    string TriggerScope = 1628;
+}
+
+message Partie {
+    string PartieID = 448;
+    string PartieRole = 452;
+}
+
+message SLTP {
+    string OrdType = 40;
+    string Price = 44;
+    string StopPx = 99;
+    string CapPrice = 1199;
+    // Trailing orders
+    string PegPriceType = 1094;
+    string PegOffsetType = 836;
+    string PegOffsetValue = 211;
+}
+
+message NewOrderSingle {
+    string MsgType = 35;
+    // Order ID unique for Account.
+    string ClOrdId = 11;
+    // Unique order ID across the exchange.
+    string OrderId = 37;
+    string Symbol = 55;
+    string Side = 54;
+    string SettlType = 63;
+    int64 TransactTime = 60;
+    int32 ListSeqNo = 67;
+    // Quantity of sold or bought base currency.
+    // Could be change by:
+    // 1. Partially order execution.
+    // 2. Order modifications.
+    string OrderQty = 38;
+    string OrdType = 40;
+    // For deferred orders only.
+    string Price = 44;
+    string StopPx = 99;
+    string CapPrice = 1199;
+    // Unique client ID across echange.
+    uint64 Account = 1;
+    // Parties is for sending UserID.
+    repeated Partie Parties = 453;
+    repeated string ExecInst = 18;
+    string TimeInForce = 59;
+    // Commission
+    string CommissionLevel = 3015;
+    // Trailing orders
+    string PegPriceType = 1094;
+    string PegOffsetType = 836;
+    string PegOffsetValue = 211;
+    // Triggers
+    repeated TriggeringInstruction TriggeringInstructions = 1114;
+    // Deriative positions
+    uint64 PositionID = 2618;
+    string PositionEffect = 77;
+    // Derivative SLTP
+    repeated SLTP SLTP = 5000;
+}
+
+message Trigger {
+    string Symbol = 55;
+	uint64 Account = 1;
+    string OrderId = 37;
+    string TriggerAction = 1101;
+}
+
+message ExecutionReport {
+    string MsgType = 35;
+    // Finance account. Unique client ID across exchange.
+    uint64 Account = 1;
+    // Client order identificator.
+    string ClOrdId = 11;
+    string OrigClOrdId = 41;
+    string OrderId = 37;
+    string ListId = 66;    
+    // Trade instrument name.
+    string Symbol = 55;
+    string OrdType = 40;
+    string Price = 44;
+    string StopPx = 99;
+    repeated string ExecInst = 18;
+    string TimeInForce = 59;
+    // Moment(timestamp) of transaction execution.
+    int64 TransactTime = 60;
+    string ExecId = 17;
+    string ExecType = 150;
+    string ExecRestatementReason = 378;
+    // Trade identifier
+    string TradeId = 1003;
+    // Current order status.
+    string OrdStatus = 39;
+    // Rejection reason.
+    string OrdRejReason = 103;
+    // Trade side, could be Buy or Sell.
+    string Side = 54;
+    // Current OrderQty value. Could be changed by trader.
+    string OrderQty = 38;
+    // Quantity which is leaved after last execution.
+    string LeavesQty = 151;
+    // Cummulative quantity value of executed part of order.
+    string CumQty = 14;
+    // Quantity closed by last execution.
+    string LastQty = 32;
+    // Stop order CapPrice
+    string CapPrice = 1199;
+    // Execution price.
+    string LastPx = 31;
+    string AvgPx = 6;
+    string CalculatedCcyLastQty = 1056;
+    string Currency = 15;
+    string SettlCurrency = 120;
+    string SettlType = 63;
+    string NetMoney = 118;
+    // Commission
+    string LastLiquidityInd = 851; // LiquidityInd
+    string Commission = 12;
+    string CommRate = 1233;
+    string CommCurrency = 479;
+    // Rejection detailed description.
+    string RejectText = 1328;
+    // Trailings
+    string PegPriceType = 1094;
+    string PegOffsetType = 836;
+    string PegOffsetValue = 211;
+    // Position
+    uint64 PositionID = 2618;
+    string PositionEffect = 77;
+    // Margin
+    string MarginAmt = 1645;
+    string MarginAmtType = 1644;
+    string MarginAmtCcy = 1646;
+    // Derivative SLTP
+    repeated SLTP SLTP = 5000;
+}
+
+message OrderCancelRequest {
+    string MsgType = 35;
+    // Request ID unique for Account.
+    string ClOrdId = 11;
+    // Client Order ID (ClOrdId) of order to cancel
+    string OrigClOrdId = 41;
+    // Unique order ID across the exchange.
+    string OrderId = 37;
+    string Symbol = 55;
+    string Side = 54;
+    int64 TransactTime = 60;
+    // Unique client ID across exchange.
+    uint64 Account = 1;
+}
+
+message OrderCancelReject {
+    string MsgType = 35;
+    uint64 Account = 1;
+    string Symbol = 55;
+    string ClOrdId = 11;
+    string OrigClOrdId = 41;
+    string OrderId = 37;
+    string OrdStatus = 39;
+    string CxlRejResponseTo = 434;
+    string CxlRejReason = 102;
+    string RejectText = 1328;
+    int64 TransactTime = 60;
+}
+
+message OrderStatusRequest {
+    string MsgType = 35;
+    uint64 Account = 1;
+}
+
+message Reject {
+    string MsgType = 35;
+    string RejectReason = 380; // BusinessRejectReason
+    string Text = 58;
+}
+
+message OrderMassStatusResponse {
+    string MsgType = 35;
+    uint64 Account = 1;
+    repeated ExecutionReport Orders = 1268;
+    repeated ExecutionReport Fills = 1269;
+    string RejectReason = 380; // BusinessRejectReason
+    string Text = 58;
+}
+
+message OrderCancelReplaceRequest {
+    string MsgType = 35;
+    // Request ID unique for Account.
+    string ClOrdId = 11;
+    // Client Order ID (ClOrdId) of order to modify
+    string OrigClOrdId = 41;
+    // Unique order ID across the exchange.
+    string OrderId = 37;
+    string Symbol = 55;
+    string Side = 54;
+    int64 TransactTime = 60;
+    // Unique client ID across exchange.
+    uint64 Account = 1;
+    // New ExecInst
+    repeated string ExecInst = 18;
+
+    // New fields
+    string OrderQty = 38;
+    string Price = 44;
+    string StopPx = 99;
+    string CapPrice = 1199;
+    string PegPriceType = 1094;
+    string PegOffsetType = 836;
+    string PegOffsetValue = 211;
+
+    // Derivative SLTP
+    repeated SLTP SLTP = 5000;
+}
+
+message OrderRemoveRequest {
+    string ClOrdId = 11;
+    // Client Order ID (ClOrdId) of order to modify
+    string OrigClOrdId = 41;
+    // Unique order ID across the exchange.
+    string OrderId = 37;
+    string Symbol = 55;
+    // Unique client ID across exchange.
+    uint64 Account = 1;
+}
+
+message NewOrderList {
+    string MsgType = 35;
+    // List ID unique for Account.
+    string ListId = 66;
+    string BidType = 394;
+    int32 TotNoOrders = 68;
+    string ContingencyType = 1385;
+    repeated NewOrderSingle ListOrdGrp = 73;
+    repeated NewOrderList NestedListGrp = 1773;
+    string Symbol = 55;
+    int64 TransactTime = 60;
+    // Unique client ID across echange.
+    uint64 Account = 1;
+}
+
+message OrderListAction {
+    string ContingencyType = 1385;
+    repeated string OrderId = 37;
+}
+
+message ListStatus {
+    string MsgType = 35;
+    // Finance account. Unique client ID across exchange.
+    uint64 Account = 1;
+    // List ID unique for Account.
+    string ListId = 66;
+    // Trade instrument name.
+    string Symbol = 55;
+    string ListStatusType = 429;
+    string ListOrderStatus = 431;
+    string ContingencyType = 1385;
+    string ListRejectReason = 1386;
+    ExecutionReport ListRejectOrder = 1387;
+     // Moment(timestamp) of transaction execution.
+    int64 TransactTime = 60;
+    string ListStatusText = 444;
+}
