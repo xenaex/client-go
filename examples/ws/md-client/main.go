@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/xenaex/client-go/xena"
-	"github.com/xenaex/client-go/xena/messages"
+	"github.com/xenaex/client-go/xena/xmsg"
 	"log"
 	"os"
 	"os/signal"
@@ -24,10 +24,10 @@ func main() {
 func onConnect(c xena.WsClient)  {
 	log.Print("Connection established")
 
-	sm := messages.MarketDataRequest{
-		MsgType:                 messages.MsgType_MarketDataRequest,
+	sm := xmsg.MarketDataRequest{
+		MsgType:                 xmsg.MsgType_MarketDataRequest,
 		MDStreamID:              "DOM:BTC/USDT:aggregated",
-		SubscriptionRequestType: messages.SubscriptionRequestType_SnapshotAndUpdates ,
+		SubscriptionRequestType: xmsg.SubscriptionRequestType_SnapshotAndUpdates ,
 	}
 
 	c.Write(sm)

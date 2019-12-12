@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package api;
+package xmsg;
 
 // MsgType header for JSON deserialization
 message MsgTypeHeader {

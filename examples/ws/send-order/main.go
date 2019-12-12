@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/xenaex/client-go/xena"
-	"github.com/xenaex/client-go/xena/messages"
+	"github.com/xenaex/client-go/xena/xmsg"
 	"log"
 	"os"
 	"os/signal"
@@ -24,7 +24,7 @@ func main() {
 	log.Printf("End")
 }
 
-func logonHandler(t xena.TradingClient, m *messages.Logon) {
+func logonHandler(t xena.TradingClient, m *xmsg.Logon) {
 	log.Println("GOT onLogon", m)
 
 	err := t.SendLimitOrder(1012833471, xena.ID("clOrdID_"), xena.XBTUSD, xena.SideBuy, "8815", "1")

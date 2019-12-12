@@ -3,7 +3,7 @@ package xena
 import (
 	"fmt"
 	"github.com/xenaex/client-go/xena/fixjson"
-	"github.com/xenaex/client-go/xena/messages"
+	"github.com/xenaex/client-go/xena/xmsg"
 	"sync"
 	"time"
 )
@@ -13,7 +13,7 @@ const (
 )
 
 // DOMHandler called on order book updated
-type DOMHandler func(md MarketDataClient, m *messages.MarketDataRefresh)
+type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
 
 // MarketDataClient is the main interface that helps to receive market data
 type MarketDataClient interface {
@@ -25,7 +25,7 @@ type MarketDataClient interface {
 type marketData struct {
 	client WsClient
 	// subscriptions
-	subscriptions    map[string]messages.MarketDataRequest
+	subscriptions    map[string]xmsg.MarketDataRequest
 	subscribeMu      *sync.RWMutex
 	domSubscriptions map[string]DOMHandler
 }
@@ -33,7 +33,7 @@ type marketData struct {
 // NewMarketData constructor
 func NewMarketData(opts ...WsOption) MarketDataClient {
 	md := marketData{
-		subscriptions:    make(map[string]messages.MarketDataRequest),
+		subscriptions:    make(map[string]xmsg.MarketDataRequest),
 		domSubscriptions: make(map[string]DOMHandler),
 		subscribeMu:      &sync.RWMutex{},
 	}
@@ -83,10 +83,10 @@ func (m *marketData) SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...i
 	defer m.subscribeMu.Unlock()
 
 	streamID = "DOM:" + string(symbol) + ":aggregated"
-	r := messages.MarketDataRequest{
-		MsgType:                 messages.MsgType_MarketDataRequest,
+	r := xmsg.MarketDataRequest{
+		MsgType:                 xmsg.MsgType_MarketDataRequest,
 		MDStreamID:              streamID,
-		SubscriptionRequestType: messages.SubscriptionRequestType_SnapshotAndUpdates,
+		SubscriptionRequestType: xmsg.SubscriptionRequestType_SnapshotAndUpdates,
 	}
 
 	for _, o := range opts {
@@ -96,9 +96,9 @@ func (m *marketData) SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...i
 			if err != nil {
 				return "", err
 			}
-			r.ThrottleType = messages.ThrottleType_InboundRate
+			r.ThrottleType = xmsg.ThrottleType_InboundRate
 			r.ThrottleTimeInterval = d.Nanoseconds()
-			r.ThrottleTimeUnit = messages.ThrottleTimeUnit_Nanoseconds
+			r.ThrottleTimeUnit = xmsg.ThrottleTimeUnit_Nanoseconds
 		case AggregateBook:
 			r.AggregatedBook = int64(v)
 		default:
@@ -120,25 +120,25 @@ func (m *marketData) SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...i
 }
 
 func (m *marketData) incomeHandler(msg []byte) {
-	mth := new(messages.MsgTypeHeader)
+	mth := new(xmsg.MsgTypeHeader)
 	err := fixjson.Unmarshal(msg, mth)
 	if err != nil {
 		m.client.Logger().Errorf("error: %s. on fixjson.Unmarshal(%s)", err, string(msg))
 	}
 
 	switch mth.MsgType {
-	case messages.MsgType_LogonMsgType:
-		v := new(messages.Logon)
+	case xmsg.MsgType_LogonMsgType:
+		v := new(xmsg.Logon)
 		if _, err := m.unmarshal(msg, v); err == nil {
 		}
-	case messages.MsgType_MarketDataRequest:
-		v := new(messages.MarketDataRequest)
+	case xmsg.MsgType_MarketDataRequest:
+		v := new(xmsg.MarketDataRequest)
 		if _, err := m.unmarshal(msg, v); err == nil {
 			//m.client.Logger().Debugf("got %#v", v)
 		}
 
-	case messages.MsgType_MarketDataIncrementalRefresh, messages.MsgType_MarketDataSnapshotFullRefresh:
-		v := new(messages.MarketDataRefresh)
+	case xmsg.MsgType_MarketDataIncrementalRefresh, xmsg.MsgType_MarketDataSnapshotFullRefresh:
+		v := new(xmsg.MarketDataRefresh)
 		if _, err := m.unmarshal(msg, v); err == nil {
 			//m.client.Logger().Debugf("got %#v", v)
 			m.subscribeMu.RLock()

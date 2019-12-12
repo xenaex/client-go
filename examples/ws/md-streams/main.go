@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/xenaex/client-go/xena"
-	"github.com/xenaex/client-go/xena/messages"
+	"github.com/xenaex/client-go/xena/xmsg"
 	"log"
 	"os"
 	"os/signal"
@@ -27,6 +27,6 @@ func main() {
 	log.Printf("End")
 }
 
-func domHandler(md xena.MarketDataClient, m *messages.MarketDataRefresh) {
+func domHandler(md xena.MarketDataClient, m *xmsg.MarketDataRefresh) {
 	log.Println("GOT", m)
 }

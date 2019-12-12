@@ -6,7 +6,7 @@
 
 syntax = "proto3";
 
-package api;
+package xmsg;
 
 // enum SessionStatus {
 //   UnknownSessionStatus = 0;

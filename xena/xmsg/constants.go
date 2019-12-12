@@ -1,4 +1,4 @@
-package messages
+package xmsg
 
 const (
 	// MESSAGE.proto

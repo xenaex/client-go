@@ -8,7 +8,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/xenaex/client-go/xena/fixjson"
-	"github.com/xenaex/client-go/xena/messages"
+	"github.com/xenaex/client-go/xena/xmsg"
 	"time"
 )
 
@@ -51,19 +51,19 @@ func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient 
 }
 
 // LogonHandler will be called on Logon response received
-type LogonHandler func(t TradingClient, m *messages.Logon)
+type LogonHandler func(t TradingClient, m *xmsg.Logon)
 
 // MarginRequirementReportHandler will be called on MarginRequirementReport received
-type MarginRequirementReportHandler func(t TradingClient, m *messages.MarginRequirementReport)
+type MarginRequirementReportHandler func(t TradingClient, m *xmsg.MarginRequirementReport)
 
 // ExecutionReportHandler will be called on ExecutionReport received
-type ExecutionReportHandler func(t TradingClient, m *messages.ExecutionReport)
+type ExecutionReportHandler func(t TradingClient, m *xmsg.ExecutionReport)
 
 // OrderCancelRejectHandler will be called on OrderCancelReject received
-type OrderCancelRejectHandler func(t TradingClient, m *messages.OrderCancelReject)
+type OrderCancelRejectHandler func(t TradingClient, m *xmsg.OrderCancelReject)
 
 // OrderMassStatusResponseHandler will be called on OrderMassStatusResponse received
-type OrderMassStatusResponseHandler func(t TradingClient, m *messages.OrderMassStatusResponse)
+type OrderMassStatusResponseHandler func(t TradingClient, m *xmsg.OrderMassStatusResponse)
 
 type tradingClient struct {
 	client    WsClient
@@ -104,8 +104,8 @@ func (t *tradingClient) ListenOrderMassStatusResponse(handler OrderMassStatusRes
 }
 
 func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, side Side, orderID, clientOrderID string) error {
-	cmd := messages.OrderCancelRequest{
-		MsgType:      messages.MsgType_OrderCancelRequestMsgType,
+	cmd := xmsg.OrderCancelRequest{
+		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
 		Account:      accountID,
 		ClOrdId:      ID(""),
 		Symbol:       string(symbol),
@@ -118,16 +118,16 @@ func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, 
 }
 
 func (t *tradingClient) SendOrderMassStatusRequest(accountID uint64) error {
-	cmd := messages.NewOrderSingle{
-		MsgType: messages.MsgType_OrderMassStatusRequest,
+	cmd := xmsg.NewOrderSingle{
+		MsgType: xmsg.MsgType_OrderMassStatusRequest,
 		Account: accountID,
 	}
 	return t.send(cmd)
 }
 
 func (t *tradingClient) SendAccountStatusReportRequest(accountID uint64) error {
-	cmd := messages.NewOrderSingle{
-		MsgType: messages.MsgType_AccountStatusReportRequest,
+	cmd := xmsg.NewOrderSingle{
+		MsgType: xmsg.MsgType_AccountStatusReportRequest,
 		Account: accountID,
 	}
 	return t.send(cmd)
@@ -142,10 +142,10 @@ func (t *tradingClient) send(cmd interface{}) error {
 }
 
 func (t *tradingClient) SendLimitOrder(accountID uint64, clientOrderID string, symbol Symbol, side Side, price, qty string) error {
-	cmd := messages.NewOrderSingle{
-		MsgType:      messages.MsgType_NewOrderSingleMsgType,
+	cmd := xmsg.NewOrderSingle{
+		MsgType:      xmsg.MsgType_NewOrderSingleMsgType,
 		TransactTime: time.Now().UTC().UnixNano(),
-		OrdType:      messages.OrdType_Limit,
+		OrdType:      xmsg.OrdType_Limit,
 		ClOrdId:      clientOrderID,
 		Symbol:       string(symbol),
 		Side:         string(side),
@@ -157,50 +157,50 @@ func (t *tradingClient) SendLimitOrder(accountID uint64, clientOrderID string, s
 }
 
 func (t *tradingClient) incomeHandler(msg []byte) {
-	mth := new(messages.MsgTypeHeader)
+	mth := new(xmsg.MsgTypeHeader)
 	err := fixjson.Unmarshal(msg, mth)
 	if err != nil {
 		t.client.Logger().Errorf("error: %s. on fixjson.Unmarshal(%s)", err, string(msg))
 	}
 
 	switch mth.MsgType {
-	case messages.MsgType_LogonMsgType:
-		v := new(messages.Logon)
+	case xmsg.MsgType_LogonMsgType:
+		v := new(xmsg.Logon)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.logon != nil {
 				go t.handlers.logon(t, v)
 			}
 		}
 
-	case messages.MsgType_MarginRequirementReport:
-		v := new(messages.MarginRequirementReport)
+	case xmsg.MsgType_MarginRequirementReport:
+		v := new(xmsg.MarginRequirementReport)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.marginRequirementReport != nil {
 				go t.handlers.marginRequirementReport(t, v)
 			}
 		}
-	case messages.MsgType_ExecutionReportMsgType:
-		v := new(messages.ExecutionReport)
+	case xmsg.MsgType_ExecutionReportMsgType:
+		v := new(xmsg.ExecutionReport)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.executionReport != nil {
 				go t.handlers.executionReport(t, v)
 			}
 		}
-	case messages.MsgType_OrderCancelRejectMsgType:
-		v := new(messages.OrderCancelReject)
+	case xmsg.MsgType_OrderCancelRejectMsgType:
+		v := new(xmsg.OrderCancelReject)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.orderCancelReject != nil {
 				go t.handlers.orderCancelReject(t, v)
 			}
 		}
-	case messages.MsgType_OrderMassStatusResponse:
-		v := new(messages.OrderMassStatusResponse)
+	case xmsg.MsgType_OrderMassStatusResponse:
+		v := new(xmsg.OrderMassStatusResponse)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.orderMassStatus != nil {
 				go t.handlers.orderMassStatus(t, v)
 			}
 		}
-	case messages.MsgType_AccountStatusReport:
+	case xmsg.MsgType_AccountStatusReport:
 		// Not implemented yet
 	default:
 		t.client.Logger().Errorf("unknown message type %s", string(msg))
@@ -238,8 +238,8 @@ func (t *tradingClient) loginCmd() []byte {
 	signature := append(r.Bytes(), s.Bytes()...)
 	sigHex := hex.EncodeToString(signature)
 
-	logonCmd := messages.Logon{
-		MsgType:     messages.MsgType_LogonMsgType,
+	logonCmd := xmsg.Logon{
+		MsgType:     xmsg.MsgType_LogonMsgType,
 		SendingTime: nonce,
 		Username:    t.apiKey,
 		Password:    sigHex,
