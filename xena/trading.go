@@ -200,7 +200,11 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 				go t.handlers.orderMassStatus(t, v)
 			}
 		}
-	case xmsg.MsgType_AccountStatusReport:
+	case
+		xmsg.MsgType_AccountStatusReport,
+		xmsg.MsgType_AccountStatusUpdateReport,
+		xmsg.MsgType_PositionReport:
+
 		// Not implemented yet
 	default:
 		t.client.Logger().Errorf("unknown message type %s", string(msg))
