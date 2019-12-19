@@ -56,6 +56,9 @@ type LogonHandler func(t TradingClient, m *xmsg.Logon)
 // MarginRequirementReportHandler will be called on MarginRequirementReport received
 type MarginRequirementReportHandler func(t TradingClient, m *xmsg.MarginRequirementReport)
 
+// BalanceIncrementalRefreshHandler will be called on BalanceIncrementalRefresh received
+type BalanceIncrementalRefreshHandler func(t TradingClient, m *xmsg.BalanceIncrementalRefresh)
+
 // ExecutionReportHandler will be called on ExecutionReport received
 type ExecutionReportHandler func(t TradingClient, m *xmsg.ExecutionReport)
 
@@ -65,16 +68,41 @@ type OrderCancelRejectHandler func(t TradingClient, m *xmsg.OrderCancelReject)
 // OrderMassStatusResponseHandler will be called on OrderMassStatusResponse received
 type OrderMassStatusResponseHandler func(t TradingClient, m *xmsg.OrderMassStatusResponse)
 
+// PositionReportHandler will be called on PositionReport received
+type PositionReportHandler func(t TradingClient, m *xmsg.PositionReport)
+
+// MassPositionReportHandler will be called on MassPositionReport received
+type MassPositionReportHandler func(t TradingClient, m *xmsg.MassPositionReport)
+
+// PositionMaintenanceReportHandler will be called on PositionMaintenanceReport received
+type PositionMaintenanceReportHandler func(t TradingClient, m *xmsg.PositionMaintenanceReport)
+
+// RejectHandler will be called on Reject received
+type RejectHandler func(t TradingClient, m *xmsg.Reject)
+
+// ListStatusHandler will be called on ListStatus received
+type ListStatusHandler func(t TradingClient, m *xmsg.ListStatus)
+
+// OrderMassCancelReportHandler will be called on OrderMassCancelReport received
+// type OrderMassCancelReportHandler func(t TradingClient, m *xmsg.OrderMassCancelReport)
+
 type tradingClient struct {
 	client    WsClient
 	apiKey    string
 	apiSecret string
 	handlers  struct {
-		logon                   LogonHandler
-		marginRequirementReport MarginRequirementReportHandler
-		executionReport         ExecutionReportHandler
-		orderMassStatus         OrderMassStatusResponseHandler
-		orderCancelReject       OrderCancelRejectHandler
+		logon                     LogonHandler
+		marginRequirementReport   MarginRequirementReportHandler
+		balanceIncrementalRefresh BalanceIncrementalRefreshHandler
+		executionReport           ExecutionReportHandler
+		orderMassStatus           OrderMassStatusResponseHandler
+		orderCancelReject         OrderCancelRejectHandler
+		positionReport            PositionReportHandler
+		massPositionReport        MassPositionReportHandler
+		positionMaintenanceReport PositionMaintenanceReportHandler
+		reject                    RejectHandler
+		listStatus                ListStatusHandler
+		// orderMassCancelReport OrderMassCancelReportHandler
 	}
 }
 
@@ -200,12 +228,64 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 				go t.handlers.orderMassStatus(t, v)
 			}
 		}
-	case
-		xmsg.MsgType_AccountStatusReport,
-		xmsg.MsgType_AccountStatusUpdateReport,
-		xmsg.MsgType_PositionReport:
+	case xmsg.MsgType_AccountStatusReport:
+		v := new(xmsg.BalanceSnapshotRefresh)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.balanceIncrementalRefresh != nil {
+				go t.handlers.balanceIncrementalRefresh(t, v)
+			}
+		}
+	case xmsg.MsgType_AccountStatusUpdateReport:
+		v := new(xmsg.BalanceIncrementalRefresh)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.balanceIncrementalRefresh != nil {
+				go t.handlers.balanceIncrementalRefresh(t, v)
+			}
+		}
+	case xmsg.MsgType_PositionReport:
+		v := new(xmsg.PositionReport)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.positionReport != nil {
+				go t.handlers.positionReport(t, v)
+			}
+		}
 
-		// Not implemented yet
+	case xmsg.MsgType_MassPositionReport:
+		v := new(xmsg.MassPositionReport)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.massPositionReport != nil {
+				go t.handlers.massPositionReport(t, v)
+			}
+		}
+	case xmsg.MsgType_PositionMaintenanceReport:
+		v := new(xmsg.PositionMaintenanceReport)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.positionMaintenanceReport != nil {
+				go t.handlers.positionMaintenanceReport(t, v)
+			}
+		}
+	case xmsg.MsgType_RejectMsgType:
+		v := new(xmsg.Reject)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.reject != nil {
+				go t.handlers.reject(t, v)
+			}
+		}
+	case xmsg.MsgType_ListStatus:
+		v := new(xmsg.ListStatus)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.listStatus != nil {
+				go t.handlers.listStatus(t, v)
+			}
+		}
+		//case xmsg.MsgType_OrderMassCancelReport:
+		//	v := new(xmsg.OrderMassCancelReport)
+		//	if _, err := t.unmarshal(msg, v); err == nil {
+		//		//	if t.handlers.orderMassCancelReport != nil {
+		//		//		go t.handlers.orderMassCancelReport(t, v)
+		//		//	}
+		//	}
+	// Not implemented yet
 	default:
 		t.client.Logger().Errorf("unknown message type %s", string(msg))
 	}
