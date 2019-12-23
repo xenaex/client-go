@@ -2,10 +2,13 @@ package xena
 
 import (
 	"errors"
-	"github.com/gorilla/websocket"
-	"github.com/xenaex/client-go/xena/fixjson"
+	"fmt"
 	"sync"
 	"time"
+
+	"github.com/gorilla/websocket"
+
+	"github.com/xenaex/client-go/xena/fixjson"
 )
 
 const (
@@ -33,6 +36,7 @@ type WsOption func(s *wsClient)
 type WsClient interface {
 	IsConnected() bool
 	Connect()
+	ConnectOnly() error
 	With(opt WsOption)
 	Close()
 	Write(m interface{}) error
@@ -44,6 +48,7 @@ type WsClient interface {
 type wsClient struct {
 	// settings
 	url               string
+	logPingMessage    bool
 	reconnectInterval time.Duration
 	heartbeatInterval time.Duration
 
@@ -94,6 +99,15 @@ func (c *wsClient) Connect() {
 	}()
 }
 
+func (c *wsClient) ConnectOnly() error {
+	err := c.connect()
+	if err != nil {
+		err = fmt.Errorf("failed to connect to %s: %s", c.url, err)
+		return err
+	}
+	return nil
+}
+
 // IsConnected return true if connection was established
 func (c *wsClient) IsConnected() bool {
 	return c.conn != nil
@@ -132,7 +146,9 @@ func (c *wsClient) WriteBytes(data []byte) error {
 		go c.stop()
 	}
 
-	c.logger.Debugf("ws. sent: %s", string(data))
+	if string(data) != heartbeatMsg || c.logPingMessage {
+		c.logger.Debugf("ws. sent: %s", string(data))
+	}
 
 	return err
 }
@@ -178,6 +194,7 @@ func (c *wsClient) connectAndListen() error {
 	for {
 		conn, _, err := websocket.DefaultDialer.Dial(c.url, nil)
 		if err != nil {
+			c.logger.Debugf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
 			c.handleError(err)
 			time.Sleep(c.reconnectInterval)
 			continue
@@ -249,7 +266,10 @@ func (c *wsClient) heartbeats() {
 
 func (c *wsClient) handleMsg(msg []byte) {
 	str := string(msg)
-	c.logger.Debugf("ws. received: %s", str)
+
+	if str != heartbeatMsg || c.logPingMessage {
+		c.logger.Debugf("ws. received: %s", str)
+	}
 
 	switch str {
 	case heartbeatMsg:

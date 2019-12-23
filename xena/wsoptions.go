@@ -27,6 +27,13 @@ func WithDebug() WsOption {
 	}
 }
 
+// WithDebug enable debug logging
+func WithIgnorePingLog() WsOption {
+	return func(c *wsClient) {
+		c.logPingMessage = false
+	}
+}
+
 // WithOutDebug disable debug logging
 func WithOutDebug() WsOption {
 	return func(c *wsClient) {
