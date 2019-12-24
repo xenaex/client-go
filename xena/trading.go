@@ -17,13 +17,14 @@ const (
 	wsTradingURL = "ws://localhost/api/ws/trading"
 )
 
+// OrderMassCancel string symbol = null, string side = null, string positionEffect = PositionEffect.Default;
+type OrderMassCancel struct {
+	client TradingClient
+}
+
 // TradingClient Xena Trading websocket client interface.
 type TradingClient interface {
 	Client() WsClient
-	SendLimitOrder(accountID uint64, clientOrderID string, symbol Symbol, side Side, price, qty string) error
-	SendAccountStatusReportRequest(accountID uint64) error
-	SendOrderMassStatusRequest(accountID uint64) error
-	SendOrderCancelRequest(accountID uint64, symbol Symbol, side Side, orderID, clientOrderID string) error
 	ListenLogon(handler LogonHandler)
 	ListenMarginRequirementReport(handler MarginRequirementReportHandler)
 	ListenExecutionReport(handler ExecutionReportHandler)
@@ -43,17 +44,31 @@ type TradingClient interface {
 	ConnectAndLogon() (*xmsg.Logon, error)
 	// Listen(XenaTradingWsHandler handler);
 
+	SendOrder(order *xmsg.NewOrderSingle) error
+
+	// CreateMarketOrder create new market order.
+	CreateMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) marketOrder
+
+	// CreateLimitOrder create new limit order.
+	CreateLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) limitOrder
+
+	// CreateStopOrder create new stop order.
+	CreateStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) stopOrder
+
+	// CreateMarketIfTouchOrder create new market-if-touch order.
+	CreateMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) marketIfTouchOrder
+
 	// NewMarketOrder place new market order.
-	NewMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, timeInForce string, execInst []string, positionId uint64, stopLossPrice, takeProfitPrice string) error
+	NewMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) error
 
 	// NewLimitOrder place new limit order.
-	NewLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price, timeInForce string, execInst []string, positionId uint64, stopLossPrice, takeProfitPrice, trailingOffset, capPrice string) error
+	NewLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) error
 
 	// NewStopOrder place new stop order.
-	NewStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx, timeInForce string, execInst []string, positionId uint64, stopLossPrice, takeProfitPrice, trailingOffset, capPrice string) error
+	NewStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error
 
 	// NewMarketIfTouchOrder place new market-if-touch order.
-	NewMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx, timeInForce string, execInst []string, positionId uint64, stopLossPrice, takeProfitPrice, trailingOffset, capPrice string) error
+	NewMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error
 
 	// CancelOrderByClOrdId cancels an existing order by original client order id.
 	CancelOrderByClOrdId(clOrdId, origClOrdId string, symbol Symbol, side Side, account uint64) error
@@ -85,27 +100,7 @@ type TradingClient interface {
 }
 
 // NewTradingClient constructor
-func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) *tradingClient {
-	t := tradingClient{
-		apiKey:    apiKey,
-		apiSecret: apiSecret,
-	}
-
-	defaultOpts := []WsOption{
-		WithURL(wsTradingURL),
-		WithConnectHandler(t.onConnect),
-		WithHandler(t.incomeHandler),
-	}
-	opts = append(defaultOpts, opts...)
-
-	t.client = NewWsClient(opts...)
-	t.client.Connect()
-
-	return &t
-}
-
-// NewTradingClient constructor
-func NewTradingClient2(apiKey, apiSecret string, opts ...WsOption) TradingClient {
+func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient {
 	t := tradingClient{
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
@@ -141,6 +136,7 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 			return m, nil
 		}
 	case <-time.NewTimer(time.Minute).C:
+		// TODO: error time out.
 		return nil, fmt.Errorf("timeout logon")
 	}
 	return nil, fmt.Errorf("something happened")
@@ -244,55 +240,24 @@ func newOrderSingle(
 	ordType string,
 	price string, // = 0,
 	stopPx string, // = 0,
-	timeInForce string, // = null,
-	execInst []string, // = null,
-	positionID uint64, // = 0,
-	stopLossPrice string, // = 0,
-	takeProfitPrice string, // = 0,
-	trailingOffset string, // = 0,
-	capPrice string) xmsg.NewOrderSingle { // =0)
-	cmd := xmsg.NewOrderSingle{
-		MsgType:     xmsg.MsgType_NewOrderSingleMsgType,
-		ClOrdId:     clOrdId,
-		Symbol:      string(symbol),
-		Side:        string(side),
-		OrderQty:    orderQty,
-		Price:       price,
-		Account:     account,
-		OrdType:     ordType,
-		StopPx:      stopPx,
-		TimeInForce: timeInForce,
-		PositionID:  positionID,
-	}
-
-	if positionID != 0 {
-		cmd.PositionEffect = xmsg.PositionEffect_Close
-	}
-
-	if len(execInst) > 0 {
-		cmd.ExecInst = append(cmd.ExecInst, execInst...)
-	}
-
-	if len(stopLossPrice) > 0 {
-		cmd.SLTP = append(cmd.SLTP, &xmsg.SLTP{
-			OrdType: xmsg.OrdType_Stop,
-			StopPx:  stopLossPrice,
-		})
-	}
-	if len(takeProfitPrice) > 0 {
-		cmd.SLTP = append(cmd.SLTP, &xmsg.SLTP{
-			OrdType: xmsg.OrdType_Limit,
-			StopPx:  takeProfitPrice,
-		})
-	}
-	if len(trailingOffset) > 0 {
-		cmd.SLTP = append(cmd.SLTP, &xmsg.SLTP{
-			OrdType:        xmsg.OrdType_Stop,
-			CapPrice:       capPrice,
-			PegPriceType:   xmsg.PegPriceType_TrailingStopPeg,
-			PegOffsetType:  xmsg.PegOffsetType_BasisPoints,
-			PegOffsetValue: trailingOffset,
-		})
+	// timeInForce string,     // = null,
+	// execInst []string,      // = null,
+	// positionID uint64,      // = 0,
+	// stopLossPrice string,   // = 0,
+	// takeProfitPrice string, // = 0,
+	// trailingOffset string,  // = 0,
+	// capPrice string // =0)
+) *xmsg.NewOrderSingle {
+	cmd := &xmsg.NewOrderSingle{
+		MsgType:  xmsg.MsgType_NewOrderSingleMsgType,
+		ClOrdId:  clOrdId,
+		Symbol:   string(symbol),
+		Side:     string(side),
+		OrderQty: orderQty,
+		Price:    price,
+		Account:  account,
+		OrdType:  ordType,
+		StopPx:   stopPx,
 	}
 
 	cmd.TransactTime = time.Now().UnixNano()
@@ -300,27 +265,67 @@ func newOrderSingle(
 }
 
 // NewMarketOrder place new market order.
-func (t *tradingClient) NewMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, timeInForce string, execInst []string, positionId uint64, stopLossPrice string, takeProfitPrice string) error {
-	cmd := newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Market, "0", "0", timeInForce, execInst, positionId, stopLossPrice, takeProfitPrice, "0", "0")
-	return t.send(cmd)
+func (t *tradingClient) NewMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) error {
+	return t.CreateMarketOrder(clOrdId, symbol, side, orderQty, account).Send()
 }
 
 // NewLimitOrder place new limit order.
-func (t *tradingClient) NewLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price, timeInForce string, execInst []string, positionId uint64, stopLossPrice, takeProfitPrice, trailingOffset, capPrice string) error {
-	cmd := newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Limit, price, "0", timeInForce, execInst, positionId, stopLossPrice, takeProfitPrice, trailingOffset, capPrice)
-	return t.send(cmd)
+func (t *tradingClient) NewLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) error {
+	return t.CreateLimitOrder(clOrdId, symbol, side, orderQty, account, price).Send()
 }
 
 // NewStopOrder place new stop order.
-func (t *tradingClient) NewStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx, timeInForce string, execInst []string, positionId uint64, stopLossPrice, takeProfitPrice, trailingOffset, capPrice string) error {
-	cmd := newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Stop, "0", stopPx, timeInForce, execInst, positionId, stopLossPrice, takeProfitPrice, trailingOffset, capPrice)
-	return t.send(cmd)
+func (t *tradingClient) NewStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error {
+	return t.CreateStopOrder(clOrdId, symbol, side, orderQty, account, stopPx).Send()
 }
 
 // NewMarketIfTouchOrder place new market-if-touch order.
-func (t *tradingClient) NewMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx, timeInForce string, execInst []string, positionId uint64, stopLossPrice, takeProfitPrice, trailingOffset, capPrice string) error {
-	cmd := newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_MarketIfTouched, "0", stopPx, timeInForce, execInst, positionId, stopLossPrice, takeProfitPrice, trailingOffset, capPrice)
+func (t *tradingClient) NewMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error {
+	return t.CreateMarketIfTouchOrder(clOrdId, symbol, side, orderQty, account, stopPx).Send()
+}
+
+func (t *tradingClient) SendOrder(cmd *xmsg.NewOrderSingle) error {
 	return t.send(cmd)
+}
+
+// CreateMarketIfTouchOrder create new market-if-touch order.
+func (t *tradingClient) CreateMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) marketIfTouchOrder {
+	return marketIfTouchOrder{
+		order: baseOrder{
+			client:         t,
+			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_MarketIfTouched, "0", stopPx),
+		},
+	}
+}
+
+// CreateMarketOrder create new market order.
+func (t *tradingClient) CreateMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) marketOrder {
+	return marketOrder{
+		order: baseOrder{
+			client:         t,
+			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Market, "", ""),
+		},
+	}
+}
+
+// CreateLimitOrder create new limit order.
+func (t *tradingClient) CreateLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) limitOrder {
+	return limitOrder{
+		order: baseOrder{
+			client:         t,
+			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Limit, price, ""),
+		},
+	}
+}
+
+// CreateStopOrder create new stop order.
+func (t *tradingClient) CreateStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) stopOrder {
+	return stopOrder{
+		order: baseOrder{
+			client:         t,
+			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Stop, "0", stopPx),
+		},
+	}
 }
 
 // CancelOrderByClOrdId cancels an existing order by original client order id.

@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/xenaex/client-go/xena"
 	"github.com/xenaex/client-go/xena/xmsg"
@@ -15,6 +16,8 @@ import (
 // export XENA_API_KEY=""
 // export XENA_API_SECRET=""
 // export XENA_HOST="ws://api.xena.rc/ws/trading/"
+
+var accountId = uint64(1012000000)
 
 func main() {
 	log.Printf("Start")
@@ -32,7 +35,7 @@ func main() {
 	}
 
 	log.Println("will be connect to ", host)
-	client := xena.NewTradingClient2(apiKey, apiSecret, xena.WithURL(host), xena.WithDebug())
+	client := xena.NewTradingClient(apiKey, apiSecret, xena.WithURL(host), xena.WithDebug())
 	client.ListenBalanceIncrementalRefresh(onBalanceIncrementalRefreshHandler)
 	client.ListenBalanceSnapshotRefresh(onBalanceSnapshotRefreshHandler)
 	client.ListenExecutionReport(onExecutionReportHandler)
@@ -53,12 +56,20 @@ func main() {
 	log.Println("GOT logonResponse ", logonResponse)
 	log.Println("logon completed")
 
-	err = client.SendAccountStatusReportRequest(1012834062)
+	err = client.AccountStatusReport(accountId, "")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = client.NewLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", 1012834062, "7523.4", "", nil, 0, "", "", "", "")
+	order := client.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").Build()
+	err = client.SendOrder(order)
+	err = client.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").Send()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	limitOrder := client.CreateMarketOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId).SetTimeInForce("").SetPositionId(0).SetTakeProfitPrice("8000").Build()
+	err = client.SendOrder(limitOrder)
 	if err != nil {
 		fmt.Println(err)
 	}
