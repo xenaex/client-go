@@ -1,14 +1,15 @@
 package xena
 
 import (
-	"github.com/xenaex/client-go/xena/fixjson"
-	"github.com/xenaex/client-go/xena/xmsg"
 	"testing"
+
+	"github.com/xenaex/client-go/xena/api"
+	"github.com/xenaex/client-go/xena/fixjson"
 )
 
 func TestUnmarshalLogon(t *testing.T) {
 	s := `{"35":"MsgTypeValue","108":123,"1328":"RejectTextBalue","1":[1,2,3],"52":1234567890,"553":"UsernameValue","554":"PasswordValue"}`
-	o2 := new(xmsg.Logon)
+	o2 := new(api.Logon)
 	err := fixjson.Unmarshal([]byte(s), o2)
 	if err != nil {
 		t.Errorf("error: %s on Unmarshal(%s)", err, s)
@@ -16,7 +17,7 @@ func TestUnmarshalLogon(t *testing.T) {
 }
 
 func TestLogon(t *testing.T) {
-	o := xmsg.Logon{
+	o := api.Logon{
 		MsgType:     "MsgTypeValue",
 		HeartBtInt:  123,
 		RejectText:  "RejectTextBalue",
@@ -37,7 +38,7 @@ func TestLogon(t *testing.T) {
 		t.Errorf("got: %s, but expected: %s", s, expected)
 	}
 
-	o2 := new(xmsg.Logon)
+	o2 := new(api.Logon)
 	err = fixjson.Unmarshal(j, o2)
 	if err != nil {
 		t.Errorf("error: %s on Unmarshal(%s)", err, s)

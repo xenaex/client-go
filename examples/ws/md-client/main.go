@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/xenaex/client-go/xena"
-	"github.com/xenaex/client-go/xena/xmsg"
 	"log"
 	"os"
 	"os/signal"
+
+	"github.com/xenaex/client-go/xena"
+	"github.com/xenaex/client-go/xena/api"
+	"github.com/xenaex/client-go/xena/xmsg"
 )
 
 func main() {
@@ -21,13 +23,13 @@ func main() {
 	log.Printf("End")
 }
 
-func onConnect(c xena.WsClient)  {
+func onConnect(c xena.WsClient) {
 	log.Print("Connection established")
 
-	sm := xmsg.MarketDataRequest{
+	sm := api.MarketDataRequest{
 		MsgType:                 xmsg.MsgType_MarketDataRequest,
-		MDStreamID:              "DOM:BTC/USDT:aggregated",
-		SubscriptionRequestType: xmsg.SubscriptionRequestType_SnapshotAndUpdates ,
+		MDStreamId:              "DOM:BTC/USDT:aggregated",
+		SubscriptionRequestType: xmsg.SubscriptionRequestType_SnapshotAndUpdates,
 	}
 
 	c.Write(sm)

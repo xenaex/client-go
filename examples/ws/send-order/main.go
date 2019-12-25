@@ -6,10 +6,9 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/xenaex/client-go/xena"
-	"github.com/xenaex/client-go/xena/xmsg"
+	"github.com/xenaex/client-go/xena/api"
 )
 
 // set api ket in environment.
@@ -61,15 +60,15 @@ func main() {
 		fmt.Println(err)
 	}
 
-	order := client.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").Build()
-	err = client.SendOrder(order)
-	err = client.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").Send()
+	order := xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").Build()
+	err = client.Send(order)
+	err = xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").Send(client)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	limitOrder := client.CreateMarketOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId).SetTimeInForce("").SetPositionId(0).SetTakeProfitPrice("8000").Build()
-	err = client.SendOrder(limitOrder)
+	limitOrder := xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").SetTimeInForce("").SetPositionId(0).SetTakeProfitPrice("8000").Build()
+	err = client.Send(limitOrder)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -81,50 +80,50 @@ func main() {
 	log.Printf("End")
 }
 
-func onListStatusHandler(t xena.TradingClient, m *xmsg.ListStatus) {
+func onListStatusHandler(t xena.TradingClient, m *api.ListStatus) {
 	log.Println("GOT onListStatus ", m)
 }
 
-func onRejectHandler(t xena.TradingClient, m *xmsg.Reject) {
+func onRejectHandler(t xena.TradingClient, m *api.Reject) {
 	log.Println("GOT onReject ", m)
 }
 
-func onPositionMaintenanceReportHandler(t xena.TradingClient, m *xmsg.PositionMaintenanceReport) {
+func onPositionMaintenanceReportHandler(t xena.TradingClient, m *api.PositionMaintenanceReport) {
 	log.Println("GOT onPositionMaintenanceReport ", m)
 }
 
-func onMassPositionReportHandler(t xena.TradingClient, m *xmsg.MassPositionReport) {
+func onMassPositionReportHandler(t xena.TradingClient, m *api.MassPositionReport) {
 	log.Println("GOT onMassPositionReport ", m)
 }
 
-func onPositionReportHandler(t xena.TradingClient, m *xmsg.PositionReport) {
+func onPositionReportHandler(t xena.TradingClient, m *api.PositionReport) {
 	log.Println("GOT onPositionReport ", m)
 }
 
-func onOrderMassStatusResponseHandler(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
+func onOrderMassStatusResponseHandler(t xena.TradingClient, m *api.OrderMassStatusResponse) {
 	log.Println("GOT onOrderMassStatusResponse ", m)
 }
 
-func onOrderCancelRejectHandler(t xena.TradingClient, m *xmsg.OrderCancelReject) {
+func onOrderCancelRejectHandler(t xena.TradingClient, m *api.OrderCancelReject) {
 	log.Println("GOT onOrderCancelReject ", m)
 }
 
-func onExecutionReportHandler(t xena.TradingClient, m *xmsg.ExecutionReport) {
+func onExecutionReportHandler(t xena.TradingClient, m *api.ExecutionReport) {
 	log.Println("GOT onExecutionReport ", m)
 }
 
-func onMarginRequirementReportHandler(t xena.TradingClient, m *xmsg.MarginRequirementReport) {
+func onMarginRequirementReportHandler(t xena.TradingClient, m *api.MarginRequirementReport) {
 	log.Println("GOT onMarginRequirementReport ", m)
 }
 
-func onBalanceIncrementalRefreshHandler(t xena.TradingClient, m *xmsg.BalanceIncrementalRefresh) {
+func onBalanceIncrementalRefreshHandler(t xena.TradingClient, m *api.BalanceIncrementalRefresh) {
 	log.Println("GOT onBalanceIncrementalRefresh ", m)
 }
 
-func onBalanceSnapshotRefreshHandler(t xena.TradingClient, m *xmsg.BalanceSnapshotRefresh) {
+func onBalanceSnapshotRefreshHandler(t xena.TradingClient, m *api.BalanceSnapshotRefresh) {
 	log.Println("GOT onBalanceSnapshotRefresh ", m)
 }
 
-func logonHandler(t xena.TradingClient, m *xmsg.Logon) {
+func logonHandler(t xena.TradingClient, m *api.Logon) {
 	log.Println("GOT onLogon ", m)
 }

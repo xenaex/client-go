@@ -3,6 +3,7 @@ package xena
 import (
 	"time"
 
+	"github.com/xenaex/client-go/xena/api"
 	"github.com/xenaex/client-go/xena/xmsg"
 )
 
@@ -15,8 +16,8 @@ func newOrderSingle(
 	ordType string,
 	price string, // = 0,
 	stopPx string, // = 0,
-) *xmsg.NewOrderSingle {
-	cmd := &xmsg.NewOrderSingle{
+) *api.NewOrderSingle {
+	cmd := &api.NewOrderSingle{
 		MsgType:  xmsg.MsgType_NewOrderSingleMsgType,
 		ClOrdId:  clOrdId,
 		Symbol:   string(symbol),
@@ -34,7 +35,7 @@ func newOrderSingle(
 
 type baseOrder struct {
 	client TradingClient
-	*xmsg.NewOrderSingle
+	*api.NewOrderSingle
 }
 
 func (b baseOrder) setTimeInForce(timeInForce string) {
@@ -46,12 +47,12 @@ func (b baseOrder) addExecInst(execInst ...string) {
 }
 
 func (b baseOrder) setPositionId(positionId uint64) {
-	b.NewOrderSingle.PositionID = positionId
+	b.NewOrderSingle.PositionId = positionId
 }
 
 func (b baseOrder) setStopLossPrice(stopLossPrice string) {
 	if len(stopLossPrice) > 0 {
-		b.NewOrderSingle.SLTP = append(b.NewOrderSingle.SLTP, &xmsg.SLTP{
+		b.NewOrderSingle.SLTP = append(b.NewOrderSingle.SLTP, &api.SLTP{
 			OrdType: xmsg.OrdType_Stop,
 			StopPx:  stopLossPrice,
 		})
@@ -60,7 +61,7 @@ func (b baseOrder) setStopLossPrice(stopLossPrice string) {
 
 func (b baseOrder) setTakeProfitPrice(takeProfitPrice string) {
 	if len(takeProfitPrice) > 0 {
-		b.NewOrderSingle.SLTP = append(b.NewOrderSingle.SLTP, &xmsg.SLTP{
+		b.NewOrderSingle.SLTP = append(b.NewOrderSingle.SLTP, &api.SLTP{
 			OrdType: xmsg.OrdType_Limit,
 			StopPx:  takeProfitPrice,
 		})
@@ -73,7 +74,7 @@ func (b baseOrder) setText(text string) {
 
 func (b baseOrder) setTrailingOffset(trailingOffset string, capPrice string) {
 	if len(trailingOffset) > 0 {
-		b.NewOrderSingle.SLTP = append(b.NewOrderSingle.SLTP, &xmsg.SLTP{
+		b.NewOrderSingle.SLTP = append(b.NewOrderSingle.SLTP, &api.SLTP{
 			OrdType:        xmsg.OrdType_Stop,
 			CapPrice:       capPrice,
 			PegPriceType:   xmsg.PegPriceType_TrailingStopPeg,
@@ -83,7 +84,7 @@ func (b baseOrder) setTrailingOffset(trailingOffset string, capPrice string) {
 	}
 }
 
-func (b baseOrder) build() *xmsg.NewOrderSingle {
+func (b baseOrder) build() *api.NewOrderSingle {
 	return b.NewOrderSingle
 }
 
@@ -125,7 +126,7 @@ func (m marketOrder) SetText(text string) marketOrder {
 	return m
 }
 
-func (m marketOrder) Build() *xmsg.NewOrderSingle {
+func (m marketOrder) Build() *api.NewOrderSingle {
 	return m.order.build()
 }
 
@@ -177,7 +178,7 @@ func (l limitOrder) SetTrailingOffsetAndCapPrice(trailingOffset string, capPrice
 	return l
 }
 
-func (l limitOrder) Build() *xmsg.NewOrderSingle {
+func (l limitOrder) Build() *api.NewOrderSingle {
 	return l.order.build()
 }
 
@@ -229,7 +230,7 @@ func (s stopOrder) SetTrailingOffsetAndCapPrice(trailingOffset string, capPrice 
 	return s
 }
 
-func (s stopOrder) Build() *xmsg.NewOrderSingle {
+func (s stopOrder) Build() *api.NewOrderSingle {
 	return s.order.build()
 }
 
@@ -282,7 +283,7 @@ func (m marketIfTouchOrder) SetTrailingOffsetAndCapPrice(trailingOffset string, 
 	return m
 }
 
-func (m marketIfTouchOrder) Build() *xmsg.NewOrderSingle {
+func (m marketIfTouchOrder) Build() *api.NewOrderSingle {
 	return m.order.build()
 }
 

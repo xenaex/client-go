@@ -2,10 +2,12 @@ package xena
 
 import (
 	"fmt"
-	"github.com/xenaex/client-go/xena/fixjson"
-	"github.com/xenaex/client-go/xena/xmsg"
 	"sync"
 	"time"
+
+	"github.com/xenaex/client-go/xena/api"
+	"github.com/xenaex/client-go/xena/fixjson"
+	"github.com/xenaex/client-go/xena/xmsg"
 )
 
 const (
@@ -13,7 +15,7 @@ const (
 )
 
 // DOMHandler called on order book updated
-type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
+type DOMHandler func(md MarketDataClient, m *api.MarketDataRefresh)
 
 // MarketDataClient is the main interface that helps to receive market data
 type MarketDataClient interface {
@@ -25,7 +27,7 @@ type MarketDataClient interface {
 type marketData struct {
 	client WsClient
 	// subscriptions
-	subscriptions    map[string]xmsg.MarketDataRequest
+	subscriptions    map[string]api.MarketDataRequest
 	subscribeMu      *sync.RWMutex
 	domSubscriptions map[string]DOMHandler
 }
@@ -33,7 +35,7 @@ type marketData struct {
 // NewMarketData constructor
 func NewMarketData(opts ...WsOption) MarketDataClient {
 	md := marketData{
-		subscriptions:    make(map[string]xmsg.MarketDataRequest),
+		subscriptions:    make(map[string]api.MarketDataRequest),
 		domSubscriptions: make(map[string]DOMHandler),
 		subscribeMu:      &sync.RWMutex{},
 	}
@@ -83,9 +85,9 @@ func (m *marketData) SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...i
 	defer m.subscribeMu.Unlock()
 
 	streamID = "DOM:" + string(symbol) + ":aggregated"
-	r := xmsg.MarketDataRequest{
+	r := api.MarketDataRequest{
 		MsgType:                 xmsg.MsgType_MarketDataRequest,
-		MDStreamID:              streamID,
+		MDStreamId:              streamID,
 		SubscriptionRequestType: xmsg.SubscriptionRequestType_SnapshotAndUpdates,
 	}
 
@@ -120,7 +122,7 @@ func (m *marketData) SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...i
 }
 
 func (m *marketData) incomeHandler(msg []byte) {
-	mth := new(xmsg.MsgTypeHeader)
+	mth := new(api.MsgTypeHeader)
 	err := fixjson.Unmarshal(msg, mth)
 	if err != nil {
 		m.client.Logger().Errorf("error: %s. on fixjson.Unmarshal(%s)", err, string(msg))
@@ -128,21 +130,21 @@ func (m *marketData) incomeHandler(msg []byte) {
 
 	switch mth.MsgType {
 	case xmsg.MsgType_LogonMsgType:
-		v := new(xmsg.Logon)
+		v := new(api.Logon)
 		if _, err := m.unmarshal(msg, v); err == nil {
 		}
 	case xmsg.MsgType_MarketDataRequest:
-		v := new(xmsg.MarketDataRequest)
+		v := new(api.MarketDataRequest)
 		if _, err := m.unmarshal(msg, v); err == nil {
-			//m.client.Logger().Debugf("got %#v", v)
+			// m.client.Logger().Debugf("got %#v", v)
 		}
 
 	case xmsg.MsgType_MarketDataIncrementalRefresh, xmsg.MsgType_MarketDataSnapshotFullRefresh:
-		v := new(xmsg.MarketDataRefresh)
+		v := new(api.MarketDataRefresh)
 		if _, err := m.unmarshal(msg, v); err == nil {
-			//m.client.Logger().Debugf("got %#v", v)
+			// m.client.Logger().Debugf("got %#v", v)
 			m.subscribeMu.RLock()
-			if handler, ok := m.domSubscriptions[v.MDStreamID]; ok {
+			if handler, ok := m.domSubscriptions[v.MDStreamId]; ok {
 				go handler(m, v)
 			}
 			m.subscribeMu.RUnlock()

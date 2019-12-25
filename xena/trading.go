@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/xenaex/client-go/xena/api"
 	"github.com/xenaex/client-go/xena/fixjson"
 	"github.com/xenaex/client-go/xena/xmsg"
 )
@@ -40,7 +41,7 @@ type TradingClient interface {
 
 	// ConnectAndLogon connects to websocket and if connection was successful sends Logon message with provided authorization data.
 	// Logon response. If logon is rejected Logon.RejectText will contain the reject reason.
-	ConnectAndLogon() (*xmsg.Logon, error)
+	ConnectAndLogon() (*api.Logon, error)
 
 	Send(cmd interface{}) error
 
@@ -63,7 +64,7 @@ type TradingClient interface {
 	CancelOrderByOrderId(clOrdId, orderId string, symbol Symbol, side Side, account uint64) error
 
 	// CancelReplaceOrder cancel an existing order and replace.
-	CancelReplaceOrder(request xmsg.OrderCancelReplaceRequest) error
+	CancelReplaceOrder(request api.OrderCancelReplaceRequest) error
 
 	// CollapsePositions collapse all existing positions for margin account and symbol.
 	CollapsePositions(account uint64, symbol Symbol, posReqId string) error
@@ -104,10 +105,10 @@ func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient 
 	return &t
 }
 
-func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
-	msgs := make(chan *xmsg.Logon, 1)
+func (t *tradingClient) ConnectAndLogon() (*api.Logon, error) {
+	msgs := make(chan *api.Logon, 1)
 	// errs := make(chan *xmsg.Logon, 1)
-	t.handlers.logonInternal = func(t TradingClient, m *xmsg.Logon) {
+	t.handlers.logonInternal = func(t TradingClient, m *api.Logon) {
 		msgs <- m
 		close(msgs)
 	}
@@ -129,40 +130,40 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 }
 
 // LogonHandler will be called on Logon response received
-type LogonHandler func(t TradingClient, m *xmsg.Logon)
+type LogonHandler func(t TradingClient, m *api.Logon)
 
 // MarginRequirementReportHandler will be called on MarginRequirementReport received
-type MarginRequirementReportHandler func(t TradingClient, m *xmsg.MarginRequirementReport)
+type MarginRequirementReportHandler func(t TradingClient, m *api.MarginRequirementReport)
 
 // BalanceIncrementalRefreshHandler will be called on BalanceIncrementalRefresh received
-type BalanceIncrementalRefreshHandler func(t TradingClient, m *xmsg.BalanceIncrementalRefresh)
+type BalanceIncrementalRefreshHandler func(t TradingClient, m *api.BalanceIncrementalRefresh)
 
 // BalanceSnapshotRefreshHandler will be called on BalanceSnapshotRefresh received
-type BalanceSnapshotRefreshHandler func(t TradingClient, m *xmsg.BalanceSnapshotRefresh)
+type BalanceSnapshotRefreshHandler func(t TradingClient, m *api.BalanceSnapshotRefresh)
 
 // ExecutionReportHandler will be called on ExecutionReport received
-type ExecutionReportHandler func(t TradingClient, m *xmsg.ExecutionReport)
+type ExecutionReportHandler func(t TradingClient, m *api.ExecutionReport)
 
 // OrderCancelRejectHandler will be called on OrderCancelReject received
-type OrderCancelRejectHandler func(t TradingClient, m *xmsg.OrderCancelReject)
+type OrderCancelRejectHandler func(t TradingClient, m *api.OrderCancelReject)
 
 // OrderMassStatusResponseHandler will be called on OrderMassStatusResponse received
-type OrderMassStatusResponseHandler func(t TradingClient, m *xmsg.OrderMassStatusResponse)
+type OrderMassStatusResponseHandler func(t TradingClient, m *api.OrderMassStatusResponse)
 
 // PositionReportHandler will be called on PositionReport received
-type PositionReportHandler func(t TradingClient, m *xmsg.PositionReport)
+type PositionReportHandler func(t TradingClient, m *api.PositionReport)
 
 // MassPositionReportHandler will be called on MassPositionReport received
-type MassPositionReportHandler func(t TradingClient, m *xmsg.MassPositionReport)
+type MassPositionReportHandler func(t TradingClient, m *api.MassPositionReport)
 
 // PositionMaintenanceReportHandler will be called on PositionMaintenanceReport received
-type PositionMaintenanceReportHandler func(t TradingClient, m *xmsg.PositionMaintenanceReport)
+type PositionMaintenanceReportHandler func(t TradingClient, m *api.PositionMaintenanceReport)
 
 // RejectHandler will be called on Reject received
-type RejectHandler func(t TradingClient, m *xmsg.Reject)
+type RejectHandler func(t TradingClient, m *api.Reject)
 
 // ListStatusHandler will be called on ListStatus received
-type ListStatusHandler func(t TradingClient, m *xmsg.ListStatus)
+type ListStatusHandler func(t TradingClient, m *api.ListStatus)
 
 // OrderMassCancelReportHandler will be called on OrderMassCancelReport received
 // type OrderMassCancelReportHandler func(t TradingClient, m *xmsg.OrderMassCancelReport)
@@ -264,7 +265,7 @@ func (t *tradingClient) MarketIfTouchOrder(clOrdId string, symbol Symbol, side S
 
 // CancelOrderByClOrdId cancels an existing order by original client order id.
 func (t *tradingClient) CancelOrderByClOrdId(clOrdId, origClOrdId string, symbol Symbol, side Side, account uint64) error {
-	var request = xmsg.OrderCancelRequest{
+	var request = api.OrderCancelRequest{
 		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
 		ClOrdId:      clOrdId,
 		OrigClOrdId:  origClOrdId,
@@ -278,7 +279,7 @@ func (t *tradingClient) CancelOrderByClOrdId(clOrdId, origClOrdId string, symbol
 
 // CancelOrderByOrderId cancel an existing order by order id.
 func (t *tradingClient) CancelOrderByOrderId(clOrdId, orderId string, symbol Symbol, side Side, account uint64) error {
-	request := xmsg.OrderCancelRequest{
+	request := api.OrderCancelRequest{
 		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
 		ClOrdId:      clOrdId,
 		OrderId:      orderId,
@@ -291,17 +292,17 @@ func (t *tradingClient) CancelOrderByOrderId(clOrdId, orderId string, symbol Sym
 }
 
 // CancelReplaceOrder cancel an existing order and replace.
-func (t *tradingClient) CancelReplaceOrder(request xmsg.OrderCancelReplaceRequest) error {
+func (t *tradingClient) CancelReplaceOrder(request api.OrderCancelReplaceRequest) error {
 	return t.Send(request)
 }
 
 // CollapsePositions collapse all existing positions for margin account and symbol.
 func (t *tradingClient) CollapsePositions(account uint64, symbol Symbol, posReqId string) error {
-	request := xmsg.PositionMaintenanceRequest{
+	request := api.PositionMaintenanceRequest{
 		MsgType:        xmsg.MsgType_PositionMaintenanceRequest,
 		Account:        account,
 		Symbol:         string(symbol),
-		PosReqID:       posReqId,
+		PosReqId:       posReqId,
 		PosTransType:   "20",
 		PosMaintAction: "2",
 	}
@@ -311,7 +312,7 @@ func (t *tradingClient) CollapsePositions(account uint64, symbol Symbol, posReqI
 // AccountStatusReport request account status report.
 // To receive response, client has to listen ListenBalanceSnapshotRefresh.
 func (t *tradingClient) AccountStatusReport(account uint64, requestId string) error {
-	request := xmsg.AccountStatusReportRequest{
+	request := api.AccountStatusReportRequest{
 		MsgType: xmsg.MsgType_AccountStatusReportRequest,
 		Account: account,
 		// AccountStatusRequestId: requestId,
@@ -321,7 +322,7 @@ func (t *tradingClient) AccountStatusReport(account uint64, requestId string) er
 
 // GetOrdersAndFills request all orders and fills for account.
 func (t *tradingClient) GetOrdersAndFills(account uint64, requestId string) error {
-	request := xmsg.OrderStatusRequest{
+	request := api.OrderStatusRequest{
 		MsgType: xmsg.MsgType_OrderMassStatusRequest,
 		Account: account,
 		// MassStatusReqId: requestId,
@@ -332,7 +333,7 @@ func (t *tradingClient) GetOrdersAndFills(account uint64, requestId string) erro
 // GetPositions request all positions for account.
 // To receive response, client has to listen ListenMassPositionReport.
 func (t *tradingClient) GetPositions(account uint64, requestId string) error {
-	request := xmsg.PositionsRequest{
+	request := api.PositionsRequest{
 		MsgType: xmsg.MsgType_RequestForPositions,
 		Account: account,
 		// PosReqId: requestId,
@@ -345,7 +346,7 @@ func (t *tradingClient) OrderMassCancel(account uint64, clOrdId string, symbol S
 }
 
 func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, side Side, orderID, clientOrderID string) error {
-	cmd := xmsg.OrderCancelRequest{
+	cmd := api.OrderCancelRequest{
 		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
 		Account:      accountID,
 		ClOrdId:      ID(""),
@@ -359,7 +360,7 @@ func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, 
 }
 
 func (t *tradingClient) SendOrderMassStatusRequest(accountID uint64) error {
-	cmd := xmsg.NewOrderSingle{
+	cmd := api.NewOrderSingle{
 		MsgType: xmsg.MsgType_OrderMassStatusRequest,
 		Account: accountID,
 	}
@@ -367,7 +368,7 @@ func (t *tradingClient) SendOrderMassStatusRequest(accountID uint64) error {
 }
 
 func (t *tradingClient) SendAccountStatusReportRequest(accountID uint64) error {
-	cmd := xmsg.NewOrderSingle{
+	cmd := api.NewOrderSingle{
 		MsgType: xmsg.MsgType_AccountStatusReportRequest,
 		Account: accountID,
 	}
@@ -383,7 +384,7 @@ func (t *tradingClient) Send(cmd interface{}) error {
 }
 
 func (t *tradingClient) incomeHandler(msg []byte) {
-	mth := new(xmsg.MsgTypeHeader)
+	mth := new(api.MsgTypeHeader)
 	err := fixjson.Unmarshal(msg, mth)
 	if err != nil {
 		t.client.Logger().Errorf("error: %s. on fixjson.Unmarshal(%s)", err, string(msg))
@@ -391,7 +392,7 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 
 	switch mth.MsgType {
 	case xmsg.MsgType_LogonMsgType:
-		v := new(xmsg.Logon)
+		v := new(api.Logon)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.logon != nil {
 				go t.handlers.logon(t, v)
@@ -403,49 +404,49 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 		}
 
 	case xmsg.MsgType_MarginRequirementReport:
-		v := new(xmsg.MarginRequirementReport)
+		v := new(api.MarginRequirementReport)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.marginRequirementReport != nil {
 				go t.handlers.marginRequirementReport(t, v)
 			}
 		}
 	case xmsg.MsgType_ExecutionReportMsgType:
-		v := new(xmsg.ExecutionReport)
+		v := new(api.ExecutionReport)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.executionReport != nil {
 				go t.handlers.executionReport(t, v)
 			}
 		}
 	case xmsg.MsgType_OrderCancelRejectMsgType:
-		v := new(xmsg.OrderCancelReject)
+		v := new(api.OrderCancelReject)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.orderCancelReject != nil {
 				go t.handlers.orderCancelReject(t, v)
 			}
 		}
 	case xmsg.MsgType_OrderMassStatusResponse:
-		v := new(xmsg.OrderMassStatusResponse)
+		v := new(api.OrderMassStatusResponse)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.orderMassStatus != nil {
 				go t.handlers.orderMassStatus(t, v)
 			}
 		}
 	case xmsg.MsgType_AccountStatusReport:
-		v := new(xmsg.BalanceSnapshotRefresh)
+		v := new(api.BalanceSnapshotRefresh)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.balanceSnapshotRefresh != nil {
 				go t.handlers.balanceSnapshotRefresh(t, v)
 			}
 		}
 	case xmsg.MsgType_AccountStatusUpdateReport:
-		v := new(xmsg.BalanceIncrementalRefresh)
+		v := new(api.BalanceIncrementalRefresh)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.balanceIncrementalRefresh != nil {
 				go t.handlers.balanceIncrementalRefresh(t, v)
 			}
 		}
 	case xmsg.MsgType_PositionReport:
-		v := new(xmsg.PositionReport)
+		v := new(api.PositionReport)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.positionReport != nil {
 				go t.handlers.positionReport(t, v)
@@ -453,28 +454,28 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 		}
 
 	case xmsg.MsgType_MassPositionReport:
-		v := new(xmsg.MassPositionReport)
+		v := new(api.MassPositionReport)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.massPositionReport != nil {
 				go t.handlers.massPositionReport(t, v)
 			}
 		}
 	case xmsg.MsgType_PositionMaintenanceReport:
-		v := new(xmsg.PositionMaintenanceReport)
+		v := new(api.PositionMaintenanceReport)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.positionMaintenanceReport != nil {
 				go t.handlers.positionMaintenanceReport(t, v)
 			}
 		}
 	case xmsg.MsgType_RejectMsgType:
-		v := new(xmsg.Reject)
+		v := new(api.Reject)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.reject != nil {
 				go t.handlers.reject(t, v)
 			}
 		}
 	case xmsg.MsgType_ListStatus:
-		v := new(xmsg.ListStatus)
+		v := new(api.ListStatus)
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.listStatus != nil {
 				go t.handlers.listStatus(t, v)
@@ -526,7 +527,7 @@ func (t *tradingClient) loginCmd() []byte {
 	signature := append(r.Bytes(), s.Bytes()...)
 	sigHex := hex.EncodeToString(signature)
 
-	logonCmd := xmsg.Logon{
+	logonCmd := api.Logon{
 		MsgType:     xmsg.MsgType_LogonMsgType,
 		SendingTime: nonce,
 		Username:    t.apiKey,
