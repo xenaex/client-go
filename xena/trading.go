@@ -24,7 +24,6 @@ type OrderMassCancel struct {
 
 // TradingClient Xena Trading websocket client interface.
 type TradingClient interface {
-	Client() WsClient
 	ListenLogon(handler LogonHandler)
 	ListenMarginRequirementReport(handler MarginRequirementReportHandler)
 	ListenExecutionReport(handler ExecutionReportHandler)
@@ -42,33 +41,20 @@ type TradingClient interface {
 	// ConnectAndLogon connects to websocket and if connection was successful sends Logon message with provided authorization data.
 	// Logon response. If logon is rejected Logon.RejectText will contain the reject reason.
 	ConnectAndLogon() (*xmsg.Logon, error)
-	// Listen(XenaTradingWsHandler handler);
 
-	SendOrder(order *xmsg.NewOrderSingle) error
+	Send(cmd interface{}) error
 
-	// CreateMarketOrder create new market order.
-	CreateMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) marketOrder
+	// MarketOrder place new market order.
+	MarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) error
 
-	// CreateLimitOrder create new limit order.
-	CreateLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) limitOrder
+	// LimitOrder place new limit order.
+	LimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) error
 
-	// CreateStopOrder create new stop order.
-	CreateStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) stopOrder
+	// StopOrder place new stop order.
+	StopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error
 
-	// CreateMarketIfTouchOrder create new market-if-touch order.
-	CreateMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) marketIfTouchOrder
-
-	// NewMarketOrder place new market order.
-	NewMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) error
-
-	// NewLimitOrder place new limit order.
-	NewLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) error
-
-	// NewStopOrder place new stop order.
-	NewStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error
-
-	// NewMarketIfTouchOrder place new market-if-touch order.
-	NewMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error
+	// MarketIfTouchOrder place new market-if-touch order.
+	MarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error
 
 	// CancelOrderByClOrdId cancels an existing order by original client order id.
 	CancelOrderByClOrdId(clOrdId, origClOrdId string, symbol Symbol, side Side, account uint64) error
@@ -203,6 +189,31 @@ type tradingClient struct {
 	}
 }
 
+// ListenLogon subscribe on Logon messages
+func (t *tradingClient) ListenLogon(handler LogonHandler) {
+	t.handlers.logon = handler
+}
+
+// ListenMarginRequirementReport subscribe on MarginRequirementReport messages
+func (t *tradingClient) ListenMarginRequirementReport(handler MarginRequirementReportHandler) {
+	t.handlers.marginRequirementReport = handler
+}
+
+// ListenExecutionReport subscribe on ExecutionReport messages
+func (t *tradingClient) ListenExecutionReport(handler ExecutionReportHandler) {
+	t.handlers.executionReport = handler
+}
+
+// ListenOrderCancelReject subscribe on OrderCancelReject messages
+func (t *tradingClient) ListenOrderCancelReject(handler OrderCancelRejectHandler) {
+	t.handlers.orderCancelReject = handler
+}
+
+// ListenOrderMassStatusResponse subscribe on OrderMassStatusResponse messages
+func (t *tradingClient) ListenOrderMassStatusResponse(handler OrderMassStatusResponseHandler) {
+	t.handlers.orderMassStatus = handler
+}
+
 func (t *tradingClient) ListenPositionReport(handler PositionReportHandler) {
 	t.handlers.positionReport = handler
 }
@@ -231,101 +242,24 @@ func (t *tradingClient) ListenBalanceSnapshotRefresh(handler BalanceSnapshotRefr
 	t.handlers.balanceSnapshotRefresh = handler
 }
 
-func newOrderSingle(
-	clOrdId string,
-	symbol Symbol,
-	side Side,
-	orderQty string,
-	account uint64,
-	ordType string,
-	price string, // = 0,
-	stopPx string, // = 0,
-	// timeInForce string,     // = null,
-	// execInst []string,      // = null,
-	// positionID uint64,      // = 0,
-	// stopLossPrice string,   // = 0,
-	// takeProfitPrice string, // = 0,
-	// trailingOffset string,  // = 0,
-	// capPrice string // =0)
-) *xmsg.NewOrderSingle {
-	cmd := &xmsg.NewOrderSingle{
-		MsgType:  xmsg.MsgType_NewOrderSingleMsgType,
-		ClOrdId:  clOrdId,
-		Symbol:   string(symbol),
-		Side:     string(side),
-		OrderQty: orderQty,
-		Price:    price,
-		Account:  account,
-		OrdType:  ordType,
-		StopPx:   stopPx,
-	}
-
-	cmd.TransactTime = time.Now().UnixNano()
-	return cmd
+// MarketOrder place new market order.
+func (t *tradingClient) MarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) error {
+	return CreateMarketOrder(clOrdId, symbol, side, orderQty, account).Send(t)
 }
 
-// NewMarketOrder place new market order.
-func (t *tradingClient) NewMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) error {
-	return t.CreateMarketOrder(clOrdId, symbol, side, orderQty, account).Send()
+// LimitOrder place new limit order.
+func (t *tradingClient) LimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) error {
+	return CreateLimitOrder(clOrdId, symbol, side, orderQty, account, price).Send(t)
 }
 
-// NewLimitOrder place new limit order.
-func (t *tradingClient) NewLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) error {
-	return t.CreateLimitOrder(clOrdId, symbol, side, orderQty, account, price).Send()
+// StopOrder place new stop order.
+func (t *tradingClient) StopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error {
+	return CreateStopOrder(clOrdId, symbol, side, orderQty, account, stopPx).Send(t)
 }
 
-// NewStopOrder place new stop order.
-func (t *tradingClient) NewStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error {
-	return t.CreateStopOrder(clOrdId, symbol, side, orderQty, account, stopPx).Send()
-}
-
-// NewMarketIfTouchOrder place new market-if-touch order.
-func (t *tradingClient) NewMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error {
-	return t.CreateMarketIfTouchOrder(clOrdId, symbol, side, orderQty, account, stopPx).Send()
-}
-
-func (t *tradingClient) SendOrder(cmd *xmsg.NewOrderSingle) error {
-	return t.send(cmd)
-}
-
-// CreateMarketIfTouchOrder create new market-if-touch order.
-func (t *tradingClient) CreateMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) marketIfTouchOrder {
-	return marketIfTouchOrder{
-		order: baseOrder{
-			client:         t,
-			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_MarketIfTouched, "0", stopPx),
-		},
-	}
-}
-
-// CreateMarketOrder create new market order.
-func (t *tradingClient) CreateMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) marketOrder {
-	return marketOrder{
-		order: baseOrder{
-			client:         t,
-			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Market, "", ""),
-		},
-	}
-}
-
-// CreateLimitOrder create new limit order.
-func (t *tradingClient) CreateLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) limitOrder {
-	return limitOrder{
-		order: baseOrder{
-			client:         t,
-			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Limit, price, ""),
-		},
-	}
-}
-
-// CreateStopOrder create new stop order.
-func (t *tradingClient) CreateStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) stopOrder {
-	return stopOrder{
-		order: baseOrder{
-			client:         t,
-			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Stop, "0", stopPx),
-		},
-	}
+// MarketIfTouchOrder place new market-if-touch order.
+func (t *tradingClient) MarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error {
+	return CreateMarketIfTouchOrder(clOrdId, symbol, side, orderQty, account, stopPx).Send(t)
 }
 
 // CancelOrderByClOrdId cancels an existing order by original client order id.
@@ -339,7 +273,7 @@ func (t *tradingClient) CancelOrderByClOrdId(clOrdId, origClOrdId string, symbol
 		Account:      account,
 		TransactTime: time.Now().UnixNano(),
 	}
-	return t.send(request)
+	return t.Send(request)
 }
 
 // CancelOrderByOrderId cancel an existing order by order id.
@@ -353,12 +287,12 @@ func (t *tradingClient) CancelOrderByOrderId(clOrdId, orderId string, symbol Sym
 		Account:      account,
 		TransactTime: time.Now().UnixNano(),
 	}
-	return t.send(request)
+	return t.Send(request)
 }
 
 // CancelReplaceOrder cancel an existing order and replace.
 func (t *tradingClient) CancelReplaceOrder(request xmsg.OrderCancelReplaceRequest) error {
-	return t.send(request)
+	return t.Send(request)
 }
 
 // CollapsePositions collapse all existing positions for margin account and symbol.
@@ -371,7 +305,7 @@ func (t *tradingClient) CollapsePositions(account uint64, symbol Symbol, posReqI
 		PosTransType:   "20",
 		PosMaintAction: "2",
 	}
-	return t.send(request)
+	return t.Send(request)
 }
 
 // AccountStatusReport request account status report.
@@ -382,7 +316,7 @@ func (t *tradingClient) AccountStatusReport(account uint64, requestId string) er
 		Account: account,
 		// AccountStatusRequestId: requestId,
 	}
-	return t.send(request)
+	return t.Send(request)
 }
 
 // GetOrdersAndFills request all orders and fills for account.
@@ -392,7 +326,7 @@ func (t *tradingClient) GetOrdersAndFills(account uint64, requestId string) erro
 		Account: account,
 		// MassStatusReqId: requestId,
 	}
-	return t.send(request)
+	return t.Send(request)
 }
 
 // GetPositions request all positions for account.
@@ -403,36 +337,11 @@ func (t *tradingClient) GetPositions(account uint64, requestId string) error {
 		Account: account,
 		// PosReqId: requestId,
 	}
-	return t.send(request)
+	return t.Send(request)
 }
 
 func (t *tradingClient) OrderMassCancel(account uint64, clOrdId string, symbol Symbol, side Side, positionEffect string) error {
 	panic("implement me")
-}
-
-// ListenLogon subscribe on Logon messages
-func (t *tradingClient) ListenLogon(handler LogonHandler) {
-	t.handlers.logon = handler
-}
-
-// ListenMarginRequirementReport subscribe on MarginRequirementReport messages
-func (t *tradingClient) ListenMarginRequirementReport(handler MarginRequirementReportHandler) {
-	t.handlers.marginRequirementReport = handler
-}
-
-// ListenExecutionReport subscribe on ExecutionReport messages
-func (t *tradingClient) ListenExecutionReport(handler ExecutionReportHandler) {
-	t.handlers.executionReport = handler
-}
-
-// ListenOrderCancelReject subscribe on OrderCancelReject messages
-func (t *tradingClient) ListenOrderCancelReject(handler OrderCancelRejectHandler) {
-	t.handlers.orderCancelReject = handler
-}
-
-// ListenOrderMassStatusResponse subscribe on OrderMassStatusResponse messages
-func (t *tradingClient) ListenOrderMassStatusResponse(handler OrderMassStatusResponseHandler) {
-	t.handlers.orderMassStatus = handler
 }
 
 func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, side Side, orderID, clientOrderID string) error {
@@ -446,7 +355,7 @@ func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, 
 		OrigClOrdId:  clientOrderID,
 		TransactTime: time.Now().UTC().UnixNano(),
 	}
-	return t.send(cmd)
+	return t.Send(cmd)
 }
 
 func (t *tradingClient) SendOrderMassStatusRequest(accountID uint64) error {
@@ -454,7 +363,7 @@ func (t *tradingClient) SendOrderMassStatusRequest(accountID uint64) error {
 		MsgType: xmsg.MsgType_OrderMassStatusRequest,
 		Account: accountID,
 	}
-	return t.send(cmd)
+	return t.Send(cmd)
 }
 
 func (t *tradingClient) SendAccountStatusReportRequest(accountID uint64) error {
@@ -462,30 +371,15 @@ func (t *tradingClient) SendAccountStatusReportRequest(accountID uint64) error {
 		MsgType: xmsg.MsgType_AccountStatusReportRequest,
 		Account: accountID,
 	}
-	return t.send(cmd)
+	return t.Send(cmd)
 }
 
-func (t *tradingClient) send(cmd interface{}) error {
+func (t *tradingClient) Send(cmd interface{}) error {
 	data, err := fixjson.Marshal(cmd)
 	if err != nil {
 		return err
 	}
 	return t.client.WriteBytes(data)
-}
-
-func (t *tradingClient) SendLimitOrder(accountID uint64, clientOrderID string, symbol Symbol, side Side, price, qty string) error {
-	cmd := xmsg.NewOrderSingle{
-		MsgType:      xmsg.MsgType_NewOrderSingleMsgType,
-		TransactTime: time.Now().UTC().UnixNano(),
-		OrdType:      xmsg.OrdType_Limit,
-		ClOrdId:      clientOrderID,
-		Symbol:       string(symbol),
-		Side:         string(side),
-		Account:      accountID,
-		OrderQty:     qty,
-		Price:        price,
-	}
-	return t.send(cmd)
 }
 
 func (t *tradingClient) incomeHandler(msg []byte) {
@@ -603,10 +497,6 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 	// case xmsg.MsgType_MarketDataRequestReject: -> xmsg.MarketDataRequestReject
 	// case xmsg.MsgType_MarketDataIncrementalRefresh: -> xmsg.MarketDataRefresh
 	// case xmsg.MsgType_MarketDataSnapshotFullRefresh: -> xmsg.MarketDataRefresh
-}
-
-func (t *tradingClient) Client() WsClient {
-	return t.client
 }
 
 func (t *tradingClient) onConnect(c WsClient) {

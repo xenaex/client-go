@@ -1,8 +1,36 @@
 package xena
 
 import (
+	"time"
+
 	"github.com/xenaex/client-go/xena/xmsg"
 )
+
+func newOrderSingle(
+	clOrdId string,
+	symbol Symbol,
+	side Side,
+	orderQty string,
+	account uint64,
+	ordType string,
+	price string, // = 0,
+	stopPx string, // = 0,
+) *xmsg.NewOrderSingle {
+	cmd := &xmsg.NewOrderSingle{
+		MsgType:  xmsg.MsgType_NewOrderSingleMsgType,
+		ClOrdId:  clOrdId,
+		Symbol:   string(symbol),
+		Side:     string(side),
+		OrderQty: orderQty,
+		Price:    price,
+		Account:  account,
+		OrdType:  ordType,
+		StopPx:   stopPx,
+	}
+
+	cmd.TransactTime = time.Now().UnixNano()
+	return cmd
+}
 
 type baseOrder struct {
 	client TradingClient
@@ -59,8 +87,8 @@ func (b baseOrder) build() *xmsg.NewOrderSingle {
 	return b.NewOrderSingle
 }
 
-func (b baseOrder) send() error {
-	return b.client.SendOrder(b.NewOrderSingle)
+func (b baseOrder) send(client TradingClient) error {
+	return client.Send(b.NewOrderSingle)
 }
 
 type marketOrder struct {
@@ -101,8 +129,8 @@ func (m marketOrder) Build() *xmsg.NewOrderSingle {
 	return m.order.build()
 }
 
-func (m marketOrder) Send() error {
-	return m.order.send()
+func (m marketOrder) Send(client TradingClient) error {
+	return m.order.send(client)
 }
 
 type limitOrder struct {
@@ -153,8 +181,8 @@ func (l limitOrder) Build() *xmsg.NewOrderSingle {
 	return l.order.build()
 }
 
-func (l limitOrder) Send() error {
-	return l.order.send()
+func (l limitOrder) Send(client TradingClient) error {
+	return l.order.send(client)
 }
 
 type stopOrder struct {
@@ -205,8 +233,8 @@ func (s stopOrder) Build() *xmsg.NewOrderSingle {
 	return s.order.build()
 }
 
-func (s stopOrder) Send() error {
-	return s.order.send()
+func (s stopOrder) Send(client TradingClient) error {
+	return s.order.send(client)
 }
 
 type marketIfTouchOrder struct {
@@ -258,6 +286,6 @@ func (m marketIfTouchOrder) Build() *xmsg.NewOrderSingle {
 	return m.order.build()
 }
 
-func (m marketIfTouchOrder) Send() error {
-	return m.order.send()
+func (m marketIfTouchOrder) Send(client TradingClient) error {
+	return m.order.send(client)
 }
