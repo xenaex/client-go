@@ -40,16 +40,16 @@ func randString(n int) string {
 }
 
 // CreateMarketIfTouchOrder create new market-if-touch order.
-func CreateMarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) marketIfTouchOrder {
+func CreateMarketIfTouchOrder(clOrdId string, symbol string, side Side, orderQty string, account uint64, stopPx string) marketIfTouchOrder {
 	return marketIfTouchOrder{
 		order: baseOrder{
-			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_MarketIfTouched, "0", stopPx),
+			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_MarketIfTouched, "", stopPx),
 		},
 	}
 }
 
 // CreateMarketOrder create new market order.
-func CreateMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) marketOrder {
+func CreateMarketOrder(clOrdId string, symbol string, side Side, orderQty string, account uint64) marketOrder {
 	return marketOrder{
 		order: baseOrder{
 			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Market, "", ""),
@@ -58,7 +58,7 @@ func CreateMarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string
 }
 
 // CreateLimitOrder create new limit order.
-func CreateLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) limitOrder {
+func CreateLimitOrder(clOrdId string, symbol string, side Side, orderQty string, account uint64, price string) limitOrder {
 	return limitOrder{
 		order: baseOrder{
 			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Limit, price, ""),
@@ -67,10 +67,15 @@ func CreateLimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string,
 }
 
 // CreateStopOrder create new stop order.
-func CreateStopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) stopOrder {
+func CreateStopOrder(clOrdId string, symbol string, side Side, orderQty string, account uint64, stopPx string) stopOrder {
 	return stopOrder{
 		order: baseOrder{
-			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Stop, "0", stopPx),
+			NewOrderSingle: newOrderSingle(clOrdId, symbol, side, orderQty, account, xmsg.OrdType_Stop, "", stopPx),
 		},
 	}
+}
+
+//  CreateOrderMassCancel create new order mass cancel.
+func CreateOrderMassCancel(account uint64, clOrdId string) orderMassCancel {
+	return newOrderMassCancel(account, clOrdId)
 }

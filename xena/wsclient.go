@@ -17,20 +17,24 @@ const (
 	wsHeartbeatInterval = 3 * time.Second
 )
 
-// Handler handle raw websocket message
-type Handler func(msg []byte)
+// NewWsClient websocket client constructor
+func NewWsClient(opts ...WsOption) WsClient {
+	c := wsClient{
+		reconnectInterval: wsReconnectInterval,
+		heartbeatInterval: wsHeartbeatInterval,
+		logger:            newLogger(),
+		stopChan:          make(chan struct{}),
+	}
+	c.initDefaultHandlers()
 
-// ErrHandler handles errors
-type ErrHandler func(err error)
+	// Apply options
+	for _, optionFunc := range opts {
+		optionFunc(&c)
+	}
+	go c.heartbeats()
 
-// ConnectHandler will be called when connection will be established
-type ConnectHandler func(client WsClient)
-
-// DisconnectHandler will be called when connection will be dropped
-type DisconnectHandler func()
-
-// WsOption is a function that can alter behavior
-type WsOption func(s *wsClient)
+	return &c
+}
 
 // WsClient websocket client interface
 type WsClient interface {
@@ -53,10 +57,11 @@ type wsClient struct {
 	heartbeatInterval time.Duration
 
 	// handlers
-	handler           Handler
-	errHandler        ErrHandler
-	connectHandler    ConnectHandler
-	disconnectHandler DisconnectHandler
+	handler                Handler
+	errHandler             ErrHandler
+	connectHandler         ConnectHandler
+	connectInternalHandler ConnectHandler
+	disconnectHandler      DisconnectHandler
 
 	logger Logger
 
@@ -67,31 +72,37 @@ type wsClient struct {
 	close    bool
 }
 
-// NewWsClient websocket client constructor
-func NewWsClient(opts ...WsOption) WsClient {
-	c := wsClient{
-		reconnectInterval: wsReconnectInterval,
-		heartbeatInterval: wsHeartbeatInterval,
-		logger:            newLogger(),
-		stopChan:          make(chan struct{}),
-	}
-	c.initDefaultHandlers()
+// Handler handle raw websocket message
+type Handler func(msg []byte)
 
-	// Apply options
-	for _, optionFunc := range opts {
-		optionFunc(&c)
-	}
+// ErrHandler handles errors
+type ErrHandler func(err error)
 
-	return &c
-}
+// ConnectHandler will be called when connection will be established
+type ConnectHandler func(client WsClient)
+
+// DisconnectHandler will be called when connection will be dropped
+type DisconnectHandler func()
+
+// WsOption is a function that can alter behavior
+type WsOption func(s *wsClient)
 
 // With applies modification of behavior
 func (c *wsClient) With(opt WsOption) {
 	opt(c)
 }
 
+func (c *wsClient) initDefaultHandlers() {
+	c.handler = func(message []byte) {}
+	c.errHandler = func(err error) {}
+	c.connectHandler = func(client WsClient) {}
+	c.connectInternalHandler = func(client WsClient) {}
+	c.disconnectHandler = func() {}
+}
+
 // Connect start connecting
 func (c *wsClient) Connect() {
+	c.close = false
 	go func() {
 		if err := c.connect(); err != nil {
 			c.logger.Errorf("Failed to connect to %s: %s", c.url, err)
@@ -100,6 +111,7 @@ func (c *wsClient) Connect() {
 }
 
 func (c *wsClient) ConnectOnly() error {
+	c.close = false
 	err := c.connect()
 	if err != nil {
 		err = fmt.Errorf("failed to connect to %s: %s", c.url, err)
@@ -159,13 +171,6 @@ func (c *wsClient) Close() {
 	go c.stop()
 }
 
-func (c *wsClient) initDefaultHandlers() {
-	c.handler = func(message []byte) {}
-	c.errHandler = func(err error) {}
-	c.connectHandler = func(client WsClient) {}
-	c.disconnectHandler = func() {}
-}
-
 func (c *wsClient) connect() error {
 	c.mu.Lock()
 	if c.conn != nil {
@@ -178,20 +183,18 @@ func (c *wsClient) connect() error {
 	if err != nil {
 		return err
 	}
-	go c.heartbeats()
 
 	return nil
 }
 
 func (c *wsClient) connectAndListen() error {
-	if c.close {
-		err := errors.New("connection was closed by user")
-		c.handleError(err)
-		return err
-	}
-
 	// Connection loop
 	for {
+		if c.close {
+			err := errors.New("connection was closed by user")
+			c.handleError(err)
+			return err
+		}
 		conn, _, err := websocket.DefaultDialer.Dial(c.url, nil)
 		if err != nil {
 			c.logger.Debugf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
@@ -208,6 +211,7 @@ func (c *wsClient) connectAndListen() error {
 	}
 
 	c.connectHandler(c)
+	c.connectInternalHandler(c)
 	c.logger.Debugf("ws. connected")
 
 	go c.listen()
@@ -226,7 +230,7 @@ func (c *wsClient) listen() {
 		c.logger.Debugf("ws. disconnected")
 
 		// reconnect
-		go c.connectAndListen()
+		go c.connectAndListen() // TODO: move reconnect to disconnectHandler.
 	}()
 
 	// Listen

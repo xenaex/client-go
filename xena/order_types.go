@@ -8,27 +8,27 @@ import (
 
 func newOrderSingle(
 	clOrdId string,
-	symbol Symbol,
+	symbol string,
 	side Side,
 	orderQty string,
 	account uint64,
 	ordType string,
-	price string, // = 0,
-	stopPx string, // = 0,
+	price string,
+	stopPx string,
 ) *xmsg.NewOrderSingle {
 	cmd := &xmsg.NewOrderSingle{
-		MsgType:  xmsg.MsgType_NewOrderSingleMsgType,
-		ClOrdId:  clOrdId,
-		Symbol:   string(symbol),
-		Side:     string(side),
-		OrderQty: orderQty,
-		Price:    price,
-		Account:  account,
-		OrdType:  ordType,
-		StopPx:   stopPx,
+		MsgType:      xmsg.MsgType_NewOrderSingleMsgType,
+		ClOrdId:      clOrdId,
+		Symbol:       symbol,
+		Side:         string(side),
+		OrderQty:     orderQty,
+		Price:        price,
+		Account:      account,
+		OrdType:      ordType,
+		StopPx:       stopPx,
+		TransactTime: time.Now().UnixNano(),
 	}
 
-	cmd.TransactTime = time.Now().UnixNano()
 	return cmd
 }
 
@@ -288,4 +288,47 @@ func (m marketIfTouchOrder) Build() *xmsg.NewOrderSingle {
 
 func (m marketIfTouchOrder) Send(client TradingClient) error {
 	return m.order.send(client)
+}
+
+type orderMassCancel struct {
+	*xmsg.OrderMassCancelRequest
+}
+
+func newOrderMassCancel(account uint64, clOrdId string) orderMassCancel {
+	return orderMassCancel{
+		OrderMassCancelRequest: &xmsg.OrderMassCancelRequest{
+			MsgType:               xmsg.MsgType_OrderMassCancelRequest,
+			Account:               account,
+			ClOrdId:               clOrdId,
+			MassCancelRequestType: CancelAllOrders,
+		},
+	}
+}
+
+func (m orderMassCancel) SetSide(side Side) orderMassCancel {
+	m.Side = string(side)
+	return m
+}
+
+func (m orderMassCancel) SetSymbol(symbol string) orderMassCancel {
+	m.Symbol = symbol
+	if len(symbol) == 0 {
+		m.MassCancelRequestType = CancelAllOrders
+	} else {
+		m.MassCancelRequestType = CancelOrdersForASecurity
+	}
+	return m
+}
+
+func (m orderMassCancel) SetPositionEffect(positionEffect PositionEffect) orderMassCancel {
+	m.PositionEffect = string(positionEffect)
+	return m
+}
+
+func (m orderMassCancel) Build() *xmsg.OrderMassCancelRequest {
+	return m.OrderMassCancelRequest
+}
+
+func (m orderMassCancel) Send(client TradingClient) error {
+	return client.Send(m.Build())
 }

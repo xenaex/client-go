@@ -17,7 +17,7 @@ const (
 	wsTradingURL = "ws://localhost/api/ws/trading"
 )
 
-// OrderMassCancel string symbol = null, string side = null, string positionEffect = PositionEffect.Default;
+// MassCancel string symbol = null, string side = null, string positionEffect = PositionEffect.Default;
 type OrderMassCancel struct {
 	client TradingClient
 }
@@ -44,45 +44,47 @@ type TradingClient interface {
 
 	Send(cmd interface{}) error
 
-	// MarketOrder place new market order.
-	MarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) error
-
-	// LimitOrder place new limit order.
-	LimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) error
-
-	// StopOrder place new stop order.
-	StopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error
-
-	// MarketIfTouchOrder place new market-if-touch order.
-	MarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error
-
-	// CancelOrderByClOrdId cancels an existing order by original client order id.
-	CancelOrderByClOrdId(clOrdId, origClOrdId string, symbol Symbol, side Side, account uint64) error
-
-	// CancelOrderByOrderId cancel an existing order by order id.
-	CancelOrderByOrderId(clOrdId, orderId string, symbol Symbol, side Side, account uint64) error
-
-	// CancelReplaceOrder cancel an existing order and replace.
-	CancelReplaceOrder(request xmsg.OrderCancelReplaceRequest) error
-
-	// CollapsePositions collapse all existing positions for margin account and symbol.
-	CollapsePositions(account uint64, symbol Symbol, posReqId string) error
-
 	// AccountStatusReport request account status report.
 	// To receive response, client has to listen ListenBalanceSnapshotRefresh.
 	AccountStatusReport(account uint64, requestId string) error
-
-	// GetOrdersAndFills request all orders and fills for account.
-	// To receive response, client has to listen Listen???.
-	GetOrdersAndFills(account uint64, requestId string) error
 
 	// GetPositions request all positions for account.
 	// To receive response, client has to listen ListenMassPositionReport.
 	GetPositions(account uint64, requestId string) error
 
-	// OrderMassCancel send OrderMassCancelRequest request.
+	// Orders request all orders and fills for account.
+	// To receive response, client has to listen Listen???.
+	Orders(account uint64, requestId string) error
+
+	// MarketOrder place new market order.
+	MarketOrder(account uint64, clOrdId string, symbol string, side Side, orderQty string) error
+
+	// LimitOrder place new limit order.
+	LimitOrder(account uint64, clOrdId string, symbol string, side Side, price string, orderQty string) error
+
+	// StopOrder place new stop order.
+	StopOrder(account uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) error
+
+	// MarketIfTouchOrder place new market-if-touch order.
+	MarketIfTouchOrder(account uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) error
+
+	Cancel(cmd *xmsg.OrderCancelRequest) error
+
+	// CancelByClOrdId cancels an existing order by original client order id.
+	CancelByClOrdId(account uint64, clOrdId, origClOrdId, symbol string, side Side) error
+
+	// CancelByOrderId cancel an existing order by order id.
+	CancelByOrderId(account uint64, clOrdId, orderId, symbol string, side Side) error
+
+	// MassCancel send OrderMassCancelRequest request.
 	// To receive response, client has to listen ListenOrderMassCancelReport.
-	OrderMassCancel(account uint64, clOrdId string, symbol Symbol, side Side, positionEffect string) error
+	MassCancel(account uint64, clOrdId string) error
+
+	// Replace cancel an existing order and replace.
+	Replace(request xmsg.OrderCancelReplaceRequest) error
+
+	// CollapsePositions collapse all existing positions for margin account and symbol.
+	CollapsePositions(account uint64, symbol string, requestId string) error
 }
 
 // NewTradingClient constructor
@@ -94,7 +96,7 @@ func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient 
 
 	defaultOpts := []WsOption{
 		WithURL(wsTradingURL),
-		WithConnectHandler(t.onConnect),
+		WithConnectInternalHandler(t.onConnect),
 		WithHandler(t.incomeHandler),
 	}
 	opts = append(defaultOpts, opts...)
@@ -122,6 +124,7 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 			return m, nil
 		}
 	case <-time.NewTimer(time.Minute).C:
+		t.client.Close()
 		// TODO: error time out.
 		return nil, fmt.Errorf("timeout logon")
 	}
@@ -165,7 +168,7 @@ type RejectHandler func(t TradingClient, m *xmsg.Reject)
 type ListStatusHandler func(t TradingClient, m *xmsg.ListStatus)
 
 // OrderMassCancelReportHandler will be called on OrderMassCancelReport received
-// type OrderMassCancelReportHandler func(t TradingClient, m *xmsg.OrderMassCancelReport)
+type OrderMassCancelReportHandler func(t TradingClient, m *xmsg.OrderMassCancelReport)
 
 type tradingClient struct {
 	client    WsClient
@@ -181,7 +184,7 @@ type tradingClient struct {
 		marginRequirementReport   MarginRequirementReportHandler
 		massPositionReport        MassPositionReportHandler
 		orderCancelReject         OrderCancelRejectHandler
-		// orderMassCancelReport     OrderMassCancelReportHandler
+		orderMassCancelReport     OrderMassCancelReportHandler
 		orderMassStatus           OrderMassStatusResponseHandler
 		positionMaintenanceReport PositionMaintenanceReportHandler
 		positionReport            PositionReportHandler
@@ -243,32 +246,39 @@ func (t *tradingClient) ListenBalanceSnapshotRefresh(handler BalanceSnapshotRefr
 }
 
 // MarketOrder place new market order.
-func (t *tradingClient) MarketOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64) error {
+func (t *tradingClient) MarketOrder(account uint64, clOrdId string, symbol string, side Side, orderQty string) error {
 	return CreateMarketOrder(clOrdId, symbol, side, orderQty, account).Send(t)
 }
 
 // LimitOrder place new limit order.
-func (t *tradingClient) LimitOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, price string) error {
+func (t *tradingClient) LimitOrder(account uint64, clOrdId string, symbol string, side Side, price string, orderQty string) error {
 	return CreateLimitOrder(clOrdId, symbol, side, orderQty, account, price).Send(t)
 }
 
 // StopOrder place new stop order.
-func (t *tradingClient) StopOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error {
+func (t *tradingClient) StopOrder(account uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) error {
 	return CreateStopOrder(clOrdId, symbol, side, orderQty, account, stopPx).Send(t)
 }
 
 // MarketIfTouchOrder place new market-if-touch order.
-func (t *tradingClient) MarketIfTouchOrder(clOrdId string, symbol Symbol, side Side, orderQty string, account uint64, stopPx string) error {
+func (t *tradingClient) MarketIfTouchOrder(account uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) error {
 	return CreateMarketIfTouchOrder(clOrdId, symbol, side, orderQty, account, stopPx).Send(t)
 }
 
-// CancelOrderByClOrdId cancels an existing order by original client order id.
-func (t *tradingClient) CancelOrderByClOrdId(clOrdId, origClOrdId string, symbol Symbol, side Side, account uint64) error {
+func (t *tradingClient) Cancel(cmd *xmsg.OrderCancelRequest) error {
+	if cmd.MsgType != xmsg.MsgType_OrderCancelRequestMsgType {
+		return fmt.Errorf("msgType %s. but must be %s", cmd.MsgType, xmsg.MsgType_OrderCancelRequestMsgType)
+	}
+	return t.Send(cmd)
+}
+
+// CancelByClOrdId cancels an existing order by original client order id.
+func (t *tradingClient) CancelByClOrdId(account uint64, clOrdId, origClOrdId, symbol string, side Side) error {
 	var request = xmsg.OrderCancelRequest{
 		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
 		ClOrdId:      clOrdId,
 		OrigClOrdId:  origClOrdId,
-		Symbol:       string(symbol),
+		Symbol:       symbol,
 		Side:         string(side),
 		Account:      account,
 		TransactTime: time.Now().UnixNano(),
@@ -276,34 +286,37 @@ func (t *tradingClient) CancelOrderByClOrdId(clOrdId, origClOrdId string, symbol
 	return t.Send(request)
 }
 
-// CancelOrderByOrderId cancel an existing order by order id.
-func (t *tradingClient) CancelOrderByOrderId(clOrdId, orderId string, symbol Symbol, side Side, account uint64) error {
-	request := xmsg.OrderCancelRequest{
+// CancelByOrderId cancel an existing order by order id.
+func (t *tradingClient) CancelByOrderId(account uint64, clOrdId, orderId, symbol string, side Side) error {
+	cmd := xmsg.OrderCancelRequest{
 		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
 		ClOrdId:      clOrdId,
 		OrderId:      orderId,
-		Symbol:       string(symbol),
+		Symbol:       symbol,
 		Side:         string(side),
 		Account:      account,
 		TransactTime: time.Now().UnixNano(),
 	}
-	return t.Send(request)
+	return t.Send(cmd)
 }
 
-// CancelReplaceOrder cancel an existing order and replace.
-func (t *tradingClient) CancelReplaceOrder(request xmsg.OrderCancelReplaceRequest) error {
-	return t.Send(request)
+// Replace cancel an existing order and replace.
+func (t *tradingClient) Replace(cmd xmsg.OrderCancelReplaceRequest) error {
+	if cmd.MsgType != xmsg.MsgType_OrderCancelReplaceRequestMsgType {
+		return fmt.Errorf("msgType %s. but must be %s", cmd.MsgType, xmsg.MsgType_OrderCancelReplaceRequestMsgType)
+	}
+	return t.Send(cmd)
 }
 
 // CollapsePositions collapse all existing positions for margin account and symbol.
-func (t *tradingClient) CollapsePositions(account uint64, symbol Symbol, posReqId string) error {
+func (t *tradingClient) CollapsePositions(account uint64, symbol string, requestId string) error {
 	request := xmsg.PositionMaintenanceRequest{
 		MsgType:        xmsg.MsgType_PositionMaintenanceRequest,
 		Account:        account,
-		Symbol:         string(symbol),
-		PosReqId:       posReqId,
-		PosTransType:   "20",
-		PosMaintAction: "2",
+		Symbol:         symbol,
+		PosReqId:       requestId,
+		PosTransType:   PosTransTypeCollapse,
+		PosMaintAction: PosMaintActionReplace,
 	}
 	return t.Send(request)
 }
@@ -312,19 +325,19 @@ func (t *tradingClient) CollapsePositions(account uint64, symbol Symbol, posReqI
 // To receive response, client has to listen ListenBalanceSnapshotRefresh.
 func (t *tradingClient) AccountStatusReport(account uint64, requestId string) error {
 	request := xmsg.AccountStatusReportRequest{
-		MsgType: xmsg.MsgType_AccountStatusReportRequest,
-		Account: account,
-		// AccountStatusRequestId: requestId,
+		MsgType:                xmsg.MsgType_AccountStatusReportRequest,
+		Account:                account,
+		AccountStatusRequestId: requestId,
 	}
 	return t.Send(request)
 }
 
-// GetOrdersAndFills request all orders and fills for account.
-func (t *tradingClient) GetOrdersAndFills(account uint64, requestId string) error {
+// Orders request all orders and fills for account.
+func (t *tradingClient) Orders(account uint64, requestId string) error {
 	request := xmsg.OrderStatusRequest{
-		MsgType: xmsg.MsgType_OrderMassStatusRequest,
-		Account: account,
-		// MassStatusReqId: requestId,
+		MsgType:         xmsg.MsgType_OrderMassStatusRequest,
+		Account:         account,
+		MassStatusReqId: requestId,
 	}
 	return t.Send(request)
 }
@@ -333,15 +346,15 @@ func (t *tradingClient) GetOrdersAndFills(account uint64, requestId string) erro
 // To receive response, client has to listen ListenMassPositionReport.
 func (t *tradingClient) GetPositions(account uint64, requestId string) error {
 	request := xmsg.PositionsRequest{
-		MsgType: xmsg.MsgType_RequestForPositions,
-		Account: account,
-		// PosReqId: requestId,
+		MsgType:  xmsg.MsgType_RequestForPositions,
+		Account:  account,
+		PosReqId: requestId,
 	}
 	return t.Send(request)
 }
 
-func (t *tradingClient) OrderMassCancel(account uint64, clOrdId string, symbol Symbol, side Side, positionEffect string) error {
-	panic("implement me")
+func (t *tradingClient) MassCancel(account uint64, clOrdId string) error {
+	return newOrderMassCancel(account, clOrdId).Send(t)
 }
 
 func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, side Side, orderID, clientOrderID string) error {
@@ -359,7 +372,7 @@ func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, 
 }
 
 func (t *tradingClient) SendOrderMassStatusRequest(accountID uint64) error {
-	cmd := xmsg.NewOrderSingle{
+	cmd := xmsg.OrderStatusRequest{
 		MsgType: xmsg.MsgType_OrderMassStatusRequest,
 		Account: accountID,
 	}
@@ -480,13 +493,14 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 				go t.handlers.listStatus(t, v)
 			}
 		}
-		// case xmsg.MsgType_OrderMassCancelReport:
-		//	v := new(xmsg.OrderMassCancelReport)
-		//	if _, err := t.unmarshal(msg, v); err == nil {
-		//		//	if t.handlers.orderMassCancelReport != nil {
-		//		//		go t.handlers.orderMassCancelReport(t, v)
-		//		//	}
-		//	}
+	// case xmsg.MsgType_OrderMassStatusResponse:
+	case xmsg.MsgType_OrderMassCancelReport:
+		v := new(xmsg.OrderMassCancelReport)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.orderMassCancelReport != nil {
+				go t.handlers.orderMassCancelReport(t, v)
+			}
+		}
 	// Not implemented yet
 	default:
 		t.client.Logger().Errorf("unknown message type %s", string(msg))

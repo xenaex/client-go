@@ -31,31 +31,33 @@ const (
 	MsgType_MassPositionReport               = "MAP" // cumstom FIX value 'MAP'
 	MsgType_MarginRequirementReport          = "CJ"  // cumstom FIX value 'CJ'
 	MsgType_Heartbeat                        = "0"   // real FIX value is '0'
+	MsgType_OrderMassCancelRequest           = "q"
+	MsgType_OrderMassCancelReport            = "r"
 
-	//enum BusinessRejectReason
+	// enum BusinessRejectReason
 	BusinessRejectReason_UnknownBisRejReason     = ""
 	BusinessRejectReason_ApplicationNotAvailable = "4"
 	BusinessRejectReason_ThrottleLimitExceeded   = "8"
 
 	// MARGIN.proto
 
-	//enum MarginAmtType
+	// enum MarginAmtType
 	MarginAmtType_UnknownMarginTypeType = ""
 	MarginAmtType_CoreMargin            = "7"
 	MarginAmtType_InitialMargin         = "11"
 
-	//enum MarginReqmtRptType
+	// enum MarginReqmtRptType
 	MarginReqmtRptType_UnknownReqmtType = ""
 	MarginReqmtRptType_SummaryType      = "0" // Real FIX value is 0
 
 	// ORDERS.proto
 
-	//enum Side
+	// enum Side
 	Side_UnknownSide = ""
 	Side_Buy         = "1"
 	Side_Sell        = "2"
 
-	//enum OrdType
+	// enum OrdType
 	OrdType_UnknownOrdType = ""
 	// Market order type is a order type for selling or buying instrument
 	// by current market prices.
@@ -74,7 +76,7 @@ const (
 	OrdType_MarketIfTouched = "J" // real FIX value is 'J'
 	OrdType_Pegged          = "P" // real FIX value is 'P'
 
-	//enum ExecInst
+	// enum ExecInst
 	ExecInst_UnknownExecInst           = ""
 	ExecInst_StayOnOfferSide           = "0"     // real FIX value is 0
 	ExecInst_AllOrNone                 = "G"     // real FIX value is 'G'
@@ -83,21 +85,21 @@ const (
 	ExecInst_LiquidationOrder          = "Y"     // real FIX value is 'Y'
 	ExecInst_IgnorePriceRangeChecks    = "70081" // real FIX value is none
 
-	//enum TimeInForce
+	// enum TimeInForce
 	TimeInForce_UnknownTimeInForce = ""
 	TimeInForce_GoodTillCancel     = "1"
 	TimeInForce_ImmediateOrCancel  = "3"
 	TimeInForce_FillOrKill         = "4"
 
-	//enum PegPriceType
+	// enum PegPriceType
 	PegPriceType_UnknownPegType  = ""
 	PegPriceType_TrailingStopPeg = "8" // real FIX value is 8
 
-	//enum PegOffsetType
+	// enum PegOffsetType
 	PegOffsetType_UnknonwOffsetType = ""
 	PegOffsetType_BasisPoints       = "1" // real FIX value is 1
 
-	//enum ExecType
+	// enum ExecType
 	ExecType_UnknownExecType    = ""
 	ExecType_NewExec            = "0" // real FIX value is 0
 	ExecType_CanceledExec       = "4" // real FIX value is 4
@@ -111,11 +113,11 @@ const (
 	ExecType_Trade              = "F" // real FIX value is 'F'
 	ExecType_OrderStatus        = "I" // real FIX value is 'I'
 
-	//enum ExecRestatementReason
+	// enum ExecRestatementReason
 	ExecRestatementReason_UnknownRestatementReason = ""
 	ExecRestatementReason_RepricingOfOrder         = "3" // real FIX value is 3"
 
-	//enum OrdStatus
+	// enum OrdStatus
 	OrdStatus_UnknownOrdStatus  = ""
 	OrdStatus_NewOrd            = "0" // real FIX value is 0
 	OrdStatus_PartiallyFilled   = "1" // real FIX value is 1
@@ -129,7 +131,7 @@ const (
 	OrdStatus_Expired           = "C" // real FIX value is 'C'
 	OrdStatus_PendingReplaceOrd = "E" // real FIX value is 'E'
 
-	//enum OrdRejReason
+	// enum OrdRejReason
 	OrdRejReason_UnknownOrdRejReason            = ""
 	OrdRejReason_UnknownSymbol                  = "1"
 	OrdRejReason_ExchangeClosed                 = "2"
@@ -142,22 +144,22 @@ const (
 	OrdRejReason_Other                          = "99"
 	OrdRejReason_StopPriceInvalid               = "100"
 
-	//enum LiquidityInd
+	// enum LiquidityInd
 	LiquidityInd_UnknownLiquidityInd = ""
 	LiquidityInd_AddedLiquidity      = "1"
 	LiquidityInd_RemovedLiquidity    = "2"
 
-	//enum SettlType
+	// enum SettlType
 	SettlType_UnknownSettlType = ""
 	SettlType_Regular          = "0" // real FIX value is 0
 	SettlType_Cash             = "1" // real FIX value is 1
 
-	//enum CxlRejResponseTo
+	// enum CxlRejResponseTo
 	CxlRejResponseTo_UnknownCxlRejResponseTo             = ""
 	CxlRejResponseTo_OrderCancelRequestCxlRejResponseTo  = "1"
 	CxlRejResponseTo_OrderCancelReplaceRequestResponseTo = "2"
 
-	//enum CxlRejReason
+	// enum CxlRejReason
 	CxlRejReason_UnknownCxlRejReason         = ""
 	CxlRejReason_TooLateToCancel             = "0"  // real FIX value is 0
 	CxlRejReason_UnknownOrder                = "1"  // real FIX value is 1
@@ -165,20 +167,20 @@ const (
 	CxlRejReason_DuplicateClOrdID            = "6"  // real FIX value is 6
 	CxlRejReason_OtherCxlRejReason           = "99" // real FIX value is 99
 
-	//enum BidType
+	// enum BidType
 	BidType_UnknownBidType   = ""
 	BidType_NonDisclosed     = "1"
 	BidType_Disclosed        = "2"
 	BidType_NoBiddingProcess = "3"
 
-	//enum ContingencyType
+	// enum ContingencyType
 	ContingencyType_UnknownContingencyType         = ""
 	ContingencyType_OneCancelsTheOther             = "1"
 	ContingencyType_OneTriggersTheOther            = "2"
 	ContingencyType_OneUpdatesTheOtherAbsolute     = "3"
 	ContingencyType_OneUpdatesTheOtherProportional = "4"
 
-	//enum ListStatusType
+	// enum ListStatusType
 	ListStatusType_UnknownListStatusType     = ""
 	ListStatusType_AckListStatusType         = "1"
 	ListStatusType_ResponseListStatusType    = "2"
@@ -187,7 +189,7 @@ const (
 	ListStatusType_AllDoneListStatusType     = "5"
 	ListStatusType_AlertListStatusType       = "6"
 
-	//enum ListOrderStatus
+	// enum ListOrderStatus
 	ListOrderStatus_UnknownListOrderStatus              = ""
 	ListOrderStatus_InBiddingProcessListOrderStatus     = "1"
 	ListOrderStatus_ReceivedForExecutionListOrderStatus = "2"
@@ -197,7 +199,7 @@ const (
 	ListOrderStatus_AllDoneListOrderStatus              = "6"
 	ListOrderStatus_RejectListOrderStatus               = "7"
 
-	//enum ListRejectReason
+	// enum ListRejectReason
 	ListRejectReason_UnknownListRejectReason                        = ""
 	ListRejectReason_UnsupportedOrderCharacteristicListRejectReason = "11"
 	ListRejectReason_ExchangeClosedListRejectReason                 = "2"
@@ -207,31 +209,31 @@ const (
 	ListRejectReason_OtherListRejectReason                          = "99"
 
 	//
-	//enum TriggerAction
+	// enum TriggerAction
 	TriggerAction_UnknownTriggerAction = ""
 	TriggerAction_Activate             = "1"
 	TriggerAction_SetNewCapPrice       = "4"
 	TriggerAction_Transform            = "3101"
 
-	//enum TriggerType
+	// enum TriggerType
 	TriggerType_UnknownTriggerType = ""
 	TriggerType_PartialExecution   = "1" // real FIX value is 1
 
-	//enum TriggerScope
+	// enum TriggerScope
 	TriggerScope_UnknownTriggerScope = ""
 	TriggerScope_OtherOrder          = "1" // real FIX value is 1
 
-	//enum PositionEffect
+	// enum PositionEffect
 	PositionEffect_UnknownPositionEffect = ""
 	PositionEffect_Close                 = "C" // real FIX value is C, number in list is 1
 	PositionEffect_Open                  = "O" // real FIX value is O, number in list is 5
 
-	//enum PartieRole
+	// enum PartieRole
 	PartieRole_UnknownRole = ""
 	PartieRole_ClientID    = "3"
 	PartieRole_ContraFirm  = "17"
 
-	//enum MDEntryType
+	// enum MDEntryType
 	MDEntryType_UnknownMDEntryType = ""
 	MDEntryType_Bid                = "0" // real FIX value is 0
 	MDEntryType_Offer              = "1" // real FIX value is 1
@@ -239,28 +241,28 @@ const (
 	MDEntryType_MarketBid          = "b" // real FIX value is 'b'
 	MDEntryType_MarketOffer        = "c" // real FIX value is 'c'
 
-	//enum MDUpdateAction
+	// enum MDUpdateAction
 	MDUpdateAction_UnknownMDUpdateAction = ""
 	MDUpdateAction_NewAction             = "0" // real FIX value is 0
 	MDUpdateAction_ChangeAction          = "1" // real FIX value is 1
 	MDUpdateAction_DeleteAction          = "2" // real FIX value is 2
 
-	//enum MDBookType
+	// enum MDBookType
 	MDBookType_UnknownMDBookType = ""
 	MDBookType_TopOfBook         = "1"
 	MDBookType_PriceDepth        = "2"
 	MDBookType_OrderDepth        = "3"
 
-	//enum SubscriptionRequestType
+	// enum SubscriptionRequestType
 	SubscriptionRequestType_UnknownSubscriptionRequestType = ""
 	SubscriptionRequestType_SnapshotAndUpdates             = "1"
 	SubscriptionRequestType_DisablePreviousSnapshot        = "2"
 
-	//num ThrottleType
+	// num ThrottleType
 	ThrottleType_InboundRate         = "0"
 	ThrottleType_OutstandingRequests = "1"
 
-	//enum ThrottleTimeUnit
+	// enum ThrottleTimeUnit
 	ThrottleTimeUnit_Seconds             = "0"
 	ThrottleTimeUnit_TenthsOfASecond     = "1"
 	ThrottleTimeUnit_HundredthsOfASecond = "2"
@@ -270,7 +272,7 @@ const (
 	ThrottleTimeUnit_Minutes             = "10"
 	ThrottleTimeUnit_Hours               = "11"
 
-	//enum BalanceChangeReason
+	// enum BalanceChangeReason
 	BalanceChangeReason_UnknownReason               = "0"
 	BalanceChangeReason_DepositReason               = "1"
 	BalanceChangeReason_WithdrawReason              = "2"
@@ -287,14 +289,14 @@ const (
 	BalanceChangeReason_SpotRewardReason            = "13" // Referral program spot reward
 	BalanceChangeReason_MarginRewardReason          = "14" // Referral program margin reward
 
-	//enum PaymentType
+	// enum PaymentType
 	PaymentType_UnknownPaymentType = "0"
 	PaymentType_Commission         = "40"
 	PaymentType_Interest           = "41"
 	PaymentType_Settlement         = "42"
 	PaymentType_CumulativePayments = "43"
 
-	//enum RelatedTradeType
+	// enum RelatedTradeType
 	RelatedTradeType_UnknownTradeType = "0"
 	RelatedTradeType_OpenExecID       = "1"
 	RelatedTradeType_CloseExecID      = "2"

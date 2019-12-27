@@ -60,14 +60,14 @@ func main() {
 		fmt.Println(err)
 	}
 
-	order := xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").Build()
+	order := xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD.String(), xena.SideSell, "1", accountId, "7523.4").Build()
 	err = client.Send(order)
-	err = xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").Send(client)
+	err = xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD.String(), xena.SideSell, "1", accountId, "7523.4").Send(client)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	limitOrder := xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD, xena.SideSell, "1", accountId, "7523.4").SetTimeInForce("").SetPositionId(0).SetTakeProfitPrice("8000").Build()
+	limitOrder := xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD.String(), xena.SideSell, "1", accountId, "7523.4").SetTimeInForce("").SetPositionId(0).SetTakeProfitPrice("8000").Build()
 	err = client.Send(limitOrder)
 	if err != nil {
 		fmt.Println(err)
