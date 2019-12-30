@@ -22,6 +22,9 @@ type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
 // LogonHandler will be called on Logon response received
 type MarketDataLogonHandler func(md MarketDataClient, m *xmsg.Logon)
 
+// MarketDataRejectHandler will be called on Reject received
+type MarketDataRejectHandler func(md MarketDataClient, m *xmsg.Reject)
+
 // MarketDataClient is the main interface that helps to receive market data
 type MarketDataClient interface {
 	Client() WsClient
@@ -37,7 +40,9 @@ type marketData struct {
 	subscribeMu      *sync.RWMutex
 	domSubscriptions map[string]DOMHandler
 	handlers         struct {
-		logonInternal MarketDataLogonHandler
+		logonInternal  MarketDataLogonHandler
+		reject         MarketDataRejectHandler
+		rejectInternal MarketDataRejectHandler
 	}
 	mutexLogon sync.Mutex
 }
@@ -87,7 +92,12 @@ func (m *marketData) Connect() (*xmsg.Logon, error) {
 	m.mutexLogon.Lock()
 	defer m.mutexLogon.Unlock()
 	msgs := make(chan *xmsg.Logon, 1)
-	// errs := make(chan *xmsg.Logon, 1)
+	errs := make(chan *xmsg.Reject, 1)
+	m.handlers.rejectInternal = func(md MarketDataClient, m *xmsg.Reject) {
+		errs <- m
+		close(errs)
+	}
+	defer func() { m.handlers.rejectInternal = nil }()
 	m.handlers.logonInternal = func(md MarketDataClient, m *xmsg.Logon) {
 		msgs <- m
 		close(msgs)
@@ -102,9 +112,12 @@ func (m *marketData) Connect() (*xmsg.Logon, error) {
 		if ok {
 			return m, nil
 		}
-	case <-time.NewTimer(time.Minute).C:
+	case m, ok := <-errs:
+		if ok {
+			return nil, fmt.Errorf("reject reason: %s", m.RejectReason)
+		}
+	case <-time.NewTimer(m.client.getConf().connectTimeoutInterval).C:
 		m.client.Close()
-		// TODO: error time out.
 		return nil, fmt.Errorf("timeout logon")
 	}
 	return nil, fmt.Errorf("something happened")
@@ -122,6 +135,10 @@ func (m *marketData) onConnect(c WsClient) {
 	for _, r := range m.subscriptions {
 		m.client.Write(r)
 	}
+}
+
+func (m *marketData) ListenReject(handler MarketDataRejectHandler) {
+	m.handlers.reject = handler
 }
 
 // UnsubscribeOnDOM from DOM stream
@@ -195,6 +212,17 @@ func (m *marketData) incomeHandler(msg []byte) {
 		}
 		if m.handlers.logonInternal != nil {
 			m.handlers.logonInternal(m, v)
+		}
+
+	case xmsg.MsgType_RejectMsgType:
+		v := new(xmsg.Reject)
+		if _, err := m.unmarshal(msg, v); err == nil {
+			if m.handlers.reject != nil {
+				go m.handlers.reject(m, v)
+			}
+			if m.handlers.rejectInternal != nil {
+				go m.handlers.rejectInternal(m, v)
+			}
 		}
 
 	case xmsg.MsgType_MarketDataRequest:

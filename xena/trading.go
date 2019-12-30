@@ -139,7 +139,12 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	t.mutexLogon.Lock()
 	defer t.mutexLogon.Unlock()
 	msgs := make(chan *xmsg.Logon, 1)
-	// errs := make(chan *xmsg.Logon, 1)
+	errs := make(chan *xmsg.Reject, 1)
+	t.handlers.rejectInternal = func(t TradingClient, m *xmsg.Reject) {
+		errs <- m
+		close(errs)
+	}
+	defer func() { t.handlers.rejectInternal = nil }()
 	t.handlers.logonInternal = func(t TradingClient, m *xmsg.Logon) {
 		msgs <- m
 		close(msgs)
@@ -154,9 +159,12 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 		if ok {
 			return m, nil
 		}
-	case <-time.NewTimer(time.Minute).C:
+	case m, ok := <-errs:
+		if ok {
+			return nil, fmt.Errorf("reject reason: %s", m.RejectReason)
+		}
+	case <-time.NewTimer(t.client.getConf().disconnectTimeoutInterval).C:
 		t.client.Close()
-		// TODO: error time out.
 		return nil, fmt.Errorf("timeout logon")
 	}
 	return nil, fmt.Errorf("something happened")
@@ -220,6 +228,7 @@ type tradingClient struct {
 		positionMaintenanceReport PositionMaintenanceReportHandler
 		positionReport            PositionReportHandler
 		reject                    RejectHandler
+		rejectInternal            RejectHandler
 	}
 	mutexLogon sync.Mutex
 }
@@ -516,6 +525,9 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.reject != nil {
 				go t.handlers.reject(t, v)
+			}
+			if t.handlers.rejectInternal != nil {
+				go t.handlers.rejectInternal(t, v)
 			}
 		}
 	case xmsg.MsgType_ListStatus:

@@ -15,15 +15,27 @@ const (
 	heartbeatMsg        = `{"35":"0"}`
 	wsReconnectInterval = time.Second
 	wsHeartbeatInterval = 3 * time.Second
+	wsTimeoutInterval   = 15 * time.Second
 )
+
+type wsConf struct {
+	reconnectInterval         time.Duration
+	heartbeatInterval         time.Duration
+	connectTimeoutInterval    time.Duration
+	disconnectTimeoutInterval time.Duration
+}
 
 // NewWsClient websocket client constructor
 func NewWsClient(opts ...WsOption) WsClient {
 	c := wsClient{
-		reconnectInterval: wsReconnectInterval,
-		heartbeatInterval: wsHeartbeatInterval,
-		logger:            newLogger(),
-		stopChan:          make(chan struct{}),
+		conf: wsConf{
+			reconnectInterval:         wsReconnectInterval,
+			heartbeatInterval:         wsHeartbeatInterval,
+			connectTimeoutInterval:    wsTimeoutInterval,
+			disconnectTimeoutInterval: 2 * wsHeartbeatInterval,
+		},
+		logger:   newLogger(),
+		stopChan: make(chan struct{}),
 	}
 	c.initDefaultHandlers()
 
@@ -46,14 +58,14 @@ type WsClient interface {
 	WriteString(msg string) error
 	WriteBytes(data []byte) error
 	Logger() Logger
+	getConf() wsConf
 }
 
 type wsClient struct {
 	// settings
-	url               string
-	logPingMessage    bool
-	reconnectInterval time.Duration
-	heartbeatInterval time.Duration
+	url            string
+	logPingMessage bool
+	conf           wsConf
 
 	// handlers
 	handler                Handler
@@ -89,6 +101,10 @@ type WsOption func(s *wsClient)
 // With applies modification of behavior
 func (c *wsClient) With(opt WsOption) {
 	opt(c)
+}
+
+func (c *wsClient) getConf() wsConf {
+	return c.conf
 }
 
 func (c *wsClient) initDefaultHandlers() {
@@ -188,7 +204,7 @@ func (c *wsClient) connectAndListen() error {
 		if err != nil {
 			c.logger.Debugf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
 			c.handleError(err)
-			time.Sleep(c.reconnectInterval)
+			time.Sleep(c.conf.reconnectInterval)
 			continue
 		}
 		// OK
@@ -224,9 +240,9 @@ func (c *wsClient) listen() {
 	c.close = false
 	c.mu.Unlock()
 
-	msgs := make(chan []byte)
+	mgs := make(chan []byte)
 	go func() {
-		m := msgs
+		m := mgs
 		defer close(m)
 		for {
 			conn := c.conn
@@ -248,13 +264,13 @@ func (c *wsClient) listen() {
 		select {
 		case <-c.stopChan:
 			return
-		case message, ok := <-msgs:
+		case message, ok := <-mgs:
 			if !ok {
-				msgs = nil
+				mgs = nil
 				continue
 			}
 			c.handleMsg(message)
-		case <-time.NewTimer(2 * c.heartbeatInterval).C:
+		case <-time.NewTimer(c.conf.disconnectTimeoutInterval).C:
 			return
 		}
 	}
@@ -270,7 +286,7 @@ func (c *wsClient) stop() {
 }
 
 func (c *wsClient) heartbeats() {
-	ticker := time.NewTicker(c.heartbeatInterval)
+	ticker := time.NewTicker(c.conf.heartbeatInterval)
 	defer ticker.Stop()
 	for {
 		c.mu.Lock()

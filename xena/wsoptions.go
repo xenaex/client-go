@@ -94,14 +94,14 @@ func WithErrHandler(fnc ErrHandler) WsOption {
 // WithReconnectInterval set time interval between reconnects
 func WithReconnectInterval(d time.Duration) WsOption {
 	return func(c *wsClient) {
-		c.reconnectInterval = d
+		c.conf.reconnectInterval = d
 	}
 }
 
 // WithHeartbeatInterval set time interval between heartbeats
 func WithHeartbeatInterval(d time.Duration) WsOption {
 	return func(c *wsClient) {
-		c.heartbeatInterval = d
+		c.conf.heartbeatInterval = d
 	}
 }
 
@@ -109,5 +109,17 @@ func WithHeartbeatInterval(d time.Duration) WsOption {
 func WithLogger(logger Logger) WsOption {
 	return func(c *wsClient) {
 		c.logger.logger = logger
+	}
+}
+
+func WithConnectTimeoutConnect(interval time.Duration) WsOption {
+	return func(c *wsClient) {
+		c.conf.connectTimeoutInterval = interval
+	}
+}
+
+func WithDisconnectTimeoutInterval(disconnectTimeoutInterval time.Duration) WsOption {
+	return func(c *wsClient) {
+		c.conf.disconnectTimeoutInterval = disconnectTimeoutInterval
 	}
 }
