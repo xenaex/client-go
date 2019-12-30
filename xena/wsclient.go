@@ -62,7 +62,7 @@ type wsClient struct {
 	connectInternalHandler ConnectHandler
 	disconnectHandler      DisconnectHandler
 
-	logger Logger
+	logger *logger
 
 	// no customizable elements
 	conn     *websocket.Conn

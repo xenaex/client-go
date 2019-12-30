@@ -23,7 +23,7 @@ func WithURL(url string) WsOption {
 // WithDebug enable debug logging
 func WithDebug() WsOption {
 	return func(c *wsClient) {
-		c.Logger().SetDebug(true)
+		c.logger.debug = true
 	}
 }
 
@@ -37,7 +37,7 @@ func WithIgnorePingLog() WsOption {
 // WithOutDebug disable debug logging
 func WithOutDebug() WsOption {
 	return func(c *wsClient) {
-		c.Logger().SetDebug(false)
+		c.logger.debug = false
 	}
 }
 
@@ -102,5 +102,12 @@ func WithReconnectInterval(d time.Duration) WsOption {
 func WithHeartbeatInterval(d time.Duration) WsOption {
 	return func(c *wsClient) {
 		c.heartbeatInterval = d
+	}
+}
+
+// WithHeartbeatInterval set time interval between heartbeats
+func WithLogger(logger Logger) WsOption {
+	return func(c *wsClient) {
+		c.logger.logger = logger
 	}
 }
