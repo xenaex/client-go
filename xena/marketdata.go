@@ -13,14 +13,22 @@ const (
 	wsMdURL = "wss://trading.xena.exchange/api/ws/market-data"
 )
 
+// MarketDisconnectHandler will be called when connection will be dropped
+type MarketDisconnectHandler func(client MarketDataClient)
+
 // DOMHandler called on order book updated
 type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
+
+// LogonHandler will be called on Logon response received
+type MarketDataLogonHandler func(md MarketDataClient, m *xmsg.Logon)
 
 // MarketDataClient is the main interface that helps to receive market data
 type MarketDataClient interface {
 	Client() WsClient
 	SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...interface{}) (streamID string, err error)
 	UnsubscribeOnDOM(streamID string) error
+	getLogger() Logger
+	Connect() (*xmsg.Logon, error)
 }
 
 type marketData struct {
@@ -29,10 +37,30 @@ type marketData struct {
 	subscriptions    map[string]xmsg.MarketDataRequest
 	subscribeMu      *sync.RWMutex
 	domSubscriptions map[string]DOMHandler
+	handlers         struct {
+		logonInternal MarketDataLogonHandler
+	}
+}
+
+func DefaultMarketDisconnectHandler(client MarketDataClient) {
+	go func(client MarketDataClient) {
+		l := client.getLogger()
+		for {
+			logonResponse, err := client.Connect()
+			if err != nil {
+				l.Debugf("GOT logonResponse ", logonResponse)
+			}
+			if err == nil {
+				break
+			}
+			l.Errorf("%s on client.ConnectAndLogon()\n", err)
+			time.Sleep(time.Minute)
+		}
+	}(client)
 }
 
 // NewMarketData constructor
-func NewMarketData(opts ...WsOption) MarketDataClient {
+func NewMarketData(disconnectHandler MarketDisconnectHandler, opts ...WsOption) MarketDataClient {
 	md := marketData{
 		subscriptions:    make(map[string]xmsg.MarketDataRequest),
 		domSubscriptions: make(map[string]DOMHandler),
@@ -43,13 +71,42 @@ func NewMarketData(opts ...WsOption) MarketDataClient {
 		WithURL(wsMdURL),
 		WithConnectHandler(md.onConnect),
 		WithHandler(md.incomeHandler),
+		WithDisconnectHandler(func() {
+			if disconnectHandler != nil {
+				disconnectHandler(&md)
+			}
+		}),
 	}
 	opts = append(defaultOpts, opts...)
 
 	md.client = NewWsClient(opts...)
-	md.client.Connect()
 
 	return &md
+}
+
+func (m *marketData) Connect() (*xmsg.Logon, error) {
+	msgs := make(chan *xmsg.Logon, 1)
+	// errs := make(chan *xmsg.Logon, 1)
+	m.handlers.logonInternal = func(md MarketDataClient, m *xmsg.Logon) {
+		msgs <- m
+		close(msgs)
+	}
+	defer func() { m.handlers.logonInternal = nil }()
+	err := m.client.Connect()
+	if err != nil {
+		return nil, err
+	}
+	select {
+	case m, ok := <-msgs:
+		if ok {
+			return m, nil
+		}
+	case <-time.NewTimer(time.Minute).C:
+		m.client.Close()
+		// TODO: error time out.
+		return nil, fmt.Errorf("timeout logon")
+	}
+	return nil, fmt.Errorf("something happened")
 }
 
 func (m *marketData) Client() WsClient {
@@ -130,8 +187,15 @@ func (m *marketData) incomeHandler(msg []byte) {
 	switch mth.MsgType {
 	case xmsg.MsgType_LogonMsgType:
 		v := new(xmsg.Logon)
-		if _, err := m.unmarshal(msg, v); err == nil {
+		_, err := m.unmarshal(msg, v)
+		if err != nil {
+			m.client.Logger().Errorf("unmarshal message type %s", string(msg))
+			return
 		}
+		if m.handlers.logonInternal != nil {
+			m.handlers.logonInternal(m, v)
+		}
+
 	case xmsg.MsgType_MarketDataRequest:
 		v := new(xmsg.MarketDataRequest)
 		if _, err := m.unmarshal(msg, v); err == nil {
@@ -162,4 +226,8 @@ func (m *marketData) unmarshal(msg []byte, v interface{}) (interface{}, error) {
 	}
 
 	return v, nil
+}
+
+func (m *marketData) getLogger() Logger {
+	return m.client.Logger()
 }

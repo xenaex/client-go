@@ -12,8 +12,14 @@ import (
 func main() {
 	log.Printf("Start")
 
+	host := "ws://trading.xena.rc/api/ws/market-data"
 	// md := xena.NewMarketData(xena.WithDebug(), xena.WithURL("ws://trading.xena.rc/api/ws/market-data"))
-	md := xena.NewMarketData(xena.WithDebug())
+	md := xena.NewMarketData(xena.DefaultMarketDisconnectHandler, xena.WithURL(host), xena.WithDebug())
+	resp, err := md.Connect()
+	if err != nil {
+		log.Printf("error %s on md.Connect()", err)
+	}
+	log.Printf("loggon message %s", resp)
 
 	// id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.AggregateBook10, xena.ThrottleDOM5s)
 	id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.ThrottleDOM500ms)

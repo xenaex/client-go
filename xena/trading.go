@@ -22,6 +22,9 @@ type OrderMassCancel struct {
 	client TradingClient
 }
 
+// TradingDisconnectHandler will be called when connection will be dropped
+type TradingDisconnectHandler func(client TradingClient)
+
 // TradingClient Xena Trading websocket client interface.
 type TradingClient interface {
 	ListenLogon(handler LogonHandler)
@@ -85,25 +88,53 @@ type TradingClient interface {
 
 	// CollapsePositions collapse all existing positions for margin account and symbol.
 	CollapsePositions(account uint64, symbol string, requestId string) error
+
+	getLogger() Logger
+}
+
+func DefaultTradingDisconnectHandler(client TradingClient) {
+	go func(client TradingClient) {
+		l := client.getLogger()
+		for {
+			logonResponse, err := client.ConnectAndLogon()
+			if err != nil {
+				l.Debugf("GOT logonResponse ", logonResponse)
+			}
+			if err == nil {
+				break
+			}
+			l.Errorf("%s on client.ConnectAndLogon()\n", err)
+			time.Sleep(time.Minute)
+		}
+	}(client)
 }
 
 // NewTradingClient constructor
-func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient {
-	t := tradingClient{
+func NewTradingClient(apiKey, apiSecret string, disconnectHandler TradingDisconnectHandler, opts ...WsOption) TradingClient {
+	t := &tradingClient{
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
 	}
 
 	defaultOpts := []WsOption{
 		WithURL(wsTradingURL),
-		WithConnectInternalHandler(t.onConnect),
+		withConnectInternalHandler(t.onConnect),
 		WithHandler(t.incomeHandler),
+		WithDisconnectHandler(func() {
+			if disconnectHandler != nil {
+				disconnectHandler(t)
+			}
+		}),
 	}
 	opts = append(defaultOpts, opts...)
 
 	t.client = NewWsClient(opts...)
 
-	return &t
+	return t
+}
+
+func (t *tradingClient) getLogger() Logger {
+	return t.client.Logger()
 }
 
 func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
@@ -114,7 +145,7 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 		close(msgs)
 	}
 	defer func() { t.handlers.logonInternal = nil }()
-	err := t.client.ConnectOnly()
+	err := t.client.Connect()
 	if err != nil {
 		return nil, err
 	}
@@ -508,9 +539,6 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 
 	// case xmsg.MsgType_Heartbeat: -> xmsg.Heartbeat
 	// it is market data only
-	// case xmsg.MsgType_MarketDataRequestReject: -> xmsg.MarketDataRequestReject
-	// case xmsg.MsgType_MarketDataIncrementalRefresh: -> xmsg.MarketDataRefresh
-	// case xmsg.MsgType_MarketDataSnapshotFullRefresh: -> xmsg.MarketDataRefresh
 }
 
 func (t *tradingClient) onConnect(c WsClient) {

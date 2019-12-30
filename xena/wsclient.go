@@ -39,8 +39,7 @@ func NewWsClient(opts ...WsOption) WsClient {
 // WsClient websocket client interface
 type WsClient interface {
 	IsConnected() bool
-	Connect()
-	ConnectOnly() error
+	Connect() error
 	With(opt WsOption)
 	Close()
 	Write(m interface{}) error
@@ -101,16 +100,7 @@ func (c *wsClient) initDefaultHandlers() {
 }
 
 // Connect start connecting
-func (c *wsClient) Connect() {
-	c.close = false
-	go func() {
-		if err := c.connect(); err != nil {
-			c.logger.Errorf("Failed to connect to %s: %s", c.url, err)
-		}
-	}()
-}
-
-func (c *wsClient) ConnectOnly() error {
+func (c *wsClient) Connect() error {
 	c.close = false
 	err := c.connect()
 	if err != nil {
@@ -226,11 +216,28 @@ func (c *wsClient) listen() {
 		if err != nil {
 			c.handleError(err)
 		}
+		c.conn = nil
 		c.disconnectHandler()
 		c.logger.Debugf("ws. disconnected")
+	}()
 
-		// reconnect
-		go c.connectAndListen() // TODO: move reconnect to disconnectHandler.
+	msgs := make(chan []byte)
+	go func() {
+		m := msgs
+		defer close(m)
+		for {
+			conn := c.conn
+			if conn == nil {
+				return
+			}
+			_, message, err := conn.ReadMessage()
+			if err != nil {
+				c.handleError(err)
+				go c.stop()
+				return
+			}
+			m <- message
+		}
 	}()
 
 	// Listen
@@ -238,14 +245,14 @@ func (c *wsClient) listen() {
 		select {
 		case <-c.stopChan:
 			return
-		default:
-			_, message, err := c.conn.ReadMessage()
-			if err != nil {
-				c.handleError(err)
-				go c.stop()
-				return
+		case message, ok := <-msgs:
+			if !ok {
+				msgs = nil
+				continue
 			}
 			c.handleMsg(message)
+		case <-time.NewTimer(2 * c.heartbeatInterval).C:
+			return
 		}
 	}
 }

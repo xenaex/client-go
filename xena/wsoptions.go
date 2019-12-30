@@ -52,7 +52,7 @@ func WithConnectHandler(fnc ConnectHandler) WsOption {
 }
 
 // WithConnectHandler set custom connect handler
-func WithConnectInternalHandler(fnc ConnectHandler) WsOption {
+func withConnectInternalHandler(fnc ConnectHandler) WsOption {
 	return func(c *wsClient) {
 		if fnc == nil {
 			fnc = func(client WsClient) {}
