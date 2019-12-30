@@ -23,7 +23,7 @@ type OrderMassCancel struct {
 }
 
 // TradingDisconnectHandler will be called when connection will be dropped
-type TradingDisconnectHandler func(client TradingClient)
+type TradingDisconnectHandler func(client TradingClient, logger Logger)
 
 // TradingClient Xena Trading websocket client interface.
 type TradingClient interface {
@@ -88,22 +88,19 @@ type TradingClient interface {
 
 	// CollapsePositions collapse all existing positions for margin account and symbol.
 	CollapsePositions(account uint64, symbol string, requestId string) error
-
-	getLogger() Logger
 }
 
-func DefaultTradingDisconnectHandler(client TradingClient) {
+func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 	go func(client TradingClient) {
-		l := client.getLogger()
 		for {
 			logonResponse, err := client.ConnectAndLogon()
 			if err != nil {
-				l.Debugf("GOT logonResponse ", logonResponse)
+				logger.Debugf("GOT logonResponse ", logonResponse)
 			}
 			if err == nil {
 				break
 			}
-			l.Errorf("%s on client.ConnectAndLogon()\n", err)
+			logger.Errorf("%s on client.ConnectAndLogon()\n", err)
 			time.Sleep(time.Minute)
 		}
 	}(client)
@@ -122,7 +119,7 @@ func NewTradingClient(apiKey, apiSecret string, disconnectHandler TradingDisconn
 		WithHandler(t.incomeHandler),
 		WithDisconnectHandler(func() {
 			if disconnectHandler != nil {
-				disconnectHandler(t)
+				disconnectHandler(t, t.client.Logger())
 			}
 		}),
 	}

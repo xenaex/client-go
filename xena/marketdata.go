@@ -14,7 +14,7 @@ const (
 )
 
 // MarketDisconnectHandler will be called when connection will be dropped
-type MarketDisconnectHandler func(client MarketDataClient)
+type MarketDisconnectHandler func(client MarketDataClient, logger Logger)
 
 // DOMHandler called on order book updated
 type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
@@ -27,7 +27,6 @@ type MarketDataClient interface {
 	Client() WsClient
 	SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...interface{}) (streamID string, err error)
 	UnsubscribeOnDOM(streamID string) error
-	getLogger() Logger
 	Connect() (*xmsg.Logon, error)
 }
 
@@ -42,18 +41,17 @@ type marketData struct {
 	}
 }
 
-func DefaultMarketDisconnectHandler(client MarketDataClient) {
+func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
 	go func(client MarketDataClient) {
-		l := client.getLogger()
 		for {
 			logonResponse, err := client.Connect()
 			if err != nil {
-				l.Debugf("GOT logonResponse ", logonResponse)
+				logger.Debugf("GOT logonResponse ", logonResponse)
 			}
 			if err == nil {
 				break
 			}
-			l.Errorf("%s on client.ConnectAndLogon()\n", err)
+			logger.Errorf("%s on client.ConnectAndLogon()\n", err)
 			time.Sleep(time.Minute)
 		}
 	}(client)
@@ -73,7 +71,7 @@ func NewMarketData(disconnectHandler MarketDisconnectHandler, opts ...WsOption) 
 		WithHandler(md.incomeHandler),
 		WithDisconnectHandler(func() {
 			if disconnectHandler != nil {
-				disconnectHandler(&md)
+				disconnectHandler(&md, md.client.Logger())
 			}
 		}),
 	}
