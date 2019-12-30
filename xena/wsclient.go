@@ -101,7 +101,6 @@ func (c *wsClient) initDefaultHandlers() {
 
 // Connect start connecting
 func (c *wsClient) Connect() error {
-	c.close = false
 	err := c.connect()
 	if err != nil {
 		err = fmt.Errorf("failed to connect to %s: %s", c.url, err)
@@ -221,6 +220,10 @@ func (c *wsClient) listen() {
 		c.logger.Debugf("ws. disconnected")
 	}()
 
+	c.mu.Lock()
+	c.close = false
+	c.mu.Unlock()
+
 	msgs := make(chan []byte)
 	go func() {
 		m := msgs
@@ -258,6 +261,8 @@ func (c *wsClient) listen() {
 }
 
 func (c *wsClient) stop() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	select {
 	case c.stopChan <- struct{}{}:
 	default:
@@ -268,7 +273,11 @@ func (c *wsClient) heartbeats() {
 	ticker := time.NewTicker(c.heartbeatInterval)
 	defer ticker.Stop()
 	for {
-		if c.conn != nil {
+		c.mu.Lock()
+		close := c.close
+		conn := c.conn
+		c.mu.Unlock()
+		if !close && conn != nil {
 			_ = c.WriteString(heartbeatMsg)
 		}
 		<-ticker.C

@@ -39,6 +39,7 @@ type marketData struct {
 	handlers         struct {
 		logonInternal MarketDataLogonHandler
 	}
+	mutexLogon sync.Mutex
 }
 
 func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
@@ -83,6 +84,8 @@ func NewMarketData(disconnectHandler MarketDisconnectHandler, opts ...WsOption) 
 }
 
 func (m *marketData) Connect() (*xmsg.Logon, error) {
+	m.mutexLogon.Lock()
+	defer m.mutexLogon.Unlock()
 	msgs := make(chan *xmsg.Logon, 1)
 	// errs := make(chan *xmsg.Logon, 1)
 	m.handlers.logonInternal = func(md MarketDataClient, m *xmsg.Logon) {

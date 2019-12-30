@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/xenaex/client-go/xena/fixjson"
@@ -135,6 +136,8 @@ func (t *tradingClient) getLogger() Logger {
 }
 
 func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
+	t.mutexLogon.Lock()
+	defer t.mutexLogon.Unlock()
 	msgs := make(chan *xmsg.Logon, 1)
 	// errs := make(chan *xmsg.Logon, 1)
 	t.handlers.logonInternal = func(t TradingClient, m *xmsg.Logon) {
@@ -218,6 +221,7 @@ type tradingClient struct {
 		positionReport            PositionReportHandler
 		reject                    RejectHandler
 	}
+	mutexLogon sync.Mutex
 }
 
 // ListenLogon subscribe on Logon messages
