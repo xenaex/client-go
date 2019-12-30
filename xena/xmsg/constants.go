@@ -79,6 +79,7 @@ const (
 	// enum ExecInst
 	ExecInst_UnknownExecInst           = ""
 	ExecInst_StayOnOfferSide           = "0"     // real FIX value is 0
+	ExecInst_PegToOfferSide            = "9"     // real FIX value is 9
 	ExecInst_AllOrNone                 = "G"     // real FIX value is 'G'
 	ExecInst_IgnoreNotionalValueChecks = "x"     // real FIX value is 'x'
 	ExecInst_Suspend                   = "s"     // real FIX value is 's'
