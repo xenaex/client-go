@@ -89,6 +89,8 @@ type TradingClient interface {
 
 	// CollapsePositions collapse all existing positions for margin account and symbol.
 	CollapsePositions(account uint64, symbol string, requestId string) error
+
+	// SetDisconnectHandler set disconnect handler.
 	SetDisconnectHandler(handler TradingDisconnectHandler)
 }
 
@@ -612,6 +614,7 @@ func (t *tradingClient) unmarshal(msg []byte, v interface{}) (interface{}, error
 	return v, nil
 }
 
+// SetDisconnectHandler set disconnect handler.
 func (t *tradingClient) SetDisconnectHandler(handler TradingDisconnectHandler) {
 	t.client.SetDisconnectHandler(func() {
 		handler(t, t.client.Logger())

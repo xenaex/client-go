@@ -262,6 +262,7 @@ func (m *marketData) getLogger() Logger {
 	return m.client.Logger()
 }
 
+// SetDisconnectHandler set disconnect handler.
 func (m *marketData) SetDisconnectHandler(handler MarketDisconnectHandler) {
 	m.client.SetDisconnectHandler(func() {
 		handler(m, m.client.Logger())
