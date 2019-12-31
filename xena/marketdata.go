@@ -31,6 +31,7 @@ type MarketDataClient interface {
 	SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...interface{}) (streamID string, err error)
 	UnsubscribeOnDOM(streamID string) error
 	Connect() (*xmsg.Logon, error)
+	SetDisconnectHandler(handler MarketDisconnectHandler)
 }
 
 type marketData struct {
@@ -65,7 +66,7 @@ func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
 }
 
 // NewMarketData constructor
-func NewMarketData(disconnectHandler MarketDisconnectHandler, opts ...WsOption) MarketDataClient {
+func NewMarketData(opts ...WsOption) MarketDataClient {
 	md := marketData{
 		subscriptions:    make(map[string]xmsg.MarketDataRequest),
 		domSubscriptions: make(map[string]DOMHandler),
@@ -76,11 +77,6 @@ func NewMarketData(disconnectHandler MarketDisconnectHandler, opts ...WsOption) 
 		WithURL(wsMdURL),
 		WithConnectHandler(md.onConnect),
 		WithHandler(md.incomeHandler),
-		WithDisconnectHandler(func() {
-			if disconnectHandler != nil {
-				disconnectHandler(&md, md.client.Logger())
-			}
-		}),
 	}
 	opts = append(defaultOpts, opts...)
 
@@ -264,4 +260,10 @@ func (m *marketData) unmarshal(msg []byte, v interface{}) (interface{}, error) {
 
 func (m *marketData) getLogger() Logger {
 	return m.client.Logger()
+}
+
+func (m *marketData) SetDisconnectHandler(handler MarketDisconnectHandler) {
+	m.client.SetDisconnectHandler(func() {
+		handler(m, m.client.Logger())
+	})
 }

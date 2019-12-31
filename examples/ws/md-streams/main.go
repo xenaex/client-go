@@ -14,7 +14,8 @@ func main() {
 
 	host := "ws://trading.xena.rc/api/ws/market-data"
 	// md := xena.NewMarketData(xena.WithDebug(), xena.WithURL("ws://trading.xena.rc/api/ws/market-data"))
-	md := xena.NewMarketData(xena.DefaultMarketDisconnectHandler, xena.WithURL(host), xena.WithDebug())
+	md := xena.NewMarketData(xena.WithURL(host), xena.WithDebug())
+	md.SetDiconnectHandler(xena.DefaultMarketDisconnectHandler)
 	resp, err := md.Connect()
 	if err != nil {
 		log.Printf("error %s on md.Connect()", err)

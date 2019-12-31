@@ -89,6 +89,7 @@ type TradingClient interface {
 
 	// CollapsePositions collapse all existing positions for margin account and symbol.
 	CollapsePositions(account uint64, symbol string, requestId string) error
+	SetDisconnectHandler(handler TradingDisconnectHandler)
 }
 
 // DefaultTradingDisconnectHandler default Disconnect handler.
@@ -109,7 +110,7 @@ func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 }
 
 // NewTradingClient constructor
-func NewTradingClient(apiKey, apiSecret string, disconnectHandler TradingDisconnectHandler, opts ...WsOption) TradingClient {
+func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient {
 	t := &tradingClient{
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
@@ -118,11 +119,6 @@ func NewTradingClient(apiKey, apiSecret string, disconnectHandler TradingDisconn
 	defaultOpts := []WsOption{
 		WithURL(wsTradingURL),
 		WithHandler(t.incomeHandler),
-		WithDisconnectHandler(func() {
-			if disconnectHandler != nil {
-				disconnectHandler(t, t.client.Logger())
-			}
-		}),
 	}
 	opts = append(defaultOpts, opts...)
 
@@ -614,4 +610,10 @@ func (t *tradingClient) unmarshal(msg []byte, v interface{}) (interface{}, error
 	}
 
 	return v, nil
+}
+
+func (t *tradingClient) SetDisconnectHandler(handler TradingDisconnectHandler) {
+	t.client.SetDisconnectHandler(func() {
+		handler(t, t.client.Logger())
+	})
 }

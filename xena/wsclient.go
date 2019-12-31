@@ -59,6 +59,7 @@ type WsClient interface {
 	WriteBytes(data []byte) error
 	Logger() Logger
 	getConf() wsConf
+	SetDisconnectHandler(handler DisconnectHandler)
 }
 
 type wsClient struct {
@@ -318,4 +319,8 @@ func (c *wsClient) handleMsg(msg []byte) {
 func (c *wsClient) handleError(err error) {
 	c.logger.Debugf("ws. error: %s", err)
 	c.errHandler(err)
+}
+
+func (c *wsClient) SetDisconnectHandler(handler DisconnectHandler) {
+	c.disconnectHandler = handler
 }

@@ -34,7 +34,9 @@ func main() {
 	}
 
 	log.Println("will be connect to ", host)
-	var client = xena.NewTradingClient(apiKey, apiSecret, xena.DefaultTradingDisconnectHandler, xena.WithURL(host), xena.WithDebug())
+	var client = xena.NewTradingClient(apiKey, apiSecret, xena.WithURL(host), xena.WithDebug())
+	client.SetDisconnectHandler(xena.DefaultTradingDisconnectHandler)
+
 	client.ListenBalanceIncrementalRefresh(onBalanceIncrementalRefreshHandler)
 	client.ListenBalanceSnapshotRefresh(onBalanceSnapshotRefreshHandler)
 	client.ListenExecutionReport(onExecutionReportHandler)
