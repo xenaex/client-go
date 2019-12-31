@@ -19,10 +19,10 @@ type MarketDisconnectHandler func(client MarketDataClient, logger Logger)
 // DOMHandler called on order book updated
 type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
 
-// LogonHandler will be called on Logon response received
+//MarketDataLogonHandler will be called on Logon response received.
 type MarketDataLogonHandler func(md MarketDataClient, m *xmsg.Logon)
 
-// MarketDataRejectHandler will be called on Reject received
+// MarketDataRejectHandler will be called on Reject received.
 type MarketDataRejectHandler func(md MarketDataClient, m *xmsg.Reject)
 
 // MarketDataClient is the main interface that helps to receive market data
@@ -47,6 +47,7 @@ type marketData struct {
 	mutexLogon sync.Mutex
 }
 
+//DefaultMarketDisconnectHandler default Disconnect handler.
 func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
 	go func(client MarketDataClient) {
 		for {

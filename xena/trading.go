@@ -18,7 +18,7 @@ const (
 	wsTradingURL = "ws://localhost/api/ws/trading"
 )
 
-// MassCancel string symbol = null, string side = null, string positionEffect = PositionEffect.Default;
+// OrderMassCancel string symbol = null, string side = null, string positionEffect = PositionEffect.Default;
 type OrderMassCancel struct {
 	client TradingClient
 }
@@ -60,24 +60,24 @@ type TradingClient interface {
 	// To receive response, client has to listen Listen???.
 	Orders(account uint64, requestId string) error
 
-	// MarketOrder place new market order.
+	//MarketOrder place new market order.
 	MarketOrder(account uint64, clOrdId string, symbol string, side Side, orderQty string) error
 
-	// LimitOrder place new limit order.
+	//LimitOrder place new limit order.
 	LimitOrder(account uint64, clOrdId string, symbol string, side Side, price string, orderQty string) error
 
-	// StopOrder place new stop order.
+	//StopOrder place new stop order.
 	StopOrder(account uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) error
 
-	// MarketIfTouchOrder place new market-if-touch order.
+	//MarketIfTouchOrder place new market-if-touch order.
 	MarketIfTouchOrder(account uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) error
 
 	Cancel(cmd *xmsg.OrderCancelRequest) error
 
-	// CancelByClOrdId cancels an existing order by original client order id.
+	//CancelByClOrdId cancels an existing order by original client order id.
 	CancelByClOrdId(account uint64, clOrdId, origClOrdId, symbol string, side Side) error
 
-	// CancelByOrderId cancel an existing order by order id.
+	//CancelByOrderId cancel an existing order by order id.
 	CancelByOrderId(account uint64, clOrdId, orderId, symbol string, side Side) error
 
 	// MassCancel send OrderMassCancelRequest request.
@@ -91,6 +91,7 @@ type TradingClient interface {
 	CollapsePositions(account uint64, symbol string, requestId string) error
 }
 
+// DefaultTradingDisconnectHandler default Disconnect handler.
 func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 	go func(client TradingClient) {
 		for {
@@ -116,7 +117,6 @@ func NewTradingClient(apiKey, apiSecret string, disconnectHandler TradingDisconn
 
 	defaultOpts := []WsOption{
 		WithURL(wsTradingURL),
-		withConnectInternalHandler(t.onConnect),
 		WithHandler(t.incomeHandler),
 		WithDisconnectHandler(func() {
 			if disconnectHandler != nil {
@@ -152,6 +152,12 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	defer func() { t.handlers.logonInternal = nil }()
 	err := t.client.Connect()
 	if err != nil {
+		return nil, err
+	}
+	loginCmd := t.loginCmd()
+	err = t.client.WriteBytes(loginCmd)
+	if err == nil {
+		t.client.Logger().Errorf("%s on t.client.WriteBytes()", err)
 		return nil, err
 	}
 	select {

@@ -20,6 +20,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+//ID generation new random id.
 func ID(prefix string) string {
 	if len(prefix) > maxIdLen {
 		return prefix[:maxIdLen]

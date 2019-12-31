@@ -3,13 +3,29 @@ package xena
 import "time"
 
 const (
-	localWsMdURL = "ws://localhost/api/ws/market-data"
+	localWsMdURL     = "ws://localhost/api/ws/market-data"
+	prodWsMdURL      = "ws://localhost/api/ws/market-data"
+	prodWsTradingURL = "ws://localhost/api/ws/market-data"
 )
 
-// WithURL set localhost... url for connection
+// WithLocalURL set localhost... url for connection.
 func WithLocalURL() WsOption {
 	return func(c *wsClient) {
 		c.url = localWsMdURL
+	}
+}
+
+// WithTradingURL set trading url for connection.
+func WithTradingURL() WsOption {
+	return func(c *wsClient) {
+		c.url = prodWsTradingURL
+	}
+}
+
+// WithMarketDataURL set market data url for connection.
+func WithMarketDataURL() WsOption {
+	return func(c *wsClient) {
+		c.url = prodWsTradingURL
 	}
 }
 
@@ -81,7 +97,7 @@ func WithHandler(fnc Handler) WsOption {
 	}
 }
 
-// WithErrHandler set custom common handler
+//WithErrHandler set custom common handler
 func WithErrHandler(fnc ErrHandler) WsOption {
 	return func(c *wsClient) {
 		if fnc == nil {
@@ -91,35 +107,37 @@ func WithErrHandler(fnc ErrHandler) WsOption {
 	}
 }
 
-// WithReconnectInterval set time interval between reconnects
+//WithReconnectInterval set time interval between reconnects
 func WithReconnectInterval(d time.Duration) WsOption {
 	return func(c *wsClient) {
 		c.conf.reconnectInterval = d
 	}
 }
 
-// WithHeartbeatInterval set time interval between heartbeats
+//WithHeartbeatInterval set time interval between heartbeats
 func WithHeartbeatInterval(d time.Duration) WsOption {
 	return func(c *wsClient) {
 		c.conf.heartbeatInterval = d
 	}
 }
 
-// WithHeartbeatInterval set time interval between heartbeats
+//WithLogger set custom logger.
 func WithLogger(logger Logger) WsOption {
 	return func(c *wsClient) {
 		c.logger.logger = logger
 	}
 }
 
+//WithConnectTimeoutConnect set connect timeout interval.
 func WithConnectTimeoutConnect(interval time.Duration) WsOption {
 	return func(c *wsClient) {
 		c.conf.connectTimeoutInterval = interval
 	}
 }
 
-func WithDisconnectTimeoutInterval(disconnectTimeoutInterval time.Duration) WsOption {
+//WithDisconnectTimeoutInterval set disconnect timeout interval.
+func WithDisconnectTimeoutInterval(interval time.Duration) WsOption {
 	return func(c *wsClient) {
-		c.conf.disconnectTimeoutInterval = disconnectTimeoutInterval
+		c.conf.disconnectTimeoutInterval = interval
 	}
 }
