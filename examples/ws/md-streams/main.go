@@ -34,6 +34,6 @@ func main() {
 	log.Printf("End")
 }
 
-func domHandler(md xena.MarketDataClient, m *xmsg.MarketDataRefresh) {
+func domHandler(_ xena.MarketDataClient, m *xmsg.MarketDataRefresh) {
 	log.Println("GOT", m)
 }

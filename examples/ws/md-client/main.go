@@ -13,7 +13,10 @@ func main() {
 	log.Printf("Start")
 
 	client := xena.NewWsClient(xena.WithDebug(), xena.WithConnectHandler(onConnect))
-	client.Connect()
+	err := client.Connect()
+	if err == nil {
+		log.Printf("error: %s on client.Connect()", err)
+	}
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -31,6 +34,9 @@ func onConnect(c xena.WsClient) {
 		SubscriptionRequestType: xmsg.SubscriptionRequestType_SnapshotAndUpdates,
 	}
 
-	c.Write(sm)
+	err := c.Write(sm)
+	if err == nil {
+		log.Printf("error: %s on c.Write(%s)", err, &sm)
+	}
 
 }

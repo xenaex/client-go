@@ -91,7 +91,7 @@ func NewMarketData(disconnectHandler MarketDisconnectHandler, opts ...WsOption) 
 func (m *marketData) Connect() (*xmsg.Logon, error) {
 	m.mutexLogon.Lock()
 	defer m.mutexLogon.Unlock()
-	msgs := make(chan *xmsg.Logon, 1)
+	logMsg := make(chan *xmsg.Logon, 1)
 	errs := make(chan *xmsg.Reject, 1)
 	m.handlers.rejectInternal = func(md MarketDataClient, m *xmsg.Reject) {
 		errs <- m
@@ -99,8 +99,8 @@ func (m *marketData) Connect() (*xmsg.Logon, error) {
 	}
 	defer func() { m.handlers.rejectInternal = nil }()
 	m.handlers.logonInternal = func(md MarketDataClient, m *xmsg.Logon) {
-		msgs <- m
-		close(msgs)
+		logMsg <- m
+		close(logMsg)
 	}
 	defer func() { m.handlers.logonInternal = nil }()
 	err := m.client.Connect()
@@ -108,7 +108,7 @@ func (m *marketData) Connect() (*xmsg.Logon, error) {
 		return nil, err
 	}
 	select {
-	case m, ok := <-msgs:
+	case m, ok := <-logMsg:
 		if ok {
 			return m, nil
 		}
@@ -127,13 +127,17 @@ func (m *marketData) Client() WsClient {
 	return m.client
 }
 
-func (m *marketData) onConnect(c WsClient) {
+func (m *marketData) onConnect(WsClient) {
 	// do subscribe on previous streams
 	m.subscribeMu.Lock()
 	defer m.subscribeMu.Unlock()
 
 	for _, r := range m.subscriptions {
-		m.client.Write(r)
+		err := m.client.Write(r)
+		if err == nil {
+			m.client.Logger().Errorf("%s on m.client.Write(%s)", err, &r)
+		}
+
 	}
 }
 

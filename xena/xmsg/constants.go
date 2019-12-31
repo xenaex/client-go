@@ -26,10 +26,10 @@ const (
 	MsgType_OrderMassStatusResponse          = "U8"  // custom FIX value 'U8'
 	MsgType_PositionMaintenanceRequest       = "AL"  // real FIX value is 'AL'
 	MsgType_PositionMaintenanceReport        = "AM"  // real FIX value is 'AM'
-	MsgType_RequestForPositions              = "AN"  // real FIX value is AN, it's order numer in list = 24
-	MsgType_PositionReport                   = "AP"  // real FIX value is AP, it's order numer in list = 26
-	MsgType_MassPositionReport               = "MAP" // cumstom FIX value 'MAP'
-	MsgType_MarginRequirementReport          = "CJ"  // cumstom FIX value 'CJ'
+	MsgType_RequestForPositions              = "AN"  // real FIX value is AN, it's order number in list = 24
+	MsgType_PositionReport                   = "AP"  // real FIX value is AP, it's order number in list = 26
+	MsgType_MassPositionReport               = "MAP" // custom FIX value 'MAP'
+	MsgType_MarginRequirementReport          = "CJ"  // custom FIX value 'CJ'
 	MsgType_Heartbeat                        = "0"   // real FIX value is '0'
 	MsgType_OrderMassCancelRequest           = "q"
 	MsgType_OrderMassCancelReport            = "r"

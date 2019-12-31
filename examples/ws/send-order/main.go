@@ -14,7 +14,7 @@ import (
 // set api ket in environment.
 // export XENA_API_KEY=""
 // export XENA_API_SECRET=""
-// export XENA_HOST="ws://xmsg.xena.rc/ws/trading/"
+// export XENA_HOST="ws://api.xena.rc/ws/trading/"
 
 var accountId = uint64(1012000000)
 
@@ -30,7 +30,7 @@ func main() {
 		return
 	}
 	if len(host) == 0 {
-		host = "wss://xmsg.xena.exchange/ws/market-data/"
+		host = "wss://api.xena.exchange/ws/market-data/"
 	}
 
 	log.Println("will be connect to ", host)
@@ -80,50 +80,50 @@ func main() {
 	log.Printf("End")
 }
 
-func onListStatusHandler(t xena.TradingClient, m *xmsg.ListStatus) {
+func onListStatusHandler(_ xena.TradingClient, m *xmsg.ListStatus) {
 	log.Println("GOT onListStatus ", m)
 }
 
-func onRejectHandler(t xena.TradingClient, m *xmsg.Reject) {
+func onRejectHandler(_ xena.TradingClient, m *xmsg.Reject) {
 	log.Println("GOT onReject ", m)
 }
 
-func onPositionMaintenanceReportHandler(t xena.TradingClient, m *xmsg.PositionMaintenanceReport) {
+func onPositionMaintenanceReportHandler(_ xena.TradingClient, m *xmsg.PositionMaintenanceReport) {
 	log.Println("GOT onPositionMaintenanceReport ", m)
 }
 
-func onMassPositionReportHandler(t xena.TradingClient, m *xmsg.MassPositionReport) {
+func onMassPositionReportHandler(_ xena.TradingClient, m *xmsg.MassPositionReport) {
 	log.Println("GOT onMassPositionReport ", m)
 }
 
-func onPositionReportHandler(t xena.TradingClient, m *xmsg.PositionReport) {
+func onPositionReportHandler(_ xena.TradingClient, m *xmsg.PositionReport) {
 	log.Println("GOT onPositionReport ", m)
 }
 
-func onOrderMassStatusResponseHandler(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
+func onOrderMassStatusResponseHandler(_ xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
 	log.Println("GOT onOrderMassStatusResponse ", m)
 }
 
-func onOrderCancelRejectHandler(t xena.TradingClient, m *xmsg.OrderCancelReject) {
+func onOrderCancelRejectHandler(_ xena.TradingClient, m *xmsg.OrderCancelReject) {
 	log.Println("GOT onOrderCancelReject ", m)
 }
 
-func onExecutionReportHandler(t xena.TradingClient, m *xmsg.ExecutionReport) {
+func onExecutionReportHandler(_ xena.TradingClient, m *xmsg.ExecutionReport) {
 	log.Println("GOT onExecutionReport ", m)
 }
 
-func onMarginRequirementReportHandler(t xena.TradingClient, m *xmsg.MarginRequirementReport) {
+func onMarginRequirementReportHandler(_ xena.TradingClient, m *xmsg.MarginRequirementReport) {
 	log.Println("GOT onMarginRequirementReport ", m)
 }
 
-func onBalanceIncrementalRefreshHandler(t xena.TradingClient, m *xmsg.BalanceIncrementalRefresh) {
+func onBalanceIncrementalRefreshHandler(_ xena.TradingClient, m *xmsg.BalanceIncrementalRefresh) {
 	log.Println("GOT onBalanceIncrementalRefresh ", m)
 }
 
-func onBalanceSnapshotRefreshHandler(t xena.TradingClient, m *xmsg.BalanceSnapshotRefresh) {
+func onBalanceSnapshotRefreshHandler(_ xena.TradingClient, m *xmsg.BalanceSnapshotRefresh) {
 	log.Println("GOT onBalanceSnapshotRefresh ", m)
 }
 
-func logonHandler(t xena.TradingClient, m *xmsg.Logon) {
+func logonHandler(_ xena.TradingClient, m *xmsg.Logon) {
 	log.Println("GOT onLogon ", m)
 }

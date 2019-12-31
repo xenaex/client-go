@@ -138,7 +138,7 @@ func (t *tradingClient) getLogger() Logger {
 func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	t.mutexLogon.Lock()
 	defer t.mutexLogon.Unlock()
-	msgs := make(chan *xmsg.Logon, 1)
+	logMgs := make(chan *xmsg.Logon, 1)
 	errs := make(chan *xmsg.Reject, 1)
 	t.handlers.rejectInternal = func(t TradingClient, m *xmsg.Reject) {
 		errs <- m
@@ -146,8 +146,8 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	}
 	defer func() { t.handlers.rejectInternal = nil }()
 	t.handlers.logonInternal = func(t TradingClient, m *xmsg.Logon) {
-		msgs <- m
-		close(msgs)
+		logMgs <- m
+		close(logMgs)
 	}
 	defer func() { t.handlers.logonInternal = nil }()
 	err := t.client.Connect()
@@ -155,7 +155,7 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 		return nil, err
 	}
 	select {
-	case m, ok := <-msgs:
+	case m, ok := <-logMgs:
 		if ok {
 			return m, nil
 		}
@@ -554,9 +554,12 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 	// it is market data only
 }
 
-func (t *tradingClient) onConnect(c WsClient) {
+func (t *tradingClient) onConnect(WsClient) {
 	loginCmd := t.loginCmd()
-	t.client.WriteBytes(loginCmd)
+	err := t.client.WriteBytes(loginCmd)
+	if err == nil {
+		t.client.Logger().Errorf("%s on t.client.WriteBytes()", err)
+	}
 }
 
 func (t *tradingClient) loginCmd() []byte {
@@ -578,6 +581,10 @@ func (t *tradingClient) loginCmd() []byte {
 
 	digest := sha256.Sum256([]byte(payload))
 	r, s, err := ecdsa.Sign(rand.Reader, privKey, digest[:])
+	if err != nil {
+		t.client.Logger().Errorf("%s on ecdsa.Sign()", err)
+		return nil
+	}
 	signature := append(r.Bytes(), s.Bytes()...)
 	sigHex := hex.EncodeToString(signature)
 

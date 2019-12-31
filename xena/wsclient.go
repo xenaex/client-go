@@ -290,10 +290,10 @@ func (c *wsClient) heartbeats() {
 	defer ticker.Stop()
 	for {
 		c.mu.Lock()
-		close := c.close
+		ok := !c.close
 		conn := c.conn
 		c.mu.Unlock()
-		if !close && conn != nil {
+		if ok && conn != nil {
 			_ = c.WriteString(heartbeatMsg)
 		}
 		<-ticker.C
