@@ -60,7 +60,7 @@ type WsClient interface {
 	Logger() Logger
 	getConf() wsConf
 	SetDisconnectHandler(handler DisconnectHandler)
-	SetConnectInternalHandler(handler ConnectHandler)
+	setConnectInternalHandler(handler ConnectHandler)
 }
 
 type wsClient struct {
@@ -326,6 +326,6 @@ func (c *wsClient) SetDisconnectHandler(handler DisconnectHandler) {
 	c.disconnectHandler = handler
 }
 
-func (c *wsClient) SetConnectInternalHandler(handler ConnectHandler) {
+func (c *wsClient) setConnectInternalHandler(handler ConnectHandler) {
 	c.connectInternalHandler = handler
 }

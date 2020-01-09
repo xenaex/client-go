@@ -40,7 +40,7 @@ type TradingClient interface {
 	ListenPositionMaintenanceReport(handler PositionMaintenanceReportHandler)
 	ListenReject(handler RejectHandler)
 	ListenListStatus(handler ListStatusHandler)
-	// ListenOrderMassCancelReport(handler OrderMassCancelReportHandler)
+	ListenOrderMassCancelReport(handler OrderMassCancelReportHandler)
 
 	// ConnectAndLogon connects to websocket and if connection was successful sends Logon message with provided authorization data.
 	// Logon response. If logon is rejected Logon.RejectText will contain the reject reason.
@@ -148,33 +148,33 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 		close(logMgs)
 	}
 	defer func() { t.handlers.logonInternal = nil }()
-	var errSendCmd error
+
+	var loginErr error
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	t.client.SetConnectInternalHandler(func(client WsClient) {
+	t.client.setConnectInternalHandler(func(client WsClient) {
 		defer wg.Done()
 		loginCmd := t.loginCmd()
-		errSendCmd := t.client.WriteBytes(loginCmd)
-		if errSendCmd == nil {
-			errSendCmd = fmt.Errorf("%s on t.client.WriteBytes()", errSendCmd)
-			t.client.Logger().Errorf("%s", errSendCmd)
+		loginErr = t.client.WriteBytes(loginCmd)
+		if loginErr == nil {
+			loginErr = fmt.Errorf("%s on t.client.WriteBytes()", loginErr)
+			t.client.Logger().Errorf("%s", loginErr)
 		}
 	})
-	defer func() { t.client.SetConnectInternalHandler(nil) }()
+	defer func() { t.client.setConnectInternalHandler(nil) }()
 	err := t.client.Connect()
 	if err != nil {
 		return nil, err
 	}
 	wg.Wait()
-	if errSendCmd != nil {
+	if loginErr != nil {
 		return nil, err
 	}
 	select {
 	case m, ok := <-logMgs:
-		if ok {
+		if ok && m != nil {
 			return m, nil
 		}
-		return nil, fmt.Errorf("something happened")
 	case m, ok := <-errs:
 		if ok {
 			return nil, fmt.Errorf("reject reason: %s", m.RejectReason)
@@ -183,7 +183,7 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 		t.client.Close()
 		return nil, fmt.Errorf("timeout logon")
 	}
-	return nil, fmt.Errorf("something happened")
+	return nil, fmt.Errorf("login response didn't come")
 }
 
 // LogonHandler will be called on Logon response received
@@ -300,6 +300,10 @@ func (t *tradingClient) ListenBalanceIncrementalRefresh(handler BalanceIncrement
 
 func (t *tradingClient) ListenBalanceSnapshotRefresh(handler BalanceSnapshotRefreshHandler) {
 	t.handlers.balanceSnapshotRefresh = handler
+}
+
+func (t *tradingClient) ListenOrderMassCancelReport(handler OrderMassCancelReportHandler) {
+	t.handlers.orderMassCancelReport = handler
 }
 
 // MarketOrder place new market order.
@@ -553,7 +557,6 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 				go t.handlers.listStatus(t, v)
 			}
 		}
-	// case xmsg.MsgType_OrderMassStatusResponse:
 	case xmsg.MsgType_OrderMassCancelReport:
 		v := new(xmsg.OrderMassCancelReport)
 		if _, err := t.unmarshal(msg, v); err == nil {
@@ -565,9 +568,6 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 	default:
 		t.client.Logger().Errorf("unknown message type %s", string(msg))
 	}
-
-	// case xmsg.MsgType_Heartbeat: -> xmsg.Heartbeat
-	// it is market data only
 }
 
 func (t *tradingClient) onConnect(WsClient) {
