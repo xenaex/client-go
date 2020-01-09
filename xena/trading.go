@@ -148,14 +148,25 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 		close(logMgs)
 	}
 	defer func() { t.handlers.logonInternal = nil }()
+	var errSendCmd error
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	t.client.SetConnectInternalHandler(func(client WsClient) {
+		defer wg.Done()
+		loginCmd := t.loginCmd()
+		errSendCmd := t.client.WriteBytes(loginCmd)
+		if errSendCmd == nil {
+			errSendCmd = fmt.Errorf("%s on t.client.WriteBytes()", errSendCmd)
+			t.client.Logger().Errorf("%s", errSendCmd)
+		}
+	})
+	defer func() { t.client.SetConnectInternalHandler(nil) }()
 	err := t.client.Connect()
 	if err != nil {
 		return nil, err
 	}
-	loginCmd := t.loginCmd()
-	err = t.client.WriteBytes(loginCmd)
-	if err == nil {
-		t.client.Logger().Errorf("%s on t.client.WriteBytes()", err)
+	wg.Wait()
+	if errSendCmd != nil {
 		return nil, err
 	}
 	select {
@@ -163,6 +174,7 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 		if ok {
 			return m, nil
 		}
+		return nil, fmt.Errorf("something happened")
 	case m, ok := <-errs:
 		if ok {
 			return nil, fmt.Errorf("reject reason: %s", m.RejectReason)
