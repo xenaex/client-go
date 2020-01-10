@@ -3,7 +3,9 @@ package xena
 // Symbol is an instrument
 type Symbol string
 type Side string
-type Throttle string
+type DOMThrottle string
+type CandlesThrottle string
+type TradesThrottle string
 type AggregateBook int64
 type PositionEffect string
 
@@ -20,9 +22,17 @@ const (
 	SideBuy  Side = "1"
 	SideSell Side = "2"
 
-	ThrottleDOMDefault Throttle = ""
-	ThrottleDOM500ms   Throttle = "500ms"
-	ThrottleDOM5s      Throttle = "5s"
+	ThrottleDOMDefault DOMThrottle = ""
+	ThrottleDOM500ms   DOMThrottle = "500ms"
+	ThrottleDOM5s      DOMThrottle = "5s"
+
+	ThrottleCandlesDefault CandlesThrottle = ""
+	ThrottleCandles250ms   CandlesThrottle = "250ms"
+	ThrottleCandles1s      CandlesThrottle = "1s"
+
+	ThrottleTradesDefault TradesThrottle = ""
+	ThrottleTrades500ms   TradesThrottle = "500ms"
+	ThrottleTrades5s      TradesThrottle = "5s"
 
 	CancelOrdersForASecurity = "1"
 	CancelAllOrders          = "7"

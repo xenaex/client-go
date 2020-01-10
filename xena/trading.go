@@ -137,12 +137,6 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	t.mutexLogon.Lock()
 	defer t.mutexLogon.Unlock()
 	logMgs := make(chan *xmsg.Logon, 1)
-	errs := make(chan *xmsg.Reject, 1)
-	t.handlers.rejectInternal = func(t TradingClient, m *xmsg.Reject) {
-		errs <- m
-		close(errs)
-	}
-	defer func() { t.handlers.rejectInternal = nil }()
 	t.handlers.logonInternal = func(t TradingClient, m *xmsg.Logon) {
 		logMgs <- m
 		close(logMgs)
@@ -156,11 +150,12 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 		defer wg.Done()
 		loginCmd := t.loginCmd()
 		loginErr = t.client.WriteBytes(loginCmd)
-		if loginErr == nil {
+		if loginErr != nil {
 			loginErr = fmt.Errorf("%s on t.client.WriteBytes()", loginErr)
 			t.client.Logger().Errorf("%s", loginErr)
 		}
 	})
+
 	defer func() { t.client.setConnectInternalHandler(nil) }()
 	err := t.client.Connect()
 	if err != nil {
@@ -173,11 +168,10 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	select {
 	case m, ok := <-logMgs:
 		if ok && m != nil {
+			if len(m.RejectText) != 0 {
+				return nil, fmt.Errorf("reject reason: %s", m.RejectText)
+			}
 			return m, nil
-		}
-	case m, ok := <-errs:
-		if ok {
-			return nil, fmt.Errorf("reject reason: %s", m.RejectReason)
 		}
 	case <-time.NewTimer(t.client.getConf().disconnectTimeoutInterval).C:
 		t.client.Close()
@@ -244,7 +238,6 @@ type tradingClient struct {
 		positionMaintenanceReport PositionMaintenanceReportHandler
 		positionReport            PositionReportHandler
 		reject                    RejectHandler
-		rejectInternal            RejectHandler
 	}
 	mutexLogon sync.Mutex
 }
@@ -462,7 +455,6 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 	if err != nil {
 		t.client.Logger().Errorf("error: %s. on fixjson.Unmarshal(%s)", err, string(msg))
 	}
-
 	switch mth.MsgType {
 	case xmsg.MsgType_LogonMsgType:
 		v := new(xmsg.Logon)
@@ -545,9 +537,6 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.reject != nil {
 				go t.handlers.reject(t, v)
-			}
-			if t.handlers.rejectInternal != nil {
-				go t.handlers.rejectInternal(t, v)
 			}
 		}
 	case xmsg.MsgType_ListStatus:

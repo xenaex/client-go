@@ -19,11 +19,13 @@ type MarketDisconnectHandler func(client MarketDataClient, logger Logger)
 // DOMHandler called on order book updated
 type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
 
+type MDHandler func(md MarketDataClient, msgType string, r *xmsg.MarketDataRequestReject, m *xmsg.MarketDataRefresh)
+
 //MarketDataLogonHandler will be called on Logon response received.
 type MarketDataLogonHandler func(md MarketDataClient, m *xmsg.Logon)
 
 // MarketDataRejectHandler will be called on Reject received.
-type MarketDataRejectHandler func(md MarketDataClient, m *xmsg.Reject)
+type MarketDataRejectHandler func(md MarketDataClient, m *xmsg.MarketDataRequestReject)
 
 // MarketDataClient is the main interface that helps to receive market data
 type MarketDataClient interface {
@@ -32,18 +34,22 @@ type MarketDataClient interface {
 	UnsubscribeOnDOM(streamID string) error
 	Connect() (*xmsg.Logon, error)
 	SetDisconnectHandler(handler MarketDisconnectHandler)
-}
 
+	SubscribeOnCandles(symbol, timeframe string, handler MDHandler, opts ...interface{}) (streamID string, err error)
+	SubscribeOnDom(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error)
+	SubscribeOnTrades(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error)
+	SubscribeOnMarketWatch(symbol string, handler MDHandler) (streamID string, err error)
+}
 type marketData struct {
 	client WsClient
 	// subscriptions
 	subscriptions    map[string]xmsg.MarketDataRequest
 	subscribeMu      *sync.RWMutex
 	domSubscriptions map[string]DOMHandler
+	userHandlers     map[string]MDHandler
 	handlers         struct {
-		logonInternal  MarketDataLogonHandler
-		reject         MarketDataRejectHandler
-		rejectInternal MarketDataRejectHandler
+		logonInternal MarketDataLogonHandler
+		reject        MarketDataRejectHandler
 	}
 	mutexLogon sync.Mutex
 }
@@ -70,6 +76,7 @@ func NewMarketData(opts ...WsOption) MarketDataClient {
 	md := marketData{
 		subscriptions:    make(map[string]xmsg.MarketDataRequest),
 		domSubscriptions: make(map[string]DOMHandler),
+		userHandlers:     make(map[string]MDHandler),
 		subscribeMu:      &sync.RWMutex{},
 	}
 
@@ -89,12 +96,6 @@ func (m *marketData) Connect() (*xmsg.Logon, error) {
 	m.mutexLogon.Lock()
 	defer m.mutexLogon.Unlock()
 	logMsg := make(chan *xmsg.Logon, 1)
-	errs := make(chan *xmsg.Reject, 1)
-	m.handlers.rejectInternal = func(md MarketDataClient, m *xmsg.Reject) {
-		errs <- m
-		close(errs)
-	}
-	defer func() { m.handlers.rejectInternal = nil }()
 	m.handlers.logonInternal = func(md MarketDataClient, m *xmsg.Logon) {
 		logMsg <- m
 		close(logMsg)
@@ -106,18 +107,17 @@ func (m *marketData) Connect() (*xmsg.Logon, error) {
 	}
 	select {
 	case m, ok := <-logMsg:
-		if ok {
+		if ok && m != nil {
+			if len(m.RejectText) != 0 {
+				return nil, fmt.Errorf("reject reason: %s", m.RejectText)
+			}
 			return m, nil
-		}
-	case m, ok := <-errs:
-		if ok {
-			return nil, fmt.Errorf("reject reason: %s", m.RejectReason)
 		}
 	case <-time.NewTimer(m.client.getConf().connectTimeoutInterval).C:
 		m.client.Close()
 		return nil, fmt.Errorf("timeout logon")
 	}
-	return nil, fmt.Errorf("something happened")
+	return nil, fmt.Errorf("login response didn't come")
 }
 
 func (m *marketData) Client() WsClient {
@@ -168,7 +168,7 @@ func (m *marketData) SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...i
 
 	for _, o := range opts {
 		switch v := o.(type) {
-		case Throttle:
+		case DOMThrottle:
 			d, err := time.ParseDuration(string(v))
 			if err != nil {
 				return "", err
@@ -196,6 +196,158 @@ func (m *marketData) SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...i
 	return streamID, err
 }
 
+func (m *marketData) subscribe(req xmsg.MarketDataRequest, handler MDHandler) (err error) {
+	m.subscribeMu.Lock()
+	defer m.subscribeMu.Unlock()
+
+	// subscribe
+	if _, ok := m.subscriptions[req.MDStreamId]; ok {
+		return nil
+	}
+	m.subscriptions[req.MDStreamId] = req
+	m.userHandlers[req.MDStreamId] = handler
+
+	if m.client.IsConnected() {
+		err = m.client.Write(req)
+		return err
+	}
+	return nil
+}
+
+func (m *marketData) createRequest(MsgType, streamName, symbol, streamPostfix string) (req xmsg.MarketDataRequest, err error) {
+	streamId := streamName
+	if len(symbol) > 0 {
+		streamId += fmt.Sprintf(":%s", symbol)
+	}
+	if len(streamPostfix) > 0 {
+		streamId += fmt.Sprintf(":%s", streamPostfix)
+	}
+	req.MsgType = MsgType
+	req.MDStreamId = streamId
+	req.SubscriptionRequestType = xmsg.SubscriptionRequestType_SnapshotAndUpdates
+	req.ThrottleType = xmsg.ThrottleType_OutstandingRequests
+	req.ThrottleTimeUnit = xmsg.ThrottleTimeUnit_Nanoseconds
+
+	return req, nil
+}
+
+func (m *marketData) SubscribeOnCandles(symbol, timeframe string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
+	aggregatedBook := int64(0)
+	throttleInterval := int64(250)
+	if len(timeframe) == 0 {
+		timeframe = "1m"
+	}
+	for _, o := range opts {
+		switch v := o.(type) {
+		case CandlesThrottle:
+			d, err := time.ParseDuration(string(v))
+			if err != nil {
+				return "", err
+			}
+			throttleInterval = d.Nanoseconds()
+		case AggregateBook:
+			aggregatedBook = int64(v)
+		default:
+			return "", fmt.Errorf("unsupported type of %#v", o)
+		}
+	}
+	req := xmsg.MarketDataRequest{}
+	req, err = m.createRequest(xmsg.MsgType_MarketDataRequest, "candles", symbol, timeframe)
+	if err != nil {
+		return "", err
+	}
+	req.AggregatedBook = aggregatedBook
+
+	req.ThrottleType = xmsg.ThrottleType_OutstandingRequests
+	req.ThrottleTimeInterval = throttleInterval
+	req.ThrottleTimeUnit = xmsg.ThrottleTimeUnit_Nanoseconds
+
+	err = m.subscribe(req, handler)
+	if err != nil {
+		return "", err
+	}
+	return req.MDStreamId, nil
+}
+func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
+	aggregatedBook := int64(0)
+	throttleInterval := int64(500)
+	req := xmsg.MarketDataRequest{}
+	for _, o := range opts {
+		switch v := o.(type) {
+		case DOMThrottle:
+			d, err := time.ParseDuration(string(v))
+			if err != nil {
+				return "", err
+			}
+			throttleInterval = d.Nanoseconds()
+		case AggregateBook:
+			aggregatedBook = int64(v)
+		default:
+			return "", fmt.Errorf("unsupported type of %#v", o)
+		}
+	}
+
+	req, err = m.createRequest(xmsg.MsgType_MarketDataRequest, "DOM", symbol, "aggregated")
+	if err != nil {
+		return "", err
+	}
+	req.AggregatedBook = aggregatedBook
+	req.ThrottleType = xmsg.ThrottleType_OutstandingRequests
+	req.ThrottleTimeInterval = throttleInterval
+	req.ThrottleTimeUnit = xmsg.ThrottleTimeUnit_Nanoseconds
+
+	err = m.subscribe(req, handler)
+	if err != nil {
+		return "", err
+	}
+	return req.MDStreamId, nil
+}
+func (m *marketData) SubscribeOnTrades(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
+	throttleInterval := int64(500)
+	req := xmsg.MarketDataRequest{}
+	for _, o := range opts {
+		switch v := o.(type) {
+		case TradesThrottle:
+			if len(v) != 0 {
+				d, err := time.ParseDuration(string(v))
+				if err != nil {
+					return "", err
+				}
+				throttleInterval = d.Nanoseconds()
+			} else {
+				throttleInterval = 0
+			}
+		default:
+			return "", fmt.Errorf("unsupported type of %#v", o)
+		}
+	}
+
+	req, err = m.createRequest(xmsg.MsgType_MarketDataRequest, "trades", symbol, "")
+	req.ThrottleTimeInterval = throttleInterval
+	if err != nil {
+		return "", err
+	}
+	err = m.subscribe(req, handler)
+	if err != nil {
+		return "", err
+	}
+	return req.MDStreamId, nil
+}
+func (m *marketData) SubscribeOnMarketWatch(symbol string, handler MDHandler) (streamID string, err error) {
+	req := xmsg.MarketDataRequest{}
+	req, err = m.createRequest(xmsg.MsgType_MarketDataRequest, "market-watch", "", "")
+	if err != nil {
+		return "", err
+	}
+
+	err = m.subscribe(req, handler)
+	if err != nil {
+		return "", err
+	}
+
+	return req.MDStreamId, nil
+}
+
 func (m *marketData) incomeHandler(msg []byte) {
 	mth := new(xmsg.MsgTypeHeader)
 	err := fixjson.Unmarshal(msg, mth)
@@ -216,20 +368,22 @@ func (m *marketData) incomeHandler(msg []byte) {
 		}
 
 	case xmsg.MsgType_RejectMsgType:
-		v := new(xmsg.Reject)
+		v := new(xmsg.MarketDataRequestReject)
 		if _, err := m.unmarshal(msg, v); err == nil {
 			if m.handlers.reject != nil {
 				go m.handlers.reject(m, v)
 			}
-			if m.handlers.rejectInternal != nil {
-				go m.handlers.rejectInternal(m, v)
+			if h, ok := m.userHandlers[v.MDStreamId]; ok {
+				h(m, mth.MsgType, v, nil)
 			}
 		}
 
 	case xmsg.MsgType_MarketDataRequest:
-		v := new(xmsg.MarketDataRequest)
+		v := new(xmsg.MarketDataRefresh)
 		if _, err := m.unmarshal(msg, v); err == nil {
-			// m.client.Logger().Debugf("got %#v", v)
+			if h, ok := m.userHandlers[v.MDStreamId]; ok {
+				h(m, mth.MsgType, nil, v)
+			}
 		}
 
 	case xmsg.MsgType_MarketDataIncrementalRefresh, xmsg.MsgType_MarketDataSnapshotFullRefresh:
@@ -239,6 +393,9 @@ func (m *marketData) incomeHandler(msg []byte) {
 			m.subscribeMu.RLock()
 			if handler, ok := m.domSubscriptions[v.MDStreamId]; ok {
 				go handler(m, v)
+			}
+			if h, ok := m.userHandlers[v.MDStreamId]; ok {
+				h(m, mth.MsgType, nil, v)
 			}
 			m.subscribeMu.RUnlock()
 		}
