@@ -19,7 +19,7 @@ type MarketDisconnectHandler func(client MarketDataClient, logger Logger)
 // DOMHandler called on order book updated
 type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
 
-type MDHandler func(md MarketDataClient, msgType string, r *xmsg.MarketDataRequestReject, m *xmsg.MarketDataRefresh)
+type MDHandler func(md MarketDataClient, r *xmsg.MarketDataRequestReject, m *xmsg.MarketDataRefresh)
 
 //MarketDataLogonHandler will be called on Logon response received.
 type MarketDataLogonHandler func(md MarketDataClient, m *xmsg.Logon)
@@ -374,7 +374,7 @@ func (m *marketData) incomeHandler(msg []byte) {
 				go m.handlers.reject(m, v)
 			}
 			if h, ok := m.userHandlers[v.MDStreamId]; ok {
-				h(m, mth.MsgType, v, nil)
+				h(m, v, nil)
 			}
 		}
 
@@ -382,7 +382,7 @@ func (m *marketData) incomeHandler(msg []byte) {
 		v := new(xmsg.MarketDataRefresh)
 		if _, err := m.unmarshal(msg, v); err == nil {
 			if h, ok := m.userHandlers[v.MDStreamId]; ok {
-				h(m, mth.MsgType, nil, v)
+				h(m, nil, v)
 			}
 		}
 
@@ -395,7 +395,7 @@ func (m *marketData) incomeHandler(msg []byte) {
 				go handler(m, v)
 			}
 			if h, ok := m.userHandlers[v.MDStreamId]; ok {
-				h(m, mth.MsgType, nil, v)
+				h(m, nil, v)
 			}
 			m.subscribeMu.RUnlock()
 		}
