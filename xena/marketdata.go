@@ -39,6 +39,7 @@ type MarketDataClient interface {
 	SubscribeOnDom(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error)
 	SubscribeOnTrades(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error)
 	SubscribeOnMarketWatch(symbol string, handler MDHandler) (streamID string, err error)
+	Unsubscribe(streamID string) error
 }
 type marketData struct {
 	client WsClient
@@ -424,4 +425,27 @@ func (m *marketData) SetDisconnectHandler(handler MarketDisconnectHandler) {
 	m.client.SetDisconnectHandler(func() {
 		handler(m, m.client.Logger())
 	})
+}
+
+func (m *marketData) Unsubscribe(streamID string) error {
+	m.subscribeMu.Lock()
+	defer m.subscribeMu.Unlock()
+
+	req, ok := m.subscriptions[streamID]
+	if !ok {
+		return fmt.Errorf("streamID %s not found", streamID)
+	}
+	req.SubscriptionRequestType = xmsg.SubscriptionRequestType_DisablePreviousSnapshot
+
+	if m.client.IsConnected() {
+		err := m.client.Write(req)
+		if err != nil {
+			return err
+		}
+	}
+
+	delete(m.userHandlers, streamID)
+	delete(m.subscriptions, streamID)
+
+	return nil
 }
