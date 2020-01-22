@@ -34,7 +34,7 @@ func NewWsClient(opts ...WsOption) WsClient {
 			connectTimeoutInterval:    wsTimeoutInterval,
 			disconnectTimeoutInterval: 2 * wsHeartbeatInterval,
 		},
-		logger:   newLogger(),
+		logger:   newLogger(false),
 		stopChan: make(chan struct{}),
 	}
 	c.initDefaultHandlers()
@@ -204,7 +204,7 @@ func (c *wsClient) connectAndListen() error {
 		}
 		conn, _, err := websocket.DefaultDialer.Dial(c.url, nil)
 		if err != nil {
-			c.logger.Debugf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
+			c.logger.Errorf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
 			c.handleError(err)
 			time.Sleep(c.conf.reconnectInterval)
 			continue
