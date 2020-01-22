@@ -4,8 +4,8 @@ import "time"
 
 const (
 	localWsMdURL     = "ws://localhost/api/ws/market-data"
-	prodWsMdURL      = "ws://localhost/api/ws/market-data"
-	prodWsTradingURL = "ws://localhost/api/ws/market-data"
+	prodWsMdURL      = "wss://trading.xena.exchange/api/ws/market-data"
+	prodWsTradingURL = "wss://api.xena.exchange/ws/trading"
 )
 
 // WithLocalURL set localhost... url for connection.
@@ -25,7 +25,7 @@ func WithTradingURL() WsOption {
 // WithMarketDataURL set market data url for connection.
 func WithMarketDataURL() WsOption {
 	return func(c *wsClient) {
-		c.url = prodWsTradingURL
+		c.url = prodWsMdURL
 	}
 }
 
