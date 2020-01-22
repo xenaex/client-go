@@ -4,7 +4,7 @@ import "time"
 
 const (
 	localWsMdURL     = "ws://localhost/api/ws/market-data"
-	prodWsMdURL      = "wss://trading.xena.exchange/api/ws/market-data"
+	prodWsMdURL      = "wss://api.xena.exchange/ws/market-data"
 	prodWsTradingURL = "wss://api.xena.exchange/ws/trading"
 )
 

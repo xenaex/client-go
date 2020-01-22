@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	wsMdURL = "wss://trading.xena.exchange/api/ws/market-data"
+	wsMdURL = "wss://api.xena.exchange/ws/market-data"
 )
 
 // MarketDisconnectHandler will be called when connection will be dropped
