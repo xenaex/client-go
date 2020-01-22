@@ -50,11 +50,11 @@ func (l *logger) SetDebug(flag bool) {
 // Debugf print debug message. Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Debugf(format string, v ...interface{}) {
 	if l.debug {
-		l.logger.Debugf(format, v)
+		l.logger.Debugf(format, v...)
 	}
 }
 
 // Errorf print error message. Arguments are handled in the manner of fmt.Printf.
 func (l *logger) Errorf(format string, v ...interface{}) {
-	l.logger.Errorf(format, v)
+	l.logger.Errorf(format, v...)
 }
