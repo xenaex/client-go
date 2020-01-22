@@ -153,12 +153,12 @@ func (c *wsClient) WriteString(msg string) error {
 
 // WriteBytes send message to socket
 func (c *wsClient) WriteBytes(data []byte) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if c.conn == nil {
 		return errors.New("ws connection not established yet")
 	}
-
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	err := c.conn.WriteMessage(websocket.TextMessage, data)
 	if err != nil {
 		c.handleError(err)
