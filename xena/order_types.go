@@ -6,16 +6,7 @@ import (
 	"github.com/xenaex/client-go/xena/xmsg"
 )
 
-func newOrderSingle(
-	clOrdId string,
-	symbol string,
-	side Side,
-	orderQty string,
-	account uint64,
-	ordType string,
-	price string,
-	stopPx string,
-) *xmsg.NewOrderSingle {
+func newOrderSingle(clOrdId string, symbol string, side Side, orderQty string, account uint64, ordType string, price string, stopPx string) *xmsg.NewOrderSingle {
 	cmd := &xmsg.NewOrderSingle{
 		MsgType:      xmsg.MsgType_NewOrderSingleMsgType,
 		ClOrdId:      clOrdId,

@@ -21,9 +21,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type AccountStatusReportRequest struct {
-	MsgType                string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	Account                uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	AccountStatusRequestId string   `protobuf:"bytes,42513,opt,name=AccountStatusRequestId,json=accountStatusRequestId,proto3" json:"AccountStatusRequestId,omitempty"`
+	MsgType                string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	Account                uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	AccountStatusRequestId string   `protobuf:"bytes,42513,opt,name=AccountStatusRequestId,json=accountStatusRequestId,proto3" json:"accountStatusRequestId,omitempty"`
 	XXX_NoUnkeyedLiteral   struct{} `json:"-"`
 	XXX_unrecognized       []byte   `json:"-"`
 	XXX_sizecache          int32    `json:"-"`
@@ -76,11 +76,11 @@ func (m *AccountStatusReportRequest) GetAccountStatusRequestId() string {
 }
 
 type Position struct {
-	Currency             string   `protobuf:"bytes,15,opt,name=Currency,json=currency,proto3" json:"Currency,omitempty"`
-	AvgPx                string   `protobuf:"bytes,6,opt,name=AvgPx,json=avgPx,proto3" json:"AvgPx,omitempty"`
-	PositionId           uint64   `protobuf:"varint,1618,opt,name=PositionId,json=positionId,proto3" json:"PositionId,omitempty"`
-	PositionOpenTime     int64    `protobuf:"varint,1805,opt,name=PositionOpenTime,json=positionOpenTime,proto3" json:"PositionOpenTime,omitempty"`
-	RealizedPL           string   `protobuf:"bytes,1806,opt,name=RealizedPL,json=realizedPL,proto3" json:"RealizedPL,omitempty"`
+	Currency             string   `protobuf:"bytes,15,opt,name=Currency,json=currency,proto3" json:"currency,omitempty"`
+	AvgPx                string   `protobuf:"bytes,6,opt,name=AvgPx,json=avgPx,proto3" json:"avgPx,omitempty"`
+	PositionId           uint64   `protobuf:"varint,1618,opt,name=PositionId,json=positionId,proto3" json:"positionId,omitempty"`
+	PositionOpenTime     int64    `protobuf:"varint,1805,opt,name=PositionOpenTime,json=positionOpenTime,proto3" json:"positionOpenTime,omitempty"`
+	RealizedPL           string   `protobuf:"bytes,1806,opt,name=RealizedPL,json=realizedPL,proto3" json:"realizedPL,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -147,15 +147,15 @@ func (m *Position) GetRealizedPL() string {
 }
 
 type Balance struct {
-	Account              uint64      `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	Currency             string      `protobuf:"bytes,15,opt,name=Currency,json=currency,proto3" json:"Currency,omitempty"`
-	LastUpdateTime       int64       `protobuf:"varint,779,opt,name=LastUpdateTime,json=lastUpdateTime,proto3" json:"LastUpdateTime,omitempty"`
-	Available            string      `protobuf:"bytes,1801,opt,name=Available,json=available,proto3" json:"Available,omitempty"`
-	OnHold               string      `protobuf:"bytes,1802,opt,name=OnHold,json=onHold,proto3" json:"OnHold,omitempty"`
-	Settled              string      `protobuf:"bytes,1803,opt,name=Settled,json=settled,proto3" json:"Settled,omitempty"`
-	Equity               string      `protobuf:"bytes,1791,opt,name=Equity,json=equity,proto3" json:"Equity,omitempty"`
-	Bonus                string      `protobuf:"bytes,52313,opt,name=Bonus,json=bonus,proto3" json:"Bonus,omitempty"`
-	Positions            []*Position `protobuf:"bytes,1804,rep,name=Positions,json=positions,proto3" json:"Positions,omitempty"`
+	Account              uint64      `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	Currency             string      `protobuf:"bytes,15,opt,name=Currency,json=currency,proto3" json:"currency,omitempty"`
+	LastUpdateTime       int64       `protobuf:"varint,779,opt,name=LastUpdateTime,json=lastUpdateTime,proto3" json:"lastUpdateTime,omitempty"`
+	Available            string      `protobuf:"bytes,1801,opt,name=Available,json=available,proto3" json:"available,omitempty"`
+	OnHold               string      `protobuf:"bytes,1802,opt,name=OnHold,json=onHold,proto3" json:"onHold,omitempty"`
+	Settled              string      `protobuf:"bytes,1803,opt,name=Settled,json=settled,proto3" json:"settled,omitempty"`
+	Equity               string      `protobuf:"bytes,1791,opt,name=Equity,json=equity,proto3" json:"equity,omitempty"`
+	Bonus                string      `protobuf:"bytes,52313,opt,name=Bonus,json=bonus,proto3" json:"bonus,omitempty"`
+	Positions            []*Position `protobuf:"bytes,1804,rep,name=Positions,json=positions,proto3" json:"positions,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
 	XXX_unrecognized     []byte      `json:"-"`
 	XXX_sizecache        int32       `json:"-"`
@@ -250,14 +250,14 @@ func (m *Balance) GetPositions() []*Position {
 }
 
 type BalanceIncrementalRefresh struct {
-	MsgType                string     `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	Account                uint64     `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	AccountStatusRequestId string     `protobuf:"bytes,42513,opt,name=AccountStatusRequestId,json=accountStatusRequestId,proto3" json:"AccountStatusRequestId,omitempty"`
-	LastUpdateTime         int64      `protobuf:"varint,779,opt,name=LastUpdateTime,json=lastUpdateTime,proto3" json:"LastUpdateTime,omitempty"`
-	Balances               []*Balance `protobuf:"bytes,1800,rep,name=Balances,json=balances,proto3" json:"Balances,omitempty"`
+	MsgType                string     `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	Account                uint64     `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	AccountStatusRequestId string     `protobuf:"bytes,42513,opt,name=AccountStatusRequestId,json=accountStatusRequestId,proto3" json:"accountStatusRequestId,omitempty"`
+	LastUpdateTime         int64      `protobuf:"varint,779,opt,name=LastUpdateTime,json=lastUpdateTime,proto3" json:"lastUpdateTime,omitempty"`
+	Balances               []*Balance `protobuf:"bytes,1800,rep,name=Balances,json=balances,proto3" json:"balances,omitempty"`
 	// reject fields
-	RejectReason         string   `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"RejectReason,omitempty"`
-	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"Text,omitempty"`
+	RejectReason         string   `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"rejectReason,omitempty"`
+	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -338,14 +338,14 @@ func (m *BalanceIncrementalRefresh) GetText() string {
 }
 
 type BalanceSnapshotRefresh struct {
-	MsgType                string     `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	Account                uint64     `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	AccountStatusRequestId string     `protobuf:"bytes,42513,opt,name=AccountStatusRequestId,json=accountStatusRequestId,proto3" json:"AccountStatusRequestId,omitempty"`
-	LastUpdateTime         int64      `protobuf:"varint,779,opt,name=LastUpdateTime,json=lastUpdateTime,proto3" json:"LastUpdateTime,omitempty"`
-	Balances               []*Balance `protobuf:"bytes,1800,rep,name=Balances,json=balances,proto3" json:"Balances,omitempty"`
+	MsgType                string     `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	Account                uint64     `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	AccountStatusRequestId string     `protobuf:"bytes,42513,opt,name=AccountStatusRequestId,json=accountStatusRequestId,proto3" json:"accountStatusRequestId,omitempty"`
+	LastUpdateTime         int64      `protobuf:"varint,779,opt,name=LastUpdateTime,json=lastUpdateTime,proto3" json:"lastUpdateTime,omitempty"`
+	Balances               []*Balance `protobuf:"bytes,1800,rep,name=Balances,json=balances,proto3" json:"balances,omitempty"`
 	// reject fields
-	RejectReason         string   `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"RejectReason,omitempty"`
-	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"Text,omitempty"`
+	RejectReason         string   `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"rejectReason,omitempty"`
+	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

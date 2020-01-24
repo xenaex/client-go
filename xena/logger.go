@@ -14,9 +14,19 @@ type Logger interface {
 }
 
 // newLogger default constructor
-func newLogger() *logger {
+func newLogger(debug bool) *logger {
 	return &logger{
+		debug: debug,
 		logger: &logWrapper{
+			logger: log.New(os.Stderr, "", log.LstdFlags),
+		},
+	}
+}
+
+// newLogger default constructor
+func newEmptyLogger() *logger {
+	return &logger{
+		logger: &logEmptyWrapper{
 			logger: log.New(os.Stderr, "", log.LstdFlags),
 		},
 	}
@@ -33,7 +43,19 @@ func (l *logWrapper) Debugf(format string, v ...interface{}) {
 
 // Errorf print error message. Arguments are handled in the manner of fmt.Printf.
 func (l *logWrapper) Errorf(format string, v ...interface{}) {
-	l.logger.Printf("Error: "+format, v...)
+	l.logger.Printf("Error: "+format+"\n", v...)
+}
+
+type logEmptyWrapper struct {
+	logger *log.Logger
+}
+
+// Debugf print debug message. Arguments are handled in the manner of fmt.Printf.
+func (l *logEmptyWrapper) Debugf(format string, v ...interface{}) {
+}
+
+// Errorf print error message. Arguments are handled in the manner of fmt.Printf.
+func (l *logEmptyWrapper) Errorf(format string, v ...interface{}) {
 }
 
 // logger default logger

@@ -125,9 +125,9 @@ func (m *Logon) GetRawData() string {
 }
 
 type AccountInfo struct {
-	Id                   uint64   `protobuf:"varint,1,opt,name=Id,json=id,proto3" json:"Id,omitempty"`
-	Kind                 string   `protobuf:"bytes,2,opt,name=Kind,json=kind,proto3" json:"Kind,omitempty"`
-	Currency             string   `protobuf:"bytes,3,opt,name=Currency,json=currency,proto3" json:"Currency,omitempty"`
+	Id                   uint64   `protobuf:"varint,1,opt,name=Id,json=id,proto3" json:"id,omitempty"`
+	Kind                 string   `protobuf:"bytes,2,opt,name=Kind,json=kind,proto3" json:"kind,omitempty"`
+	Currency             string   `protobuf:"bytes,3,opt,name=Currency,json=currency,proto3" json:"currency,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

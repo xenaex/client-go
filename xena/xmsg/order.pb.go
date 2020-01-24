@@ -21,10 +21,10 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type TriggeringInstruction struct {
-	RefClOrdId           string   `protobuf:"bytes,1806,opt,name=RefClOrdId,json=refClordId,proto3" json:"RefClOrdId,omitempty"`
-	TriggerAction        string   `protobuf:"bytes,1101,opt,name=TriggerAction,json=triggerAction,proto3" json:"TriggerAction,omitempty"`
-	TriggerType          string   `protobuf:"bytes,1100,opt,name=TriggerType,json=triggerType,proto3" json:"TriggerType,omitempty"`
-	TriggerScope         string   `protobuf:"bytes,1628,opt,name=TriggerScope,json=triggerScope,proto3" json:"TriggerScope,omitempty"`
+	RefClOrdId           string   `protobuf:"bytes,1806,opt,name=RefClOrdId,json=refClordId,proto3" json:"refClordId,omitempty"`
+	TriggerAction        string   `protobuf:"bytes,1101,opt,name=TriggerAction,json=triggerAction,proto3" json:"triggerAction,omitempty"`
+	TriggerType          string   `protobuf:"bytes,1100,opt,name=TriggerType,json=triggerType,proto3" json:"triggerType,omitempty"`
+	TriggerScope         string   `protobuf:"bytes,1628,opt,name=TriggerScope,json=triggerScope,proto3" json:"triggerScope,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -84,8 +84,8 @@ func (m *TriggeringInstruction) GetTriggerScope() string {
 }
 
 type Partie struct {
-	PartieId             string   `protobuf:"bytes,448,opt,name=PartieId,json=partieId,proto3" json:"PartieId,omitempty"`
-	PartieRole           string   `protobuf:"bytes,45,opt,name=PartieRole,json=partieRole,proto3" json:"PartieRole,omitempty"`
+	PartieId             string   `protobuf:"bytes,448,opt,name=PartieId,json=partieId,proto3" json:"partieId,omitempty"`
+	PartieRole           string   `protobuf:"bytes,45,opt,name=PartieRole,json=partieRole,proto3" json:"partieRole,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -131,14 +131,14 @@ func (m *Partie) GetPartieRole() string {
 }
 
 type SLTP struct {
-	OrdType  string `protobuf:"bytes,40,opt,name=OrdType,json=ordType,proto3" json:"OrdType,omitempty"`
-	Price    string `protobuf:"bytes,44,opt,name=Price,json=price,proto3" json:"Price,omitempty"`
-	StopPx   string `protobuf:"bytes,99,opt,name=StopPx,json=stopPx,proto3" json:"StopPx,omitempty"`
-	CapPrice string `protobuf:"bytes,1199,opt,name=CapPrice,json=capPrice,proto3" json:"CapPrice,omitempty"`
+	OrdType  string `protobuf:"bytes,40,opt,name=OrdType,json=ordType,proto3" json:"ordType,omitempty"`
+	Price    string `protobuf:"bytes,44,opt,name=Price,json=price,proto3" json:"price,omitempty"`
+	StopPx   string `protobuf:"bytes,99,opt,name=StopPx,json=stopPx,proto3" json:"stopPx,omitempty"`
+	CapPrice string `protobuf:"bytes,1199,opt,name=CapPrice,json=capPrice,proto3" json:"capPrice,omitempty"`
 	// Trailing orders
-	PegPriceType         string   `protobuf:"bytes,1094,opt,name=PegPriceType,json=pegPriceType,proto3" json:"PegPriceType,omitempty"`
-	PegOffsetType        string   `protobuf:"bytes,836,opt,name=PegOffsetType,json=pegOffsetType,proto3" json:"PegOffsetType,omitempty"`
-	PegOffsetValue       string   `protobuf:"bytes,211,opt,name=PegOffsetValue,json=pegOffsetValue,proto3" json:"PegOffsetValue,omitempty"`
+	PegPriceType         string   `protobuf:"bytes,1094,opt,name=PegPriceType,json=pegPriceType,proto3" json:"pegPriceType,omitempty"`
+	PegOffsetType        string   `protobuf:"bytes,836,opt,name=PegOffsetType,json=pegOffsetType,proto3" json:"pegOffsetType,omitempty"`
+	PegOffsetValue       string   `protobuf:"bytes,211,opt,name=PegOffsetValue,json=pegOffsetValue,proto3" json:"pegOffsetValue,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -219,44 +219,44 @@ func (m *SLTP) GetPegOffsetValue() string {
 }
 
 type NewOrderSingle struct {
-	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
+	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
 	// Order ID unique for Account.
-	ClOrdId string `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"ClOrdId,omitempty"`
+	ClOrdId string `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"clOrdId,omitempty"`
 	// Unique order ID across the exchange.
-	OrderId      string `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"OrderId,omitempty"`
-	Symbol       string `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	Side         string `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"Side,omitempty"`
-	SettlType    string `protobuf:"bytes,63,opt,name=SettlType,json=settlType,proto3" json:"SettlType,omitempty"`
-	TransactTime int64  `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
-	ListSeqNo    int32  `protobuf:"varint,67,opt,name=ListSeqNo,json=listSeqNo,proto3" json:"ListSeqNo,omitempty"`
+	OrderId      string `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"orderId,omitempty"`
+	Symbol       string `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	Side         string `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"side,omitempty"`
+	SettlType    string `protobuf:"bytes,63,opt,name=SettlType,json=settlType,proto3" json:"settlType,omitempty"`
+	TransactTime int64  `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
+	ListSeqNo    int32  `protobuf:"varint,67,opt,name=ListSeqNo,json=listSeqNo,proto3" json:"listSeqNo,omitempty"`
 	// Quantity of sold or bought base currency.
 	// Could be change by:
 	// 1. Partially order execution.
 	// 2. Order modifications.
-	OrderQty string `protobuf:"bytes,38,opt,name=OrderQty,json=orderQty,proto3" json:"OrderQty,omitempty"`
-	OrdType  string `protobuf:"bytes,40,opt,name=OrdType,json=ordType,proto3" json:"OrdType,omitempty"`
+	OrderQty string `protobuf:"bytes,38,opt,name=OrderQty,json=orderQty,proto3" json:"orderQty,omitempty"`
+	OrdType  string `protobuf:"bytes,40,opt,name=OrdType,json=ordType,proto3" json:"ordType,omitempty"`
 	// For deferred orders only.
-	Price    string `protobuf:"bytes,44,opt,name=Price,json=price,proto3" json:"Price,omitempty"`
-	StopPx   string `protobuf:"bytes,99,opt,name=StopPx,json=stopPx,proto3" json:"StopPx,omitempty"`
-	CapPrice string `protobuf:"bytes,1199,opt,name=CapPrice,json=capPrice,proto3" json:"CapPrice,omitempty"`
+	Price    string `protobuf:"bytes,44,opt,name=Price,json=price,proto3" json:"price,omitempty"`
+	StopPx   string `protobuf:"bytes,99,opt,name=StopPx,json=stopPx,proto3" json:"stopPx,omitempty"`
+	CapPrice string `protobuf:"bytes,1199,opt,name=CapPrice,json=capPrice,proto3" json:"capPrice,omitempty"`
 	// Unique client ID across echange.
-	Account     uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	ExecInst    []string `protobuf:"bytes,18,rep,name=ExecInst,json=execInst,proto3" json:"ExecInst,omitempty"`
-	TimeInForce string   `protobuf:"bytes,59,opt,name=TimeInForce,json=timeInForce,proto3" json:"TimeInForce,omitempty"`
+	Account     uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	ExecInst    []string `protobuf:"bytes,18,rep,name=ExecInst,json=execInst,proto3" json:"execInst,omitempty"`
+	TimeInForce string   `protobuf:"bytes,59,opt,name=TimeInForce,json=timeInForce,proto3" json:"timeInForce,omitempty"`
 	// Commission
-	CommissionLevel string `protobuf:"bytes,3015,opt,name=CommissionLevel,json=commissionLevel,proto3" json:"CommissionLevel,omitempty"`
+	CommissionLevel string `protobuf:"bytes,3015,opt,name=CommissionLevel,json=commissionLevel,proto3" json:"commissionLevel,omitempty"`
 	// Trailing orders
-	PegPriceType   string `protobuf:"bytes,1094,opt,name=PegPriceType,json=pegPriceType,proto3" json:"PegPriceType,omitempty"`
-	PegOffsetType  string `protobuf:"bytes,836,opt,name=PegOffsetType,json=pegOffsetType,proto3" json:"PegOffsetType,omitempty"`
-	PegOffsetValue string `protobuf:"bytes,211,opt,name=PegOffsetValue,json=pegOffsetValue,proto3" json:"PegOffsetValue,omitempty"`
+	PegPriceType   string `protobuf:"bytes,1094,opt,name=PegPriceType,json=pegPriceType,proto3" json:"pegPriceType,omitempty"`
+	PegOffsetType  string `protobuf:"bytes,836,opt,name=PegOffsetType,json=pegOffsetType,proto3" json:"pegOffsetType,omitempty"`
+	PegOffsetValue string `protobuf:"bytes,211,opt,name=PegOffsetValue,json=pegOffsetValue,proto3" json:"pegOffsetValue,omitempty"`
 	// Triggers
-	TriggeringInstructions []*TriggeringInstruction `protobuf:"bytes,1114,rep,name=TriggeringInstructions,json=triggeringInstructions,proto3" json:"TriggeringInstructions,omitempty"`
+	TriggeringInstructions []*TriggeringInstruction `protobuf:"bytes,1114,rep,name=TriggeringInstructions,json=triggeringInstructions,proto3" json:"triggeringInstructions,omitempty"`
 	// Deriative positions
-	PositionId     uint64 `protobuf:"varint,2618,opt,name=PositionId,json=positionId,proto3" json:"PositionId,omitempty"`
-	PositionEffect string `protobuf:"bytes,77,opt,name=PositionEffect,json=positionEffect,proto3" json:"PositionEffect,omitempty"`
+	PositionId     uint64 `protobuf:"varint,2618,opt,name=PositionId,json=positionId,proto3" json:"positionId,omitempty"`
+	PositionEffect string `protobuf:"bytes,77,opt,name=PositionEffect,json=positionEffect,proto3" json:"positionEffect,omitempty"`
 	// Derivative SLTP
-	SLTP                 []*SLTP  `protobuf:"bytes,5000,rep,name=SLTP,json=sltp,proto3" json:"SLTP,omitempty"`
-	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"Text,omitempty"`
+	SLTP                 []*SLTP  `protobuf:"bytes,5000,rep,name=SLTP,json=sltp,proto3" json:"sltp,omitempty"`
+	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -463,73 +463,73 @@ func (m *NewOrderSingle) GetText() string {
 }
 
 type ExecutionReport struct {
-	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
+	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
 	// Finance account. Unique client ID across exchange.
-	Account uint64 `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	Account uint64 `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	// Client order identificator.
-	ClOrdId     string `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"ClOrdId,omitempty"`
-	OrigClOrdId string `protobuf:"bytes,41,opt,name=OrigClOrdId,json=origClOrdId,proto3" json:"OrigClOrdId,omitempty"`
-	OrderId     string `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"OrderId,omitempty"`
-	ListId      string `protobuf:"bytes,66,opt,name=ListId,json=listId,proto3" json:"ListId,omitempty"`
+	ClOrdId     string `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"clOrdId,omitempty"`
+	OrigClOrdId string `protobuf:"bytes,41,opt,name=OrigClOrdId,json=origClOrdId,proto3" json:"origClOrdId,omitempty"`
+	OrderId     string `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"orderId,omitempty"`
+	ListId      string `protobuf:"bytes,66,opt,name=ListId,json=listId,proto3" json:"listId,omitempty"`
 	// Trade instrument name.
-	Symbol      string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	OrdType     string   `protobuf:"bytes,40,opt,name=OrdType,json=ordType,proto3" json:"OrdType,omitempty"`
-	Price       string   `protobuf:"bytes,44,opt,name=Price,json=price,proto3" json:"Price,omitempty"`
-	StopPx      string   `protobuf:"bytes,99,opt,name=StopPx,json=stopPx,proto3" json:"StopPx,omitempty"`
-	ExecInst    []string `protobuf:"bytes,18,rep,name=ExecInst,json=execInst,proto3" json:"ExecInst,omitempty"`
-	TimeInForce string   `protobuf:"bytes,59,opt,name=TimeInForce,json=timeInForce,proto3" json:"TimeInForce,omitempty"`
+	Symbol      string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	OrdType     string   `protobuf:"bytes,40,opt,name=OrdType,json=ordType,proto3" json:"ordType,omitempty"`
+	Price       string   `protobuf:"bytes,44,opt,name=Price,json=price,proto3" json:"price,omitempty"`
+	StopPx      string   `protobuf:"bytes,99,opt,name=StopPx,json=stopPx,proto3" json:"stopPx,omitempty"`
+	ExecInst    []string `protobuf:"bytes,18,rep,name=ExecInst,json=execInst,proto3" json:"execInst,omitempty"`
+	TimeInForce string   `protobuf:"bytes,59,opt,name=TimeInForce,json=timeInForce,proto3" json:"timeInForce,omitempty"`
 	// Moment(timestamp) of transaction execution.
-	TransactTime          int64  `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
-	ExecId                string `protobuf:"bytes,17,opt,name=ExecId,json=execId,proto3" json:"ExecId,omitempty"`
-	ExecType              string `protobuf:"bytes,150,opt,name=ExecType,json=execType,proto3" json:"ExecType,omitempty"`
-	ExecRestatementReason string `protobuf:"bytes,378,opt,name=ExecRestatementReason,json=execRestatementReason,proto3" json:"ExecRestatementReason,omitempty"`
+	TransactTime          int64  `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
+	ExecId                string `protobuf:"bytes,17,opt,name=ExecId,json=execId,proto3" json:"execId,omitempty"`
+	ExecType              string `protobuf:"bytes,150,opt,name=ExecType,json=execType,proto3" json:"execType,omitempty"`
+	ExecRestatementReason string `protobuf:"bytes,378,opt,name=ExecRestatementReason,json=execRestatementReason,proto3" json:"execRestatementReason,omitempty"`
 	// Trade identifier
-	TradeId string `protobuf:"bytes,1003,opt,name=TradeId,json=tradeId,proto3" json:"TradeId,omitempty"`
+	TradeId string `protobuf:"bytes,1003,opt,name=TradeId,json=tradeId,proto3" json:"tradeId,omitempty"`
 	// Current order status.
-	OrdStatus string `protobuf:"bytes,39,opt,name=OrdStatus,json=ordStatus,proto3" json:"OrdStatus,omitempty"`
+	OrdStatus string `protobuf:"bytes,39,opt,name=OrdStatus,json=ordStatus,proto3" json:"ordStatus,omitempty"`
 	// Rejection reason.
-	OrdRejReason string `protobuf:"bytes,103,opt,name=OrdRejReason,json=ordRejReason,proto3" json:"OrdRejReason,omitempty"`
+	OrdRejReason string `protobuf:"bytes,103,opt,name=OrdRejReason,json=ordRejReason,proto3" json:"ordRejReason,omitempty"`
 	// Trade side, could be Buy or Sell.
-	Side string `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"Side,omitempty"`
+	Side string `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"side,omitempty"`
 	// Current OrderQty value. Could be changed by trader.
-	OrderQty string `protobuf:"bytes,38,opt,name=OrderQty,json=orderQty,proto3" json:"OrderQty,omitempty"`
+	OrderQty string `protobuf:"bytes,38,opt,name=OrderQty,json=orderQty,proto3" json:"orderQty,omitempty"`
 	// Quantity which is leaved after last execution.
-	LeavesQty string `protobuf:"bytes,151,opt,name=LeavesQty,json=leavesQty,proto3" json:"LeavesQty,omitempty"`
+	LeavesQty string `protobuf:"bytes,151,opt,name=LeavesQty,json=leavesQty,proto3" json:"leavesQty,omitempty"`
 	// Cummulative quantity value of executed part of order.
-	CumQty string `protobuf:"bytes,14,opt,name=CumQty,json=cumQty,proto3" json:"CumQty,omitempty"`
+	CumQty string `protobuf:"bytes,14,opt,name=CumQty,json=cumQty,proto3" json:"cumQty,omitempty"`
 	// Quantity closed by last execution.
-	LastQty string `protobuf:"bytes,32,opt,name=LastQty,json=lastQty,proto3" json:"LastQty,omitempty"`
+	LastQty string `protobuf:"bytes,32,opt,name=LastQty,json=lastQty,proto3" json:"lastQty,omitempty"`
 	// Stop order CapPrice
-	CapPrice string `protobuf:"bytes,1199,opt,name=CapPrice,json=capPrice,proto3" json:"CapPrice,omitempty"`
+	CapPrice string `protobuf:"bytes,1199,opt,name=CapPrice,json=capPrice,proto3" json:"capPrice,omitempty"`
 	// Execution price.
-	LastPx               string `protobuf:"bytes,31,opt,name=LastPx,json=lastPx,proto3" json:"LastPx,omitempty"`
-	AvgPx                string `protobuf:"bytes,6,opt,name=AvgPx,json=avgPx,proto3" json:"AvgPx,omitempty"`
-	CalculatedCcyLastQty string `protobuf:"bytes,1056,opt,name=CalculatedCcyLastQty,json=calculatedCcyLastQty,proto3" json:"CalculatedCcyLastQty,omitempty"`
-	Currency             string `protobuf:"bytes,15,opt,name=Currency,json=currency,proto3" json:"Currency,omitempty"`
-	SettlCurrency        string `protobuf:"bytes,120,opt,name=SettlCurrency,json=settlCurrency,proto3" json:"SettlCurrency,omitempty"`
-	SettlType            string `protobuf:"bytes,63,opt,name=SettlType,json=settlType,proto3" json:"SettlType,omitempty"`
-	NetMoney             string `protobuf:"bytes,118,opt,name=NetMoney,json=netMoney,proto3" json:"NetMoney,omitempty"`
+	LastPx               string `protobuf:"bytes,31,opt,name=LastPx,json=lastPx,proto3" json:"lastPx,omitempty"`
+	AvgPx                string `protobuf:"bytes,6,opt,name=AvgPx,json=avgPx,proto3" json:"avgPx,omitempty"`
+	CalculatedCcyLastQty string `protobuf:"bytes,1056,opt,name=CalculatedCcyLastQty,json=calculatedCcyLastQty,proto3" json:"calculatedCcyLastQty,omitempty"`
+	Currency             string `protobuf:"bytes,15,opt,name=Currency,json=currency,proto3" json:"currency,omitempty"`
+	SettlCurrency        string `protobuf:"bytes,120,opt,name=SettlCurrency,json=settlCurrency,proto3" json:"settlCurrency,omitempty"`
+	SettlType            string `protobuf:"bytes,63,opt,name=SettlType,json=settlType,proto3" json:"settlType,omitempty"`
+	NetMoney             string `protobuf:"bytes,118,opt,name=NetMoney,json=netMoney,proto3" json:"netMoney,omitempty"`
 	// Commission
-	LastLiquidityInd string `protobuf:"bytes,851,opt,name=LastLiquidityInd,json=lastLiquidityInd,proto3" json:"LastLiquidityInd,omitempty"`
-	Commission       string `protobuf:"bytes,12,opt,name=Commission,json=commission,proto3" json:"Commission,omitempty"`
-	CommRate         string `protobuf:"bytes,1233,opt,name=CommRate,json=commRate,proto3" json:"CommRate,omitempty"`
-	CommCurrency     string `protobuf:"bytes,479,opt,name=CommCurrency,json=commCurrency,proto3" json:"CommCurrency,omitempty"`
+	LastLiquidityInd string `protobuf:"bytes,851,opt,name=LastLiquidityInd,json=lastLiquidityInd,proto3" json:"lastLiquidityInd,omitempty"`
+	Commission       string `protobuf:"bytes,12,opt,name=Commission,json=commission,proto3" json:"commission,omitempty"`
+	CommRate         string `protobuf:"bytes,1233,opt,name=CommRate,json=commRate,proto3" json:"commRate,omitempty"`
+	CommCurrency     string `protobuf:"bytes,479,opt,name=CommCurrency,json=commCurrency,proto3" json:"commCurrency,omitempty"`
 	// Rejection detailed description.
-	RejectText string `protobuf:"bytes,1328,opt,name=RejectText,json=rejectText,proto3" json:"RejectText,omitempty"`
+	RejectText string `protobuf:"bytes,1328,opt,name=RejectText,json=rejectText,proto3" json:"rejectText,omitempty"`
 	// Trailings
-	PegPriceType   string `protobuf:"bytes,1094,opt,name=PegPriceType,json=pegPriceType,proto3" json:"PegPriceType,omitempty"`
-	PegOffsetType  string `protobuf:"bytes,836,opt,name=PegOffsetType,json=pegOffsetType,proto3" json:"PegOffsetType,omitempty"`
-	PegOffsetValue string `protobuf:"bytes,211,opt,name=PegOffsetValue,json=pegOffsetValue,proto3" json:"PegOffsetValue,omitempty"`
+	PegPriceType   string `protobuf:"bytes,1094,opt,name=PegPriceType,json=pegPriceType,proto3" json:"pegPriceType,omitempty"`
+	PegOffsetType  string `protobuf:"bytes,836,opt,name=PegOffsetType,json=pegOffsetType,proto3" json:"pegOffsetType,omitempty"`
+	PegOffsetValue string `protobuf:"bytes,211,opt,name=PegOffsetValue,json=pegOffsetValue,proto3" json:"pegOffsetValue,omitempty"`
 	// Position
-	PositionId     uint64 `protobuf:"varint,2618,opt,name=PositionId,json=positionId,proto3" json:"PositionId,omitempty"`
-	PositionEffect string `protobuf:"bytes,77,opt,name=PositionEffect,json=positionEffect,proto3" json:"PositionEffect,omitempty"`
+	PositionId     uint64 `protobuf:"varint,2618,opt,name=PositionId,json=positionId,proto3" json:"positionId,omitempty"`
+	PositionEffect string `protobuf:"bytes,77,opt,name=PositionEffect,json=positionEffect,proto3" json:"positionEffect,omitempty"`
 	// Margin
-	MarginAmt     string `protobuf:"bytes,1645,opt,name=MarginAmt,json=marginAmt,proto3" json:"MarginAmt,omitempty"`
-	MarginAmtType string `protobuf:"bytes,1644,opt,name=MarginAmtType,json=marginAmtType,proto3" json:"MarginAmtType,omitempty"`
-	MarginAmtCcy  string `protobuf:"bytes,1646,opt,name=MarginAmtCcy,json=marginAmtCcy,proto3" json:"MarginAmtCcy,omitempty"`
+	MarginAmt     string `protobuf:"bytes,1645,opt,name=MarginAmt,json=marginAmt,proto3" json:"marginAmt,omitempty"`
+	MarginAmtType string `protobuf:"bytes,1644,opt,name=MarginAmtType,json=marginAmtType,proto3" json:"marginAmtType,omitempty"`
+	MarginAmtCcy  string `protobuf:"bytes,1646,opt,name=MarginAmtCcy,json=marginAmtCcy,proto3" json:"marginAmtCcy,omitempty"`
 	// Derivative SLTP
-	SLTP                 []*SLTP  `protobuf:"bytes,5000,rep,name=SLTP,json=sltp,proto3" json:"SLTP,omitempty"`
-	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"Text,omitempty"`
+	SLTP                 []*SLTP  `protobuf:"bytes,5000,rep,name=SLTP,json=sltp,proto3" json:"sltp,omitempty"`
+	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -890,18 +890,18 @@ func (m *ExecutionReport) GetText() string {
 }
 
 type OrderCancelRequest struct {
-	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
+	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
 	// Request ID unique for Account.
-	ClOrdId string `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"ClOrdId,omitempty"`
+	ClOrdId string `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"clOrdId,omitempty"`
 	// Client Order ID (ClOrdId) of order to cancel
-	OrigClOrdId string `protobuf:"bytes,41,opt,name=OrigClOrdId,json=origClOrdId,proto3" json:"OrigClOrdId,omitempty"`
+	OrigClOrdId string `protobuf:"bytes,41,opt,name=OrigClOrdId,json=origClOrdId,proto3" json:"origClOrdId,omitempty"`
 	// Unique order ID across the exchange.
-	OrderId      string `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"OrderId,omitempty"`
-	Symbol       string `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	Side         string `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"Side,omitempty"`
-	TransactTime int64  `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
+	OrderId      string `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"orderId,omitempty"`
+	Symbol       string `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	Side         string `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"side,omitempty"`
+	TransactTime int64  `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
 	// Unique client ID across exchange.
-	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -989,17 +989,17 @@ func (m *OrderCancelRequest) GetAccount() uint64 {
 }
 
 type OrderCancelReject struct {
-	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	Symbol               string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	ClOrdId              string   `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"ClOrdId,omitempty"`
-	OrigClOrdId          string   `protobuf:"bytes,41,opt,name=OrigClOrdId,json=origClOrdId,proto3" json:"OrigClOrdId,omitempty"`
-	OrderId              string   `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"OrderId,omitempty"`
-	OrdStatus            string   `protobuf:"bytes,39,opt,name=OrdStatus,json=ordStatus,proto3" json:"OrdStatus,omitempty"`
-	CxlRejResponseTo     string   `protobuf:"bytes,434,opt,name=CxlRejResponseTo,json=cxlRejResponseTo,proto3" json:"CxlRejResponseTo,omitempty"`
-	CxlRejReason         string   `protobuf:"bytes,102,opt,name=CxlRejReason,json=cxlRejReason,proto3" json:"CxlRejReason,omitempty"`
-	RejectText           string   `protobuf:"bytes,1328,opt,name=RejectText,json=rejectText,proto3" json:"RejectText,omitempty"`
-	TransactTime         int64    `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
+	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	Symbol               string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	ClOrdId              string   `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"clOrdId,omitempty"`
+	OrigClOrdId          string   `protobuf:"bytes,41,opt,name=OrigClOrdId,json=origClOrdId,proto3" json:"origClOrdId,omitempty"`
+	OrderId              string   `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"orderId,omitempty"`
+	OrdStatus            string   `protobuf:"bytes,39,opt,name=OrdStatus,json=ordStatus,proto3" json:"ordStatus,omitempty"`
+	CxlRejResponseTo     string   `protobuf:"bytes,434,opt,name=CxlRejResponseTo,json=cxlRejResponseTo,proto3" json:"cxlRejResponseTo,omitempty"`
+	CxlRejReason         string   `protobuf:"bytes,102,opt,name=CxlRejReason,json=cxlRejReason,proto3" json:"cxlRejReason,omitempty"`
+	RejectText           string   `protobuf:"bytes,1328,opt,name=RejectText,json=rejectText,proto3" json:"rejectText,omitempty"`
+	TransactTime         int64    `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1108,13 +1108,13 @@ func (m *OrderCancelReject) GetTransactTime() int64 {
 }
 
 type OrderMassCancelRequest struct {
-	MsgType               string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	ClOrdId               string   `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"ClOrdId,omitempty"`
-	MassCancelRequestType string   `protobuf:"bytes,530,opt,name=MassCancelRequestType,json=massCancelRequestType,proto3" json:"MassCancelRequestType,omitempty"`
-	Symbol                string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	Side                  string   `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"Side,omitempty"`
-	PositionEffect        string   `protobuf:"bytes,77,opt,name=PositionEffect,json=positionEffect,proto3" json:"PositionEffect,omitempty"`
-	Account               uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	MsgType               string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	ClOrdId               string   `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"clOrdId,omitempty"`
+	MassCancelRequestType string   `protobuf:"bytes,530,opt,name=MassCancelRequestType,json=massCancelRequestType,proto3" json:"massCancelRequestType,omitempty"`
+	Symbol                string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	Side                  string   `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"side,omitempty"`
+	PositionEffect        string   `protobuf:"bytes,77,opt,name=PositionEffect,json=positionEffect,proto3" json:"positionEffect,omitempty"`
+	Account               uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
 	XXX_unrecognized      []byte   `json:"-"`
 	XXX_sizecache         int32    `json:"-"`
@@ -1195,17 +1195,17 @@ func (m *OrderMassCancelRequest) GetAccount() uint64 {
 }
 
 type OrderMassCancelReport struct {
-	MsgType                string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	ClOrdId                string   `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"ClOrdId,omitempty"`
-	MassActionReportID     string   `protobuf:"bytes,1369,opt,name=MassActionReportID,json=massActionReportID,proto3" json:"MassActionReportID,omitempty"`
-	MassCancelResponse     string   `protobuf:"bytes,531,opt,name=MassCancelResponse,json=massCancelResponse,proto3" json:"MassCancelResponse,omitempty"`
-	MassCancelRejectReason string   `protobuf:"bytes,532,opt,name=MassCancelRejectReason,json=massCancelRejectReason,proto3" json:"MassCancelRejectReason,omitempty"`
-	RejectText             string   `protobuf:"bytes,1328,opt,name=RejectText,json=rejectText,proto3" json:"RejectText,omitempty"`
-	Symbol                 string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	Side                   string   `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"Side,omitempty"`
-	TransactTime           int64    `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
-	TotalAffectedOrders    int64    `protobuf:"varint,533,opt,name=TotalAffectedOrders,json=totalAffectedOrders,proto3" json:"TotalAffectedOrders,omitempty"`
-	Account                uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	MsgType                string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	ClOrdId                string   `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"clOrdId,omitempty"`
+	MassActionReportID     string   `protobuf:"bytes,1369,opt,name=MassActionReportID,json=massActionReportID,proto3" json:"massActionReportID,omitempty"`
+	MassCancelResponse     string   `protobuf:"bytes,531,opt,name=MassCancelResponse,json=massCancelResponse,proto3" json:"massCancelResponse,omitempty"`
+	MassCancelRejectReason string   `protobuf:"bytes,532,opt,name=MassCancelRejectReason,json=massCancelRejectReason,proto3" json:"massCancelRejectReason,omitempty"`
+	RejectText             string   `protobuf:"bytes,1328,opt,name=RejectText,json=rejectText,proto3" json:"rejectText,omitempty"`
+	Symbol                 string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	Side                   string   `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"side,omitempty"`
+	TransactTime           int64    `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
+	TotalAffectedOrders    int64    `protobuf:"varint,533,opt,name=TotalAffectedOrders,json=totalAffectedOrders,proto3" json:"totalAffectedOrders,omitempty"`
+	Account                uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	XXX_NoUnkeyedLiteral   struct{} `json:"-"`
 	XXX_unrecognized       []byte   `json:"-"`
 	XXX_sizecache          int32    `json:"-"`
@@ -1314,9 +1314,9 @@ func (m *OrderMassCancelReport) GetAccount() uint64 {
 }
 
 type OrderStatusRequest struct {
-	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	MassStatusReqId      string   `protobuf:"bytes,584,opt,name=MassStatusReqId,json=massStatusReqId,proto3" json:"MassStatusReqId,omitempty"`
-	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	MassStatusReqId      string   `protobuf:"bytes,584,opt,name=MassStatusReqId,json=massStatusReqId,proto3" json:"massStatusReqId,omitempty"`
+	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1369,9 +1369,9 @@ func (m *OrderStatusRequest) GetAccount() uint64 {
 }
 
 type Reject struct {
-	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	RejectReason         string   `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"RejectReason,omitempty"`
-	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"Text,omitempty"`
+	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	RejectReason         string   `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"rejectReason,omitempty"`
+	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1424,13 +1424,13 @@ func (m *Reject) GetText() string {
 }
 
 type OrderMassStatusResponse struct {
-	MsgType              string             `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	MassStatusReqId      string             `protobuf:"bytes,584,opt,name=MassStatusReqId,json=massStatusReqId,proto3" json:"MassStatusReqId,omitempty"`
-	Account              uint64             `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	Orders               []*ExecutionReport `protobuf:"bytes,1268,rep,name=Orders,json=orders,proto3" json:"Orders,omitempty"`
-	Fills                []*ExecutionReport `protobuf:"bytes,1269,rep,name=Fills,json=fills,proto3" json:"Fills,omitempty"`
-	RejectReason         string             `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"RejectReason,omitempty"`
-	Text                 string             `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"Text,omitempty"`
+	MsgType              string             `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	MassStatusReqId      string             `protobuf:"bytes,584,opt,name=MassStatusReqId,json=massStatusReqId,proto3" json:"massStatusReqId,omitempty"`
+	Account              uint64             `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	Orders               []*ExecutionReport `protobuf:"bytes,1268,rep,name=Orders,json=orders,proto3" json:"orders,omitempty"`
+	Fills                []*ExecutionReport `protobuf:"bytes,1269,rep,name=Fills,json=fills,proto3" json:"fills,omitempty"`
+	RejectReason         string             `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"rejectReason,omitempty"`
+	Text                 string             `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`
 	XXX_sizecache        int32              `json:"-"`
@@ -1511,30 +1511,30 @@ func (m *OrderMassStatusResponse) GetText() string {
 }
 
 type OrderCancelReplaceRequest struct {
-	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
+	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
 	// Request ID unique for Account.
-	ClOrdId string `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"ClOrdId,omitempty"`
+	ClOrdId string `protobuf:"bytes,11,opt,name=ClOrdId,json=clOrdId,proto3" json:"clOrdId,omitempty"`
 	// Client Order ID (ClOrdId) of order to modify
-	OrigClOrdId string `protobuf:"bytes,41,opt,name=OrigClOrdId,json=origClOrdId,proto3" json:"OrigClOrdId,omitempty"`
+	OrigClOrdId string `protobuf:"bytes,41,opt,name=OrigClOrdId,json=origClOrdId,proto3" json:"origClOrdId,omitempty"`
 	// Unique order ID across the exchange.
-	OrderId      string `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"OrderId,omitempty"`
-	Symbol       string `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	Side         string `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"Side,omitempty"`
-	TransactTime int64  `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
+	OrderId      string `protobuf:"bytes,37,opt,name=OrderId,json=orderId,proto3" json:"orderId,omitempty"`
+	Symbol       string `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	Side         string `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"side,omitempty"`
+	TransactTime int64  `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
 	// Unique client ID across exchange.
-	Account uint64 `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	Account uint64 `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	// New ExecInst
-	ExecInst []string `protobuf:"bytes,18,rep,name=ExecInst,json=execInst,proto3" json:"ExecInst,omitempty"`
+	ExecInst []string `protobuf:"bytes,18,rep,name=ExecInst,json=execInst,proto3" json:"execInst,omitempty"`
 	// New fields
-	OrderQty       string `protobuf:"bytes,38,opt,name=OrderQty,json=orderQty,proto3" json:"OrderQty,omitempty"`
-	Price          string `protobuf:"bytes,44,opt,name=Price,json=price,proto3" json:"Price,omitempty"`
-	StopPx         string `protobuf:"bytes,99,opt,name=StopPx,json=stopPx,proto3" json:"StopPx,omitempty"`
-	CapPrice       string `protobuf:"bytes,1199,opt,name=CapPrice,json=capPrice,proto3" json:"CapPrice,omitempty"`
-	PegPriceType   string `protobuf:"bytes,1094,opt,name=PegPriceType,json=pegPriceType,proto3" json:"PegPriceType,omitempty"`
-	PegOffsetType  string `protobuf:"bytes,836,opt,name=PegOffsetType,json=pegOffsetType,proto3" json:"PegOffsetType,omitempty"`
-	PegOffsetValue string `protobuf:"bytes,211,opt,name=PegOffsetValue,json=pegOffsetValue,proto3" json:"PegOffsetValue,omitempty"`
+	OrderQty       string `protobuf:"bytes,38,opt,name=OrderQty,json=orderQty,proto3" json:"orderQty,omitempty"`
+	Price          string `protobuf:"bytes,44,opt,name=Price,json=price,proto3" json:"price,omitempty"`
+	StopPx         string `protobuf:"bytes,99,opt,name=StopPx,json=stopPx,proto3" json:"stopPx,omitempty"`
+	CapPrice       string `protobuf:"bytes,1199,opt,name=CapPrice,json=capPrice,proto3" json:"capPrice,omitempty"`
+	PegPriceType   string `protobuf:"bytes,1094,opt,name=PegPriceType,json=pegPriceType,proto3" json:"pegPriceType,omitempty"`
+	PegOffsetType  string `protobuf:"bytes,836,opt,name=PegOffsetType,json=pegOffsetType,proto3" json:"pegOffsetType,omitempty"`
+	PegOffsetValue string `protobuf:"bytes,211,opt,name=PegOffsetValue,json=pegOffsetValue,proto3" json:"pegOffsetValue,omitempty"`
 	// Derivative SLTP
-	SLTP                 []*SLTP  `protobuf:"bytes,5000,rep,name=SLTP,json=sltp,proto3" json:"SLTP,omitempty"`
+	SLTP                 []*SLTP  `protobuf:"bytes,5000,rep,name=SLTP,json=sltp,proto3" json:"sltp,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1685,18 +1685,18 @@ func (m *OrderCancelReplaceRequest) GetSLTP() []*SLTP {
 }
 
 type NewOrderList struct {
-	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
+	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
 	// List ID unique for Account.
-	ListId          string            `protobuf:"bytes,66,opt,name=ListId,json=listId,proto3" json:"ListId,omitempty"`
-	BidType         string            `protobuf:"bytes,394,opt,name=BidType,json=bidType,proto3" json:"BidType,omitempty"`
-	TotNoOrders     int32             `protobuf:"varint,68,opt,name=TotNoOrders,json=totNoOrders,proto3" json:"TotNoOrders,omitempty"`
-	ContingencyType string            `protobuf:"bytes,1385,opt,name=ContingencyType,json=contingencyType,proto3" json:"ContingencyType,omitempty"`
-	ListOrdGrp      []*NewOrderSingle `protobuf:"bytes,73,rep,name=ListOrdGrp,json=listOrdGrp,proto3" json:"ListOrdGrp,omitempty"`
-	NestedListGrp   []*NewOrderList   `protobuf:"bytes,1773,rep,name=NestedListGrp,json=nestedListGrp,proto3" json:"NestedListGrp,omitempty"`
-	Symbol          string            `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	TransactTime    int64             `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
+	ListId          string            `protobuf:"bytes,66,opt,name=ListId,json=listId,proto3" json:"listId,omitempty"`
+	BidType         string            `protobuf:"bytes,394,opt,name=BidType,json=bidType,proto3" json:"bidType,omitempty"`
+	TotNoOrders     int32             `protobuf:"varint,68,opt,name=TotNoOrders,json=totNoOrders,proto3" json:"totNoOrders,omitempty"`
+	ContingencyType string            `protobuf:"bytes,1385,opt,name=ContingencyType,json=contingencyType,proto3" json:"contingencyType,omitempty"`
+	ListOrdGrp      []*NewOrderSingle `protobuf:"bytes,73,rep,name=ListOrdGrp,json=listOrdGrp,proto3" json:"listOrdGrp,omitempty"`
+	NestedListGrp   []*NewOrderList   `protobuf:"bytes,1773,rep,name=NestedListGrp,json=nestedListGrp,proto3" json:"nestedListGrp,omitempty"`
+	Symbol          string            `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	TransactTime    int64             `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
 	// Unique client ID across echange.
-	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1798,8 +1798,8 @@ func (m *NewOrderList) GetAccount() uint64 {
 }
 
 type OrderListAction struct {
-	ContingencyType      string   `protobuf:"bytes,1385,opt,name=ContingencyType,json=contingencyType,proto3" json:"ContingencyType,omitempty"`
-	OrderId              []string `protobuf:"bytes,37,rep,name=OrderId,json=orderId,proto3" json:"OrderId,omitempty"`
+	ContingencyType      string   `protobuf:"bytes,1385,opt,name=ContingencyType,json=contingencyType,proto3" json:"contingencyType,omitempty"`
+	OrderId              []string `protobuf:"bytes,37,rep,name=OrderId,json=orderId,proto3" json:"orderId,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1845,21 +1845,21 @@ func (m *OrderListAction) GetOrderId() []string {
 }
 
 type ListStatus struct {
-	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
+	MsgType string `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
 	// Finance account. Unique client ID across exchange.
-	Account uint64 `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	Account uint64 `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	// List ID unique for Account.
-	ListId string `protobuf:"bytes,66,opt,name=ListId,json=listId,proto3" json:"ListId,omitempty"`
+	ListId string `protobuf:"bytes,66,opt,name=ListId,json=listId,proto3" json:"listId,omitempty"`
 	// Trade instrument name.
-	Symbol           string           `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	ListStatusType   string           `protobuf:"bytes,429,opt,name=ListStatusType,json=listStatusType,proto3" json:"ListStatusType,omitempty"`
-	ListOrderStatus  string           `protobuf:"bytes,431,opt,name=ListOrderStatus,json=listOrderStatus,proto3" json:"ListOrderStatus,omitempty"`
-	ContingencyType  string           `protobuf:"bytes,1385,opt,name=ContingencyType,json=contingencyType,proto3" json:"ContingencyType,omitempty"`
-	ListRejectReason string           `protobuf:"bytes,1386,opt,name=ListRejectReason,json=listRejectReason,proto3" json:"ListRejectReason,omitempty"`
-	ListRejectOrder  *ExecutionReport `protobuf:"bytes,1387,opt,name=ListRejectOrder,json=listRejectOrder,proto3" json:"ListRejectOrder,omitempty"`
+	Symbol           string           `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	ListStatusType   string           `protobuf:"bytes,429,opt,name=ListStatusType,json=listStatusType,proto3" json:"listStatusType,omitempty"`
+	ListOrderStatus  string           `protobuf:"bytes,431,opt,name=ListOrderStatus,json=listOrderStatus,proto3" json:"listOrderStatus,omitempty"`
+	ContingencyType  string           `protobuf:"bytes,1385,opt,name=ContingencyType,json=contingencyType,proto3" json:"contingencyType,omitempty"`
+	ListRejectReason string           `protobuf:"bytes,1386,opt,name=ListRejectReason,json=listRejectReason,proto3" json:"listRejectReason,omitempty"`
+	ListRejectOrder  *ExecutionReport `protobuf:"bytes,1387,opt,name=ListRejectOrder,json=listRejectOrder,proto3" json:"listRejectOrder,omitempty"`
 	// Moment(timestamp) of transaction execution.
-	TransactTime         int64    `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
-	ListStatusText       string   `protobuf:"bytes,444,opt,name=ListStatusText,json=listStatusText,proto3" json:"ListStatusText,omitempty"`
+	TransactTime         int64    `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
+	ListStatusText       string   `protobuf:"bytes,444,opt,name=ListStatusText,json=listStatusText,proto3" json:"listStatusText,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

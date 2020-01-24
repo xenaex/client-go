@@ -34,7 +34,7 @@ func NewWsClient(opts ...WsOption) WsClient {
 			connectTimeoutInterval:    wsTimeoutInterval,
 			disconnectTimeoutInterval: 2 * wsHeartbeatInterval,
 		},
-		logger:   newLogger(),
+		logger:   newLogger(false),
 		stopChan: make(chan struct{}),
 	}
 	c.initDefaultHandlers()

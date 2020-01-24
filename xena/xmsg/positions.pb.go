@@ -21,9 +21,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type Payment struct {
-	PaymentType          string   `protobuf:"bytes,40213,opt,name=PaymentType,json=paymentType,proto3" json:"PaymentType,omitempty"`
-	PaymentCurrency      string   `protobuf:"bytes,40216,opt,name=PaymentCurrency,json=paymentCurrency,proto3" json:"PaymentCurrency,omitempty"`
-	PaymentAmount        string   `protobuf:"bytes,40217,opt,name=PaymentAmount,json=paymentAmount,proto3" json:"PaymentAmount,omitempty"`
+	PaymentType          string   `protobuf:"bytes,40213,opt,name=PaymentType,json=paymentType,proto3" json:"paymentType,omitempty"`
+	PaymentCurrency      string   `protobuf:"bytes,40216,opt,name=PaymentCurrency,json=paymentCurrency,proto3" json:"paymentCurrency,omitempty"`
+	PaymentAmount        string   `protobuf:"bytes,40217,opt,name=PaymentAmount,json=paymentAmount,proto3" json:"paymentAmount,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -76,8 +76,8 @@ func (m *Payment) GetPaymentAmount() string {
 }
 
 type RelatedTrade struct {
-	RelatedTradeId       string   `protobuf:"bytes,1856,opt,name=RelatedTradeId,json=relatedTradeId,proto3" json:"RelatedTradeId,omitempty"`
-	RelatedTradeType     string   `protobuf:"bytes,1857,opt,name=RelatedTradeType,json=relatedTradeType,proto3" json:"RelatedTradeType,omitempty"`
+	RelatedTradeId       string   `protobuf:"bytes,1856,opt,name=RelatedTradeId,json=relatedTradeId,proto3" json:"relatedTradeId,omitempty"`
+	RelatedTradeType     string   `protobuf:"bytes,1857,opt,name=RelatedTradeType,json=relatedTradeType,proto3" json:"relatedTradeType,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -123,23 +123,23 @@ func (m *RelatedTrade) GetRelatedTradeType() string {
 }
 
 type PositionReport struct {
-	MsgType                      string          `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	Account                      uint64          `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	PositionId                   uint64          `protobuf:"varint,2618,opt,name=PositionId,json=positionId,proto3" json:"PositionId,omitempty"`
-	TransactTime                 int64           `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
-	Symbol                       string          `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	PositionOpenTime             int64           `protobuf:"varint,1805,opt,name=PositionOpenTime,json=positionOpenTime,proto3" json:"PositionOpenTime,omitempty"`
-	AvgPx                        string          `protobuf:"bytes,6,opt,name=AvgPx,json=avgPx,proto3" json:"AvgPx,omitempty"`
-	Volume                       string          `protobuf:"bytes,53,opt,name=Volume,json=volume,proto3" json:"Volume,omitempty"`
-	Side                         string          `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"Side,omitempty"`
-	SettlDate                    int64           `protobuf:"varint,64,opt,name=SettlDate,json=settlDate,proto3" json:"SettlDate,omitempty"`
-	SettlPrice                   string          `protobuf:"bytes,730,opt,name=SettlPrice,json=settlPrice,proto3" json:"SettlPrice,omitempty"`
-	PriorSettlPrice              string          `protobuf:"bytes,734,opt,name=PriorSettlPrice,json=priorSettlPrice,proto3" json:"PriorSettlPrice,omitempty"`
-	PreviousClearingBusinessDate int64           `protobuf:"varint,1084,opt,name=PreviousClearingBusinessDate,json=previousClearingBusinessDate,proto3" json:"PreviousClearingBusinessDate,omitempty"`
-	ClearingBusinessDate         int64           `protobuf:"varint,715,opt,name=ClearingBusinessDate,json=clearingBusinessDate,proto3" json:"ClearingBusinessDate,omitempty"`
-	MarginAmounts                []*MarginAmount `protobuf:"bytes,1643,rep,name=MarginAmounts,json=marginAmounts,proto3" json:"MarginAmounts,omitempty"`
-	Payments                     []*Payment      `protobuf:"bytes,40212,rep,name=Payments,json=payments,proto3" json:"Payments,omitempty"`
-	RelatedTrades                []*RelatedTrade `protobuf:"bytes,1855,rep,name=RelatedTrades,json=relatedTrades,proto3" json:"RelatedTrades,omitempty"`
+	MsgType                      string          `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	Account                      uint64          `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	PositionId                   uint64          `protobuf:"varint,2618,opt,name=PositionId,json=positionId,proto3" json:"positionId,omitempty"`
+	TransactTime                 int64           `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
+	Symbol                       string          `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	PositionOpenTime             int64           `protobuf:"varint,1805,opt,name=PositionOpenTime,json=positionOpenTime,proto3" json:"positionOpenTime,omitempty"`
+	AvgPx                        string          `protobuf:"bytes,6,opt,name=AvgPx,json=avgPx,proto3" json:"avgPx,omitempty"`
+	Volume                       string          `protobuf:"bytes,53,opt,name=Volume,json=volume,proto3" json:"volume,omitempty"`
+	Side                         string          `protobuf:"bytes,54,opt,name=Side,json=side,proto3" json:"side,omitempty"`
+	SettlDate                    int64           `protobuf:"varint,64,opt,name=SettlDate,json=settlDate,proto3" json:"settlDate,omitempty"`
+	SettlPrice                   string          `protobuf:"bytes,730,opt,name=SettlPrice,json=settlPrice,proto3" json:"settlPrice,omitempty"`
+	PriorSettlPrice              string          `protobuf:"bytes,734,opt,name=PriorSettlPrice,json=priorSettlPrice,proto3" json:"priorSettlPrice,omitempty"`
+	PreviousClearingBusinessDate int64           `protobuf:"varint,1084,opt,name=PreviousClearingBusinessDate,json=previousClearingBusinessDate,proto3" json:"previousClearingBusinessDate,omitempty"`
+	ClearingBusinessDate         int64           `protobuf:"varint,715,opt,name=ClearingBusinessDate,json=clearingBusinessDate,proto3" json:"clearingBusinessDate,omitempty"`
+	MarginAmounts                []*MarginAmount `protobuf:"bytes,1643,rep,name=MarginAmounts,json=marginAmounts,proto3" json:"marginAmounts,omitempty"`
+	Payments                     []*Payment      `protobuf:"bytes,40212,rep,name=Payments,json=payments,proto3" json:"payments,omitempty"`
+	RelatedTrades                []*RelatedTrade `protobuf:"bytes,1855,rep,name=RelatedTrades,json=relatedTrades,proto3" json:"relatedTrades,omitempty"`
 	XXX_NoUnkeyedLiteral         struct{}        `json:"-"`
 	XXX_unrecognized             []byte          `json:"-"`
 	XXX_sizecache                int32           `json:"-"`
@@ -290,15 +290,15 @@ func (m *PositionReport) GetRelatedTrades() []*RelatedTrade {
 }
 
 type MassPositionReport struct {
-	MsgType         string            `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	PosReqId        string            `protobuf:"bytes,710,opt,name=PosReqId,json=posReqId,proto3" json:"PosReqId,omitempty"`
-	Account         uint64            `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	TransactTime    int64             `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"TransactTime,omitempty"`
-	OpenPositions   []*PositionReport `protobuf:"bytes,727,rep,name=OpenPositions,json=openPositions,proto3" json:"OpenPositions,omitempty"`
-	PositionHistory []*PositionReport `protobuf:"bytes,726,rep,name=PositionHistory,json=positionHistory,proto3" json:"PositionHistory,omitempty"`
+	MsgType         string            `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	PosReqId        string            `protobuf:"bytes,710,opt,name=PosReqId,json=posReqId,proto3" json:"posReqId,omitempty"`
+	Account         uint64            `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	TransactTime    int64             `protobuf:"varint,60,opt,name=TransactTime,json=transactTime,proto3" json:"transactTime,omitempty"`
+	OpenPositions   []*PositionReport `protobuf:"bytes,727,rep,name=OpenPositions,json=openPositions,proto3" json:"openPositions,omitempty"`
+	PositionHistory []*PositionReport `protobuf:"bytes,726,rep,name=PositionHistory,json=positionHistory,proto3" json:"positionHistory,omitempty"`
 	// reject fields
-	RejectReason         string   `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"RejectReason,omitempty"`
-	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"Text,omitempty"`
+	RejectReason         string   `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"rejectReason,omitempty"`
+	Text                 string   `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -386,9 +386,9 @@ func (m *MassPositionReport) GetText() string {
 }
 
 type PositionsRequest struct {
-	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	PosReqId             string   `protobuf:"bytes,710,opt,name=PosReqId,json=posReqId,proto3" json:"PosReqId,omitempty"`
-	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
+	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	PosReqId             string   `protobuf:"bytes,710,opt,name=PosReqId,json=posReqId,proto3" json:"posReqId,omitempty"`
+	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -441,12 +441,12 @@ func (m *PositionsRequest) GetAccount() uint64 {
 }
 
 type PositionMaintenanceRequest struct {
-	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	PosReqId             string   `protobuf:"bytes,710,opt,name=PosReqId,json=posReqId,proto3" json:"PosReqId,omitempty"`
-	PosTransType         string   `protobuf:"bytes,709,opt,name=PosTransType,json=posTransType,proto3" json:"PosTransType,omitempty"`
-	PosMaintAction       string   `protobuf:"bytes,712,opt,name=PosMaintAction,json=posMaintAction,proto3" json:"PosMaintAction,omitempty"`
-	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	Symbol               string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
+	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	PosReqId             string   `protobuf:"bytes,710,opt,name=PosReqId,json=posReqId,proto3" json:"posReqId,omitempty"`
+	PosTransType         string   `protobuf:"bytes,709,opt,name=PosTransType,json=posTransType,proto3" json:"posTransType,omitempty"`
+	PosMaintAction       string   `protobuf:"bytes,712,opt,name=PosMaintAction,json=posMaintAction,proto3" json:"posMaintAction,omitempty"`
+	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	Symbol               string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -520,12 +520,12 @@ func (m *PositionMaintenanceRequest) GetSymbol() string {
 }
 
 type PositionMaintenanceReport struct {
-	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	PosReqId             string   `protobuf:"bytes,710,opt,name=PosReqId,json=posReqId,proto3" json:"PosReqId,omitempty"`
-	PosTransType         string   `protobuf:"bytes,709,opt,name=PosTransType,json=posTransType,proto3" json:"PosTransType,omitempty"`
-	PosMaintAction       string   `protobuf:"bytes,712,opt,name=PosMaintAction,json=posMaintAction,proto3" json:"PosMaintAction,omitempty"`
-	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	Symbol               string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
+	MsgType              string   `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	PosReqId             string   `protobuf:"bytes,710,opt,name=PosReqId,json=posReqId,proto3" json:"posReqId,omitempty"`
+	PosTransType         string   `protobuf:"bytes,709,opt,name=PosTransType,json=posTransType,proto3" json:"posTransType,omitempty"`
+	PosMaintAction       string   `protobuf:"bytes,712,opt,name=PosMaintAction,json=posMaintAction,proto3" json:"posMaintAction,omitempty"`
+	Account              uint64   `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	Symbol               string   `protobuf:"bytes,55,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

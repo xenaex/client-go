@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/xenaex/client-go/xena"
 	"github.com/xenaex/client-go/xena/xmsg"
@@ -12,20 +13,25 @@ import (
 func main() {
 	log.Printf("Start")
 
-	host := "ws://trading.xena.rc/api/ws/market-data"
-	// md := xena.NewMarketData(xena.WithDebug(), xena.WithURL("ws://trading.xena.rc/api/ws/market-data"))
-	md := xena.NewMarketData(xena.WithURL(host), xena.WithDebug())
-	md.SetDiconnectHandler(xena.DefaultMarketDisconnectHandler)
+	md := xena.NewMarketData(
+		xena.WithDebug(),
+		xena.WithMarketDataURL(),
+	)
+	md.SetDisconnectHandler(xena.DefaultMarketDisconnectHandler)
 	resp, err := md.Connect()
 	if err != nil {
 		log.Printf("error %s on md.Connect()", err)
 	}
 	log.Printf("loggon message %s", resp)
 
-	// id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.AggregateBook10, xena.ThrottleDOM5s)
-	id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.ThrottleDOM500ms)
-	// id, err := md.SubscribeOnDOM(xena.BTCUSDT, domHandler, xena.AggregateBook10)
-	// id, err := md.SubscribeOnDOM(xena.XBTUSD, domHandler)
+	id := ""
+	id, err = md.SubscribeOnCandles(xena.XBTUSD.String(), "1m", handler, xena.ThrottleCandles1s, xena.AggregateBook25)
+	log.Println(id, err)
+	id, err = md.SubscribeOnDom(xena.XBTUSD.String(), handler, xena.ThrottleDOM5s)
+	log.Println(id, err)
+	id, err = md.SubscribeOnTrades(xena.XBTUSD.String(), handler, xena.ThrottleTrades5s)
+	log.Println(id, err)
+	id, err = md.SubscribeOnMarketWatch(xena.XBTUSD.String(), handler)
 	log.Println(id, err)
 
 	interrupt := make(chan os.Signal, 1)
@@ -33,6 +39,11 @@ func main() {
 	<-interrupt
 
 	log.Printf("End")
+}
+
+func handler(md xena.MarketDataClient, r *xmsg.MarketDataRequestReject, m *xmsg.MarketDataRefresh) {
+	log.Println("GOT", r, m)
+	time.Sleep(20 * time.Millisecond)
 }
 
 func domHandler(_ xena.MarketDataClient, m *xmsg.MarketDataRefresh) {

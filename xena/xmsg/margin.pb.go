@@ -21,9 +21,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type MarginAmount struct {
-	MarginAmt            string   `protobuf:"bytes,1645,opt,name=MarginAmt,json=marginAmt,proto3" json:"MarginAmt,omitempty"`
-	MarginAmtType        string   `protobuf:"bytes,1644,opt,name=MarginAmtType,json=marginAmtType,proto3" json:"MarginAmtType,omitempty"`
-	MarginAmtCcy         string   `protobuf:"bytes,1646,opt,name=MarginAmtCcy,json=marginAmtCcy,proto3" json:"MarginAmtCcy,omitempty"`
+	MarginAmt            string   `protobuf:"bytes,1645,opt,name=MarginAmt,json=marginAmt,proto3" json:"marginAmt,omitempty"`
+	MarginAmtType        string   `protobuf:"bytes,1644,opt,name=MarginAmtType,json=marginAmtType,proto3" json:"marginAmtType,omitempty"`
+	MarginAmtCcy         string   `protobuf:"bytes,1646,opt,name=MarginAmtCcy,json=marginAmtCcy,proto3" json:"marginAmtCcy,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -76,13 +76,13 @@ func (m *MarginAmount) GetMarginAmtCcy() string {
 }
 
 type MarginRequirementReport struct {
-	MsgType                string          `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"MsgType,omitempty"`
-	AccountStatusRequestId string          `protobuf:"bytes,42513,opt,name=AccountStatusRequestId,json=accountStatusRequestId,proto3" json:"AccountStatusRequestId,omitempty"`
-	MarginReqmtRptType     string          `protobuf:"bytes,1863,opt,name=MarginReqmtRptType,json=marginReqmtRptType,proto3" json:"MarginReqmtRptType,omitempty"`
-	Account                uint64          `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"Account,omitempty"`
-	MarginAmounts          []*MarginAmount `protobuf:"bytes,1643,rep,name=MarginAmounts,json=marginAmounts,proto3" json:"MarginAmounts,omitempty"`
-	RejectReason           string          `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"RejectReason,omitempty"`
-	Text                   string          `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"Text,omitempty"`
+	MsgType                string          `protobuf:"bytes,35,opt,name=MsgType,json=msgType,proto3" json:"msgType,omitempty"`
+	AccountStatusRequestId string          `protobuf:"bytes,42513,opt,name=AccountStatusRequestId,json=accountStatusRequestId,proto3" json:"accountStatusRequestId,omitempty"`
+	MarginReqmtRptType     string          `protobuf:"bytes,1863,opt,name=MarginReqmtRptType,json=marginReqmtRptType,proto3" json:"marginReqmtRptType,omitempty"`
+	Account                uint64          `protobuf:"varint,1,opt,name=Account,json=account,proto3" json:"account,omitempty"`
+	MarginAmounts          []*MarginAmount `protobuf:"bytes,1643,rep,name=MarginAmounts,json=marginAmounts,proto3" json:"marginAmounts,omitempty"`
+	RejectReason           string          `protobuf:"bytes,380,opt,name=RejectReason,json=rejectReason,proto3" json:"rejectReason,omitempty"`
+	Text                   string          `protobuf:"bytes,58,opt,name=Text,json=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral   struct{}        `json:"-"`
 	XXX_unrecognized       []byte          `json:"-"`
 	XXX_sizecache          int32           `json:"-"`

@@ -116,46 +116,46 @@ func (m *Heartbeat) GetTransactTime() int64 {
 }
 
 type Instrument struct {
-	ID                    string   `protobuf:"bytes,1,opt,name=ID,json=id,proto3" json:"ID,omitempty"`
-	Type                  string   `protobuf:"bytes,2,opt,name=Type,json=type,proto3" json:"Type,omitempty"`
-	Symbol                string   `protobuf:"bytes,3,opt,name=Symbol,json=symbol,proto3" json:"Symbol,omitempty"`
-	BaseCurrencyName      string   `protobuf:"bytes,4,opt,name=BaseCurrencyName,json=baseCurrency,proto3" json:"BaseCurrencyName,omitempty"`
-	QuoteCurrencyName     string   `protobuf:"bytes,5,opt,name=QuoteCurrencyName,json=quoteCurrency,proto3" json:"QuoteCurrencyName,omitempty"`
-	SettlCurrencyName     string   `protobuf:"bytes,6,opt,name=SettlCurrencyName,json=settlCurrency,proto3" json:"SettlCurrencyName,omitempty"`
-	TickSize              int32    `protobuf:"varint,7,opt,name=TickSize,json=tickSize,proto3" json:"TickSize,omitempty"`
-	MinOrderQty           string   `protobuf:"bytes,8,opt,name=MinOrderQty,json=minOrderQuantity,proto3" json:"MinOrderQty,omitempty"`
-	OrderQtyStep          string   `protobuf:"bytes,9,opt,name=OrderQtyStep,json=orderQtyStep,proto3" json:"OrderQtyStep,omitempty"`
-	LimitOrderMaxDistance string   `protobuf:"bytes,10,opt,name=LimitOrderMaxDistance,json=limitOrderMaxDistance,proto3" json:"LimitOrderMaxDistance,omitempty"`
-	PriceInputMask        string   `protobuf:"bytes,11,opt,name=PriceInputMask,json=priceInputMask,proto3" json:"PriceInputMask,omitempty"`
-	Indexes               []string `protobuf:"bytes,12,rep,name=Indexes,json=indexes,proto3" json:"Indexes,omitempty"`
-	Enabled               bool     `protobuf:"varint,13,opt,name=Enabled,json=enabled,proto3" json:"Enabled,omitempty"`
+	ID                    string   `protobuf:"bytes,1,opt,name=ID,json=id,proto3" json:"id,omitempty"`
+	Type                  string   `protobuf:"bytes,2,opt,name=Type,json=type,proto3" json:"type,omitempty"`
+	Symbol                string   `protobuf:"bytes,3,opt,name=Symbol,json=symbol,proto3" json:"symbol,omitempty"`
+	BaseCurrencyName      string   `protobuf:"bytes,4,opt,name=BaseCurrencyName,json=baseCurrency,proto3" json:"baseCurrency,omitempty"`
+	QuoteCurrencyName     string   `protobuf:"bytes,5,opt,name=QuoteCurrencyName,json=quoteCurrency,proto3" json:"quoteCurrency,omitempty"`
+	SettlCurrencyName     string   `protobuf:"bytes,6,opt,name=SettlCurrencyName,json=settlCurrency,proto3" json:"settlCurrency,omitempty"`
+	TickSize              int32    `protobuf:"varint,7,opt,name=TickSize,json=tickSize,proto3" json:"tickSize,omitempty"`
+	MinOrderQty           string   `protobuf:"bytes,8,opt,name=MinOrderQty,json=minOrderQuantity,proto3" json:"minOrderQuantity,omitempty"`
+	OrderQtyStep          string   `protobuf:"bytes,9,opt,name=OrderQtyStep,json=orderQtyStep,proto3" json:"orderQtyStep,omitempty"`
+	LimitOrderMaxDistance string   `protobuf:"bytes,10,opt,name=LimitOrderMaxDistance,json=limitOrderMaxDistance,proto3" json:"limitOrderMaxDistance,omitempty"`
+	PriceInputMask        string   `protobuf:"bytes,11,opt,name=PriceInputMask,json=priceInputMask,proto3" json:"priceInputMask,omitempty"`
+	Indexes               []string `protobuf:"bytes,12,rep,name=Indexes,json=indexes,proto3" json:"indexes,omitempty"`
+	Enabled               bool     `protobuf:"varint,13,opt,name=Enabled,json=enabled,proto3" json:"enabled,omitempty"`
 	// Fields from derivative
-	LiquidationMaxDistance string               `protobuf:"bytes,14,opt,name=LiquidationMaxDistance,json=liquidationMaxDistance,proto3" json:"LiquidationMaxDistance,omitempty"`
-	ContractValue          string               `protobuf:"bytes,15,opt,name=ContractValue,json=contractValue,proto3" json:"ContractValue,omitempty"`
-	ContractCurrency       string               `protobuf:"bytes,16,opt,name=ContractCurrency,json=contractCurrency,proto3" json:"ContractCurrency,omitempty"`
-	LotSize                string               `protobuf:"bytes,17,opt,name=LotSize,json=lotSize,proto3" json:"LotSize,omitempty"`
-	TickValue              string               `protobuf:"bytes,18,opt,name=TickValue,json=tickValue,proto3" json:"TickValue,omitempty"`
-	MaxOrderQty            string               `protobuf:"bytes,19,opt,name=MaxOrderQty,json=maxOrderQty,proto3" json:"MaxOrderQty,omitempty"`
-	MaxPosVolume           string               `protobuf:"bytes,20,opt,name=MaxPosVolume,json=maxPosVolume,proto3" json:"MaxPosVolume,omitempty"`
-	Mark                   string               `protobuf:"bytes,21,opt,name=Mark,json=mark,proto3" json:"Mark,omitempty"`
-	FloatingPL             string               `protobuf:"bytes,22,opt,name=FloatingPL,json=floatingPL,proto3" json:"FloatingPL,omitempty"`
-	AddUvmToFreeMargin     string               `protobuf:"bytes,23,opt,name=AddUvmToFreeMargin,json=addUvmToFreeMargin,proto3" json:"AddUvmToFreeMargin,omitempty"`
-	MinLeverage            string               `protobuf:"bytes,24,opt,name=MinLeverage,json=minLeverage,proto3" json:"MinLeverage,omitempty"`
-	MaxLeverage            string               `protobuf:"bytes,25,opt,name=MaxLeverage,json=maxLeverage,proto3" json:"MaxLeverage,omitempty"`
-	Margin                 *Margin              `protobuf:"bytes,26,opt,name=Margin,json=margin,proto3" json:"Margin,omitempty"`
-	Clearing               *DerivativeOperation `protobuf:"bytes,27,opt,name=Clearing,json=clearing,proto3" json:"Clearing,omitempty"`
-	Interest               *DerivativeOperation `protobuf:"bytes,28,opt,name=Interest,json=interest,proto3" json:"Interest,omitempty"`
-	Premium                *DerivativeOperation `protobuf:"bytes,29,opt,name=Premium,json=premium,proto3" json:"Premium,omitempty"`
-	RiskAdjustment         *DerivativeOperation `protobuf:"bytes,30,opt,name=RiskAdjustment,json=riskAdjustment,proto3" json:"RiskAdjustment,omitempty"`
-	PricePrecision         int32                `protobuf:"varint,31,opt,name=PricePrecision,json=pricePrecision,proto3" json:"PricePrecision,omitempty"`
-	PriceRange             *PriceRange          `protobuf:"bytes,32,opt,name=PriceRange,json=priceRange,proto3" json:"PriceRange,omitempty"`
-	PriceLimits            *PriceLimits         `protobuf:"bytes,33,opt,name=PriceLimits,json=priceLimits,proto3" json:"PriceLimits,omitempty"`
-	Inverse                bool                 `protobuf:"varint,34,opt,name=Inverse,json=inverse,proto3" json:"Inverse,omitempty"`
+	LiquidationMaxDistance string               `protobuf:"bytes,14,opt,name=LiquidationMaxDistance,json=liquidationMaxDistance,proto3" json:"liquidationMaxDistance,omitempty"`
+	ContractValue          string               `protobuf:"bytes,15,opt,name=ContractValue,json=contractValue,proto3" json:"contractValue,omitempty"`
+	ContractCurrency       string               `protobuf:"bytes,16,opt,name=ContractCurrency,json=contractCurrency,proto3" json:"contractCurrency,omitempty"`
+	LotSize                string               `protobuf:"bytes,17,opt,name=LotSize,json=lotSize,proto3" json:"lotSize,omitempty"`
+	TickValue              string               `protobuf:"bytes,18,opt,name=TickValue,json=tickValue,proto3" json:"tickValue,omitempty"`
+	MaxOrderQty            string               `protobuf:"bytes,19,opt,name=MaxOrderQty,json=maxOrderQty,proto3" json:"maxOrderQty,omitempty"`
+	MaxPosVolume           string               `protobuf:"bytes,20,opt,name=MaxPosVolume,json=maxPosVolume,proto3" json:"maxPosVolume,omitempty"`
+	Mark                   string               `protobuf:"bytes,21,opt,name=Mark,json=mark,proto3" json:"mark,omitempty"`
+	FloatingPL             string               `protobuf:"bytes,22,opt,name=FloatingPL,json=floatingPL,proto3" json:"floatingPL,omitempty"`
+	AddUvmToFreeMargin     string               `protobuf:"bytes,23,opt,name=AddUvmToFreeMargin,json=addUvmToFreeMargin,proto3" json:"addUvmToFreeMargin,omitempty"`
+	MinLeverage            string               `protobuf:"bytes,24,opt,name=MinLeverage,json=minLeverage,proto3" json:"minLeverage,omitempty"`
+	MaxLeverage            string               `protobuf:"bytes,25,opt,name=MaxLeverage,json=maxLeverage,proto3" json:"maxLeverage,omitempty"`
+	Margin                 *Margin              `protobuf:"bytes,26,opt,name=Margin,json=margin,proto3" json:"margin,omitempty"`
+	Clearing               *DerivativeOperation `protobuf:"bytes,27,opt,name=Clearing,json=clearing,proto3" json:"clearing,omitempty"`
+	Interest               *DerivativeOperation `protobuf:"bytes,28,opt,name=Interest,json=interest,proto3" json:"interest,omitempty"`
+	Premium                *DerivativeOperation `protobuf:"bytes,29,opt,name=Premium,json=premium,proto3" json:"premium,omitempty"`
+	RiskAdjustment         *DerivativeOperation `protobuf:"bytes,30,opt,name=RiskAdjustment,json=riskAdjustment,proto3" json:"riskAdjustment,omitempty"`
+	PricePrecision         int32                `protobuf:"varint,31,opt,name=PricePrecision,json=pricePrecision,proto3" json:"pricePrecision,omitempty"`
+	PriceRange             *PriceRange          `protobuf:"bytes,32,opt,name=PriceRange,json=priceRange,proto3" json:"priceRange,omitempty"`
+	PriceLimits            *PriceLimits         `protobuf:"bytes,33,opt,name=PriceLimits,json=priceLimits,proto3" json:"priceLimits,omitempty"`
+	Inverse                bool                 `protobuf:"varint,34,opt,name=Inverse,json=inverse,proto3" json:"inverse,omitempty"`
 	// Futures
-	TradingStartDate string `protobuf:"bytes,35,opt,name=TradingStartDate,json=tradingStartDate,proto3" json:"TradingStartDate,omitempty"`
-	ExpiryDate       string `protobuf:"bytes,36,opt,name=ExpiryDate,json=expiryDate,proto3" json:"ExpiryDate,omitempty"`
+	TradingStartDate string `protobuf:"bytes,35,opt,name=TradingStartDate,json=tradingStartDate,proto3" json:"tradingStartDate,omitempty"`
+	ExpiryDate       string `protobuf:"bytes,36,opt,name=ExpiryDate,json=expiryDate,proto3" json:"expiryDate,omitempty"`
 	// Fields from index
-	Basis                int32    `protobuf:"varint,37,opt,name=Basis,json=basis,proto3" json:"Basis,omitempty"`
+	Basis                int32    `protobuf:"varint,37,opt,name=Basis,json=basis,proto3" json:"basis,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -446,9 +446,9 @@ func (m *Instrument) GetBasis() int32 {
 }
 
 type Margin struct {
-	Netting              string            `protobuf:"bytes,1,opt,name=Netting,json=netting,proto3" json:"Netting,omitempty"`
-	Rates                []*MarginRate     `protobuf:"bytes,2,rep,name=Rates,json=rates,proto3" json:"Rates,omitempty"`
-	RateMultipliers      map[string]string `protobuf:"bytes,3,rep,name=RateMultipliers,json=rateMultipliers,proto3" json:"RateMultipliers,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Netting              string            `protobuf:"bytes,1,opt,name=Netting,json=netting,proto3" json:"netting,omitempty"`
+	Rates                []*MarginRate     `protobuf:"bytes,2,rep,name=Rates,json=rates,proto3" json:"rates,omitempty"`
+	RateMultipliers      map[string]string `protobuf:"bytes,3,rep,name=RateMultipliers,json=rateMultipliers,proto3" json:"rateMultipliers,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
 	XXX_sizecache        int32             `json:"-"`
@@ -501,9 +501,9 @@ func (m *Margin) GetRateMultipliers() map[string]string {
 }
 
 type MarginRate struct {
-	MaxVolume            string   `protobuf:"bytes,1,opt,name=MaxVolume,json=maxVolume,proto3" json:"MaxVolume,omitempty"`
-	InitialRate          string   `protobuf:"bytes,2,opt,name=InitialRate,json=initialRate,proto3" json:"InitialRate,omitempty"`
-	MaintenanceRate      string   `protobuf:"bytes,3,opt,name=MaintenanceRate,json=maintenanceRate,proto3" json:"MaintenanceRate,omitempty"`
+	MaxVolume            string   `protobuf:"bytes,1,opt,name=MaxVolume,json=maxVolume,proto3" json:"maxVolume,omitempty"`
+	InitialRate          string   `protobuf:"bytes,2,opt,name=InitialRate,json=initialRate,proto3" json:"initialRate,omitempty"`
+	MaintenanceRate      string   `protobuf:"bytes,3,opt,name=MaintenanceRate,json=maintenanceRate,proto3" json:"maintenanceRate,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -556,9 +556,9 @@ func (m *MarginRate) GetMaintenanceRate() string {
 }
 
 type DerivativeOperation struct {
-	Enabled              bool     `protobuf:"varint,1,opt,name=Enabled,json=maxVolenabledume,proto3" json:"Enabled,omitempty"`
-	Index                string   `protobuf:"bytes,2,opt,name=Index,json=index,proto3" json:"Index,omitempty"`
-	Schedule             int64    `protobuf:"varint,3,opt,name=Schedule,json=schedule,proto3" json:"Schedule,omitempty"`
+	Enabled              bool     `protobuf:"varint,1,opt,name=Enabled,json=maxVolenabledume,proto3" json:"maxVolenabledume,omitempty"`
+	Index                string   `protobuf:"bytes,2,opt,name=Index,json=index,proto3" json:"index,omitempty"`
+	Schedule             int64    `protobuf:"varint,3,opt,name=Schedule,json=schedule,proto3" json:"schedule,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -611,12 +611,12 @@ func (m *DerivativeOperation) GetSchedule() int64 {
 }
 
 type PriceRange struct {
-	Enabled              bool     `protobuf:"varint,1,opt,name=Enabled,json=enabled,proto3" json:"Enabled,omitempty"`
-	Distance             string   `protobuf:"bytes,2,opt,name=Distance,json=distance,proto3" json:"Distance,omitempty"`
-	MovingBoundary       string   `protobuf:"bytes,3,opt,name=MovingBoundary,json=movingBoundary,proto3" json:"MovingBoundary,omitempty"`
-	MovingTime           int64    `protobuf:"varint,4,opt,name=MovingTime,json=movingTime,proto3" json:"MovingTime,omitempty"`
-	LowIndex             string   `protobuf:"bytes,5,opt,name=LowIndex,json=lowIndex,proto3" json:"LowIndex,omitempty"`
-	HighIndex            string   `protobuf:"bytes,6,opt,name=HighIndex,json=highIndex,proto3" json:"HighIndex,omitempty"`
+	Enabled              bool     `protobuf:"varint,1,opt,name=Enabled,json=enabled,proto3" json:"enabled,omitempty"`
+	Distance             string   `protobuf:"bytes,2,opt,name=Distance,json=distance,proto3" json:"distance,omitempty"`
+	MovingBoundary       string   `protobuf:"bytes,3,opt,name=MovingBoundary,json=movingBoundary,proto3" json:"movingBoundary,omitempty"`
+	MovingTime           int64    `protobuf:"varint,4,opt,name=MovingTime,json=movingTime,proto3" json:"movingTime,omitempty"`
+	LowIndex             string   `protobuf:"bytes,5,opt,name=LowIndex,json=lowIndex,proto3" json:"lowIndex,omitempty"`
+	HighIndex            string   `protobuf:"bytes,6,opt,name=HighIndex,json=highIndex,proto3" json:"highIndex,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -690,10 +690,10 @@ func (m *PriceRange) GetHighIndex() string {
 }
 
 type PriceLimits struct {
-	Enabled              bool     `protobuf:"varint,1,opt,name=Enabled,json=enabled,proto3" json:"Enabled,omitempty"`
-	Distance             string   `protobuf:"bytes,2,opt,name=Distance,json=distance,proto3" json:"Distance,omitempty"`
-	LowIndex             string   `protobuf:"bytes,3,opt,name=LowIndex,json=lowIndex,proto3" json:"LowIndex,omitempty"`
-	HighIndex            string   `protobuf:"bytes,4,opt,name=HighIndex,json=highIndex,proto3" json:"HighIndex,omitempty"`
+	Enabled              bool     `protobuf:"varint,1,opt,name=Enabled,json=enabled,proto3" json:"enabled,omitempty"`
+	Distance             string   `protobuf:"bytes,2,opt,name=Distance,json=distance,proto3" json:"distance,omitempty"`
+	LowIndex             string   `protobuf:"bytes,3,opt,name=LowIndex,json=lowIndex,proto3" json:"lowIndex,omitempty"`
+	HighIndex            string   `protobuf:"bytes,4,opt,name=HighIndex,json=highIndex,proto3" json:"highIndex,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

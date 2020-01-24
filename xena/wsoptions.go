@@ -1,6 +1,8 @@
 package xena
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	localWsMdURL     = "ws://localhost/api/ws/market-data"

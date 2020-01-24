@@ -20,6 +20,13 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+func IsMargin(accountId uint64) bool {
+	if accountId > 1000000000 {
+		return true
+	}
+	return false
+}
+
 //ID generation new random id.
 func ID(prefix string) string {
 	if len(prefix) > maxIdLen {
@@ -79,4 +86,36 @@ func CreateStopOrder(clOrdId string, symbol string, side Side, orderQty string, 
 //  CreateOrderMassCancel create new order mass cancel.
 func CreateOrderMassCancel(account uint64, clOrdId string) orderMassCancel {
 	return newOrderMassCancel(account, clOrdId)
+}
+
+func CreateReplace(replaceId string, executionReport *xmsg.ExecutionReport) xmsg.OrderCancelReplaceRequest {
+	cmd := xmsg.OrderCancelReplaceRequest{}
+	cmd.MsgType = xmsg.MsgType_OrderCancelReplaceRequestMsgType
+	cmd.ClOrdId = replaceId
+	cmd.OrigClOrdId = executionReport.ClOrdId
+	cmd.Symbol = executionReport.Symbol
+	cmd.Side = executionReport.Side
+	cmd.TransactTime = time.Now().UnixNano()
+	cmd.Account = executionReport.Account
+	cmd.Price = executionReport.Price
+	cmd.StopPx = executionReport.StopPx
+	cmd.CapPrice = executionReport.CapPrice
+	cmd.OrderQty = executionReport.OrderQty
+	cmd.PegPriceType = executionReport.PegPriceType
+	cmd.PegOffsetType = executionReport.PegOffsetType
+	cmd.PegOffsetValue = executionReport.PegOffsetValue
+
+	for _, s := range executionReport.SLTP {
+		sltp := &xmsg.SLTP{}
+		sltp.OrdType = s.OrdType
+		sltp.Price = s.Price
+		sltp.StopPx = s.StopPx
+		sltp.CapPrice = s.CapPrice
+		sltp.PegPriceType = s.PegPriceType
+		sltp.PegOffsetType = s.PegOffsetType
+		sltp.PegOffsetValue = s.PegOffsetValue
+		cmd.SLTP = append(cmd.SLTP, sltp)
+	}
+
+	return cmd
 }
