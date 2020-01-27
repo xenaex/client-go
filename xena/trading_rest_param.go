@@ -141,7 +141,7 @@ func (p TradeHistoryRequest) SetFromTo(from, to time.Time) TradeHistoryRequest {
 
 }
 
-func (p TradeHistoryRequest) SetPage(limit, pageNumber int) TradeHistoryRequest {
+func (p TradeHistoryRequest) SetPage(pageNumber, limit int) TradeHistoryRequest {
 	p.Limit = &limit
 	p.PageNumber = &pageNumber
 	return p
