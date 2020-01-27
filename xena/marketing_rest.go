@@ -8,20 +8,20 @@ import (
 	"github.com/xenaex/client-go/xena/xmsg"
 )
 
-func NewMarketDataRpc(options ...RestOption) MarketDataRPC {
-	cfg := &rpcConf{}
+func NewMarketDataREST(options ...RestOption) MarketDataREST {
+	cfg := &restConf{}
 	for _, ots := range []RestOption{withRestDefaultLogger, WithRestMarketDataHost, withRestDefaultTimeout, WithRestUserAgent(userAgent)} {
 		ots(cfg)
 	}
 	for _, ots := range options {
 		ots(cfg)
 	}
-	return &marketDataRPC{
-		baseRPC: newBaseRPC(cfg),
+	return &marketDataREST{
+		baseREST: newBaseREST(cfg),
 	}
 }
 
-type MarketDataRPC interface {
+type MarketDataREST interface {
 	GetServerTime() (time.Time, error)
 	GetInstruments() ([]*xmsg.Instrument, error)
 	GetTrades(symbol string, from, to time.Time, page, limit int64) (*xmsg.MarketDataRefresh, error)
@@ -29,11 +29,11 @@ type MarketDataRPC interface {
 	GetCandles(symbol string, timeFrame string, from, to time.Time) (*xmsg.MarketDataRefresh, error)
 }
 
-type marketDataRPC struct {
-	baseRPC
+type marketDataREST struct {
+	baseREST
 }
 
-func (m *marketDataRPC) GetCandles(symbol string, timeFrame string, from, to time.Time) (*xmsg.MarketDataRefresh, error) {
+func (m *marketDataREST) GetCandles(symbol string, timeFrame string, from, to time.Time) (*xmsg.MarketDataRefresh, error) {
 	method := "candles"
 	resp, body, err := m.get(NewQuery("market-data", "candles", symbol, timeFrame).AddQueryInt("from", from.UnixNano()).AddQueryInt("to", to.UnixNano()))
 	if err != nil {
@@ -52,7 +52,7 @@ func (m *marketDataRPC) GetCandles(symbol string, timeFrame string, from, to tim
 	return msg, nil
 }
 
-func (m *marketDataRPC) GetDom(symbol string) (*xmsg.MarketDataRefresh, error) {
+func (m *marketDataREST) GetDom(symbol string) (*xmsg.MarketDataRefresh, error) {
 	const method = "dom"
 	resp, body, err := m.get(NewQuery("market-data", method, symbol))
 	if err != nil {
@@ -72,7 +72,7 @@ func (m *marketDataRPC) GetDom(symbol string) (*xmsg.MarketDataRefresh, error) {
 	return msg, nil
 }
 
-func (m *marketDataRPC) GetTrades(symbol string, from, to time.Time, page, limit int64) (*xmsg.MarketDataRefresh, error) {
+func (m *marketDataREST) GetTrades(symbol string, from, to time.Time, page, limit int64) (*xmsg.MarketDataRefresh, error) {
 	const method = "trades"
 	query := NewQuery("market-data", method, symbol).
 		AddQueryInt("from", from.UnixNano()).
@@ -96,7 +96,7 @@ func (m *marketDataRPC) GetTrades(symbol string, from, to time.Time, page, limit
 	return msg, nil
 }
 
-func (m *marketDataRPC) GetServerTime() (time.Time, error) {
+func (m *marketDataREST) GetServerTime() (time.Time, error) {
 	const method = "server-time"
 	resp, body, err := m.get(NewQuery("market-data", method))
 	if err != nil {
@@ -115,7 +115,7 @@ func (m *marketDataRPC) GetServerTime() (time.Time, error) {
 	return time.Unix(0, msg.TransactTime), nil
 }
 
-func (m *marketDataRPC) GetInstruments() ([]*xmsg.Instrument, error) {
+func (m *marketDataREST) GetInstruments() ([]*xmsg.Instrument, error) {
 	const method = "instruments"
 	resp, body, err := m.get(NewQuery("public", method))
 	if err != nil {

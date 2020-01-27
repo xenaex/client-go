@@ -41,6 +41,7 @@ type TradingClient interface {
 	ListenReject(handler RejectHandler)
 	ListenListStatus(handler ListStatusHandler)
 	ListenOrderMassCancelReport(handler OrderMassCancelReportHandler)
+	ListenHeartbeat(handler HeartbeatHandler)
 
 	// ConnectAndLogon connects to websocket and if connection was successful sends Logon message with provided authorization data.
 	// Logon response. If logon is rejected Logon.RejectText will contain the reject reason.
@@ -219,11 +220,15 @@ type ListStatusHandler func(t TradingClient, m *xmsg.ListStatus)
 // OrderMassCancelReportHandler will be called on OrderMassCancelReport received
 type OrderMassCancelReportHandler func(t TradingClient, m *xmsg.OrderMassCancelReport)
 
+// HeartbeatHandler will be called on heartbeat received
+type HeartbeatHandler func(t TradingClient, m *xmsg.Heartbeat)
+
 type tradingClient struct {
 	client    WsClient
 	apiKey    string
 	apiSecret string
 	handlers  struct {
+		heartbeat                 HeartbeatHandler
 		balanceSnapshotRefresh    BalanceSnapshotRefreshHandler
 		balanceIncrementalRefresh BalanceIncrementalRefreshHandler
 		executionReport           ExecutionReportHandler
@@ -297,6 +302,10 @@ func (t *tradingClient) ListenBalanceSnapshotRefresh(handler BalanceSnapshotRefr
 
 func (t *tradingClient) ListenOrderMassCancelReport(handler OrderMassCancelReportHandler) {
 	t.handlers.orderMassCancelReport = handler
+}
+
+func (t *tradingClient) ListenHeartbeat(handler HeartbeatHandler) {
+	t.handlers.heartbeat = handler
 }
 
 // MarketOrder place new market order.
@@ -456,6 +465,14 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 		t.client.Logger().Errorf("error: %s. on fixjson.Unmarshal(%s)", err, string(msg))
 	}
 	switch mth.MsgType {
+	case xmsg.MsgType_Heartbeat:
+		v := new(xmsg.Heartbeat)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			handler := t.handlers.heartbeat
+			if handler != nil {
+				go handler(t, v)
+			}
+		}
 	case xmsg.MsgType_LogonMsgType:
 		v := new(xmsg.Logon)
 		if _, err := t.unmarshal(msg, v); err == nil {

@@ -20,20 +20,20 @@ import (
 
 const userAgent = "xena/go"
 
-func newBaseRPC(config *rpcConf) baseRPC {
-	rpc := baseRPC{
+func newBaseREST(config *restConf) baseREST {
+	rest := baseREST{
 		config: config,
 		http:   &http.Client{Timeout: config.timeout},
 	}
-	return rpc
+	return rest
 }
 
-type baseRPC struct {
-	config *rpcConf
+type baseREST struct {
+	config *restConf
 	http   *http.Client
 }
 
-func (r *baseRPC) get(query query) (*http.Response, []byte, error) {
+func (r *baseREST) get(query query) (*http.Response, []byte, error) {
 	var body []byte
 	u, err := query.SetHost(r.config.host)
 	if err != nil {
@@ -47,7 +47,11 @@ func (r *baseRPC) get(query query) (*http.Response, []byte, error) {
 	for k, v := range r.getHeaders(query.headers) {
 		req.Header.Add(k, v)
 	}
+	st := time.Now()
 	resp, err := r.http.Do(req)
+	if time.Now().Sub(st) > time.Second {
+		r.config.logger.Debugf("long request %s to %s", time.Now().Sub(st), u)
+	}
 	if err == nil && (resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusBadRequest || resp.StatusCode == http.StatusUnauthorized) {
 		body, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -69,7 +73,7 @@ func (r *baseRPC) get(query query) (*http.Response, []byte, error) {
 	return resp, body, err
 }
 
-func (r *baseRPC) post(query query, reqBody []byte) (*http.Response, []byte, error) {
+func (r *baseREST) post(query query, reqBody []byte) (*http.Response, []byte, error) {
 	u, err := query.SetHost(r.config.host)
 	if err != nil {
 		return nil, nil, err
@@ -104,7 +108,7 @@ func (r *baseRPC) post(query query, reqBody []byte) (*http.Response, []byte, err
 	return resp, respBody, err
 }
 
-func (r *baseRPC) do(req *http.Request) error {
+func (r *baseREST) do(req *http.Request) error {
 	resp, err := r.http.Do(req)
 	if err != nil {
 		return err
@@ -115,7 +119,7 @@ func (r *baseRPC) do(req *http.Request) error {
 	return nil
 }
 
-func (r *baseRPC) getHeaders(paramsHeaders map[string]string) map[string]string {
+func (r *baseREST) getHeaders(paramsHeaders map[string]string) map[string]string {
 	headers := make(map[string]string, 2)
 	headers["Accept"] = "application/json"
 	headers["User-Agent"] = r.config.userAgent
@@ -128,7 +132,7 @@ func (r *baseRPC) getHeaders(paramsHeaders map[string]string) map[string]string 
 	return headers
 }
 
-type rpcConf struct {
+type restConf struct {
 	host      string
 	timeout   time.Duration
 	userAgent string
@@ -136,10 +140,10 @@ type rpcConf struct {
 	headers   map[string]string
 }
 
-type RestOption func(conf *rpcConf)
+type RestOption func(conf *restConf)
 
 func WithRestHost(url string) RestOption {
-	return func(conf *rpcConf) {
+	return func(conf *restConf) {
 		conf.host = url
 	}
 }
@@ -148,35 +152,35 @@ func WithRestLogger(logger Logger) RestOption {
 	if logger != nil {
 		logger = newEmptyLogger()
 	}
-	return func(conf *rpcConf) {
+	return func(conf *restConf) {
 		conf.logger = logger
 	}
 }
 
-func WithRestMarketDataHost(conf *rpcConf) {
+func WithRestMarketDataHost(conf *restConf) {
 	conf.host = "https://api.xena.exchange"
 }
 
-func WithRestTradingHost(conf *rpcConf) {
+func WithRestTradingHost(conf *restConf) {
 	conf.host = "https://api.xena.exchange/trading"
 }
 
-func withRestDefaultTimeout(conf *rpcConf) {
+func withRestDefaultTimeout(conf *restConf) {
 	conf.timeout = time.Minute
 }
 
-func withRestDefaultLogger(conf *rpcConf) {
+func withRestDefaultLogger(conf *restConf) {
 	conf.logger = newLogger(true)
 }
 
 func WithRestUserAgent(userAgent string) RestOption {
-	return func(conf *rpcConf) {
+	return func(conf *restConf) {
 		conf.userAgent = userAgent
 	}
 }
 
 func withRestHeader(key, value string) RestOption {
-	return func(conf *rpcConf) {
+	return func(conf *restConf) {
 		if conf.headers == nil {
 			conf.headers = make(map[string]string)
 		}
@@ -255,8 +259,11 @@ func (q query) AddHeader(key, value string) query {
 	return q
 }
 
+var start = time.Now()
+
 func (q query) AddSecret(apiSecret string) (query, error) {
-	nonce := time.Now().UnixNano()
+	//	nonce := time.Now().UTC().UnixNano()
+	nonce := start.Add(time.Since(start)).UnixNano()
 	payload := fmt.Sprintf("AUTH%d", nonce)
 
 	// Signature - SHA512 + ECDSA

@@ -87,7 +87,7 @@ func (p PositionsHistoryRequest) SetPage(limit, pageNumber int) PositionsHistory
 
 }
 
-func (t *tradingRPC) GetPositionsHistory(accountId uint64, request PositionsHistoryRequest) ([]*xmsg.PositionReport, error) {
+func (t *tradingREST) GetPositionsHistory(accountId uint64, request PositionsHistoryRequest) ([]*xmsg.PositionReport, error) {
 	query := NewQuery("accounts", strconv.FormatUint(accountId, 10), "positions-history")
 	query.AddQueryf("id", request.PositionId)
 	query.AddQueryf("parentid", request.ParentPositionId)

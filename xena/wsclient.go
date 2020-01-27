@@ -202,6 +202,7 @@ func (c *wsClient) connectAndListen() error {
 			c.handleError(err)
 			return err
 		}
+		// TODO: fix connect with timeout.
 		conn, _, err := websocket.DefaultDialer.Dial(c.url, nil)
 		if err != nil {
 			c.logger.Errorf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
@@ -253,6 +254,7 @@ func (c *wsClient) listen() {
 			}
 			_, message, err := conn.ReadMessage()
 			if err != nil {
+				c.logger.Errorf("%s on conn.ReadMessage()", err)
 				c.handleError(err)
 				go c.stop()
 				return
@@ -311,7 +313,7 @@ func (c *wsClient) handleMsg(msg []byte) {
 
 	switch str {
 	case heartbeatMsg:
-		// do nothing
+		c.handler(msg)
 	default:
 		c.handler(msg)
 	}

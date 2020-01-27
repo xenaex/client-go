@@ -10,21 +10,21 @@ import (
 	"github.com/xenaex/client-go/xena/xmsg"
 )
 
-func NewTradingRpc(apiKey, apiSecret string, options ...RestOption) TradingRPC {
-	cfg := &rpcConf{}
+func NewTradingREST(apiKey, apiSecret string, options ...RestOption) TradingREST {
+	cfg := &restConf{}
 	for _, ots := range []RestOption{withRestDefaultLogger, WithRestTradingHost, withRestDefaultTimeout, WithRestUserAgent(userAgent), withRestHeader("X-Auth-Api-Key", apiKey)} {
 		ots(cfg)
 	}
 	for _, ots := range options {
 		ots(cfg)
 	}
-	return &tradingRPC{
+	return &tradingREST{
 		apiSecret: apiSecret,
-		baseRPC:   newBaseRPC(cfg),
+		baseREST:  newBaseREST(cfg),
 	}
 }
 
-type TradingRPC interface {
+type TradingREST interface {
 	// NewOrder places new order.
 	NewOrder(cmd *xmsg.NewOrderSingle) (*xmsg.ExecutionReport, error)
 
@@ -63,14 +63,14 @@ type TradingRPC interface {
 	GetAccounts() ([]*xmsg.AccountInfo, error)
 }
 
-type tradingRPC struct {
-	baseRPC
+type tradingREST struct {
+	baseREST
 	apiSecret string
 }
 
 // GetOrders request all orders and fills for account.
 // To receive response.
-func (t *tradingRPC) NewOrder(cmd *xmsg.NewOrderSingle) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) NewOrder(cmd *xmsg.NewOrderSingle) (*xmsg.ExecutionReport, error) {
 	query := NewQuery("order", "new")
 	er := new(xmsg.ExecutionReport)
 	err := t.sendPost(query, cmd, er)
@@ -81,44 +81,44 @@ func (t *tradingRPC) NewOrder(cmd *xmsg.NewOrderSingle) (*xmsg.ExecutionReport, 
 }
 
 //SendMarketOrder place new market order.
-func (t *tradingRPC) SendMarketOrder(accountId uint64, clOrdId string, symbol string, side Side, orderQty string) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendMarketOrder(accountId uint64, clOrdId string, symbol string, side Side, orderQty string) (*xmsg.ExecutionReport, error) {
 	order := CreateMarketOrder(clOrdId, symbol, side, orderQty, accountId).Build()
 	return t.NewOrder(order)
 }
 
 //SendLimitOrder place new limit order.
-func (t *tradingRPC) SendLimitOrder(accountId uint64, clOrdId string, symbol string, side Side, price string, orderQty string) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendLimitOrder(accountId uint64, clOrdId string, symbol string, side Side, price string, orderQty string) (*xmsg.ExecutionReport, error) {
 	order := CreateLimitOrder(clOrdId, symbol, side, orderQty, accountId, price).Build()
 	return t.NewOrder(order)
 }
 
 //SendStopOrder place new stop order.
-func (t *tradingRPC) SendStopOrder(accountId uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendStopOrder(accountId uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) (*xmsg.ExecutionReport, error) {
 	order := CreateStopOrder(clOrdId, symbol, side, orderQty, accountId, stopPx).Build()
 	return t.NewOrder(order)
 }
 
 //SendMarketIfTouchOrder place new market-if-touch order.
-func (t *tradingRPC) SendMarketIfTouchOrder(accountId uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendMarketIfTouchOrder(accountId uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) (*xmsg.ExecutionReport, error) {
 	order := CreateMarketIfTouchOrder(clOrdId, symbol, side, orderQty, accountId, stopPx).Build()
 	return t.NewOrder(order)
 }
 
-func (t *tradingRPC) SendCancel(cmd *xmsg.OrderCancelRequest) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendCancel(cmd *xmsg.OrderCancelRequest) (*xmsg.ExecutionReport, error) {
 	query := NewQuery("order", "cancel")
 	er := new(xmsg.ExecutionReport)
 	err := t.sendPost(query, cmd, er)
 	return er, err
 }
 
-func (t *tradingRPC) SendMassCancelCmd(cmd *xmsg.OrderMassCancelRequest) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendMassCancelCmd(cmd *xmsg.OrderMassCancelRequest) (*xmsg.ExecutionReport, error) {
 	query := NewQuery("order", "mass-cancel")
 	er := new(xmsg.ExecutionReport)
 	err := t.sendPost(query, cmd, er)
 	return er, err
 }
 
-func (t *tradingRPC) GetBalance(accountId uint64) (*xmsg.BalanceSnapshotRefresh, error) {
+func (t *tradingREST) GetBalance(accountId uint64) (*xmsg.BalanceSnapshotRefresh, error) {
 	query := NewQuery("accounts", strconv.FormatUint(accountId, 10), "balance")
 	resp := new(xmsg.BalanceSnapshotRefresh)
 	err := t.sendGet(query, resp)
@@ -128,7 +128,7 @@ func (t *tradingRPC) GetBalance(accountId uint64) (*xmsg.BalanceSnapshotRefresh,
 	return resp, nil
 }
 
-func (t *tradingRPC) GetMarginRequirements(accountId uint64) (*xmsg.MarginRequirementReport, error) {
+func (t *tradingREST) GetMarginRequirements(accountId uint64) (*xmsg.MarginRequirementReport, error) {
 	query := NewQuery("accounts", strconv.FormatUint(accountId, 10), "margin-requirements")
 	resp := new(xmsg.MarginRequirementReport)
 	err := t.sendGet(query, resp)
@@ -138,7 +138,7 @@ func (t *tradingRPC) GetMarginRequirements(accountId uint64) (*xmsg.MarginRequir
 	return resp, nil
 }
 
-func (t *tradingRPC) GetTradeHistory(accountId uint64, request TradeHistoryRequest) ([]*xmsg.ExecutionReport, error) {
+func (t *tradingREST) GetTradeHistory(accountId uint64, request TradeHistoryRequest) ([]*xmsg.ExecutionReport, error) {
 	query := NewQuery("accounts", strconv.FormatUint(accountId, 10), "trade-history")
 	query.AddQueryf("trade_id", request.TradeId).
 		AddQueryf("client_order_id", request.ClOrdId).
@@ -156,7 +156,7 @@ func (t *tradingRPC) GetTradeHistory(accountId uint64, request TradeHistoryReque
 }
 
 //SendCancelByClOrdId cancels an existing order by original client order id.
-func (t *tradingRPC) SendCancelByClOrdId(account uint64, clOrdId, origClOrdId, symbol string, side Side) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendCancelByClOrdId(account uint64, clOrdId, origClOrdId, symbol string, side Side) (*xmsg.ExecutionReport, error) {
 	var request = xmsg.OrderCancelRequest{
 		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
 		ClOrdId:      clOrdId,
@@ -170,7 +170,7 @@ func (t *tradingRPC) SendCancelByClOrdId(account uint64, clOrdId, origClOrdId, s
 }
 
 //SendCancelByOrderId cancel an existing order by order id.
-func (t *tradingRPC) SendCancelByOrderId(account uint64, clOrdId, orderId, symbol string, side Side) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendCancelByOrderId(account uint64, clOrdId, orderId, symbol string, side Side) (*xmsg.ExecutionReport, error) {
 	var request = xmsg.OrderCancelRequest{
 		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
 		ClOrdId:      clOrdId,
@@ -184,12 +184,12 @@ func (t *tradingRPC) SendCancelByOrderId(account uint64, clOrdId, orderId, symbo
 }
 
 // SendMassCancel send OrderMassCancelRequest request.
-func (t *tradingRPC) SendMassCancel(account uint64, clOrdId string) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendMassCancel(account uint64, clOrdId string) (*xmsg.ExecutionReport, error) {
 	return t.SendMassCancelCmd(newOrderMassCancel(account, clOrdId).Build())
 }
 
 // GetPositions request all positions for account.
-func (t *tradingRPC) GetPositions(account uint64, requestId string) ([]*xmsg.PositionReport, error) {
+func (t *tradingREST) GetPositions(account uint64, requestId string) ([]*xmsg.PositionReport, error) {
 	query := NewQuery("accounts", strconv.FormatUint(account, 10), "positions")
 	//request := xmsg.PositionsRequest{
 	//	MsgType:  xmsg.MsgType_RequestForPositions,
@@ -204,7 +204,7 @@ func (t *tradingRPC) GetPositions(account uint64, requestId string) ([]*xmsg.Pos
 	return resp, nil
 }
 
-func (t *tradingRPC) sendPost(query query, cmd, ret interface{}) error {
+func (t *tradingREST) sendPost(query query, cmd, ret interface{}) error {
 	data, err := json.Marshal(cmd)
 	if err != nil {
 		return err
@@ -233,7 +233,7 @@ func (t *tradingRPC) sendPost(query query, cmd, ret interface{}) error {
 	return err
 }
 
-func (t *tradingRPC) sendGet(query query, ret interface{}) error {
+func (t *tradingREST) sendGet(query query, ret interface{}) error {
 	query, err := query.AddSecret(t.apiSecret)
 	if err != nil {
 		t.config.logger.Errorf("%s on query.AddSecret()", err)
@@ -259,7 +259,7 @@ func (t *tradingRPC) sendGet(query query, ret interface{}) error {
 	return err
 }
 
-func (t *tradingRPC) GetOrders(account uint64, requestId string) ([]*xmsg.ExecutionReport, error) {
+func (t *tradingREST) GetOrders(account uint64, requestId string) ([]*xmsg.ExecutionReport, error) {
 	query := NewQuery("accounts", strconv.FormatUint(account, 10), "orders")
 	resp := make([]*xmsg.ExecutionReport, 0)
 	err := t.sendGet(query, &resp)
@@ -270,7 +270,7 @@ func (t *tradingRPC) GetOrders(account uint64, requestId string) ([]*xmsg.Execut
 }
 
 // SendReplace cancel an existing order and replace.
-func (t *tradingRPC) SendReplace(request xmsg.OrderCancelReplaceRequest) (*xmsg.ExecutionReport, error) {
+func (t *tradingREST) SendReplace(request xmsg.OrderCancelReplaceRequest) (*xmsg.ExecutionReport, error) {
 	query := NewQuery("order", "replace")
 	resp := new(xmsg.ExecutionReport)
 	err := t.sendPost(query, request, resp)
@@ -281,7 +281,7 @@ func (t *tradingRPC) SendReplace(request xmsg.OrderCancelReplaceRequest) (*xmsg.
 }
 
 // SendCollapsePositions collapse all existing positions for margin account and symbol.
-func (t *tradingRPC) SendCollapsePositions(account uint64, symbol string, requestId string) (*xmsg.PositionMaintenanceReport, error) {
+func (t *tradingREST) SendCollapsePositions(account uint64, symbol string, requestId string) (*xmsg.PositionMaintenanceReport, error) {
 	request := xmsg.PositionMaintenanceRequest{
 		MsgType:        xmsg.MsgType_PositionMaintenanceRequest,
 		Account:        account,
@@ -299,7 +299,7 @@ func (t *tradingRPC) SendCollapsePositions(account uint64, symbol string, reques
 	return resp, err
 }
 
-func (t *tradingRPC) GetAccounts() ([]*xmsg.AccountInfo, error) {
+func (t *tradingREST) GetAccounts() ([]*xmsg.AccountInfo, error) {
 	query := NewQuery("accounts")
 	resp := struct {
 		Accounts []*xmsg.AccountInfo `json:"accounts"`

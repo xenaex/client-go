@@ -19,7 +19,7 @@ func main() {
 	if strings.Contains(os.Args[0], "/") && strings.Contains(os.Args[0], "main") {
 		os.Args = os.Args[1:]
 	}
-	client := xena.NewMarketDataRpc(
+	client := xena.NewMarketDataREST(
 		xena.WithRestMarketDataHost,
 		//		xena.WithRestHost("http://api.xena.test/"),
 	)

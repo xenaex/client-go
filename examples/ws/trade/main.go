@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/xenaex/client-go/xena"
@@ -39,16 +40,8 @@ func main() {
 	var err error
 
 	log.Println("will be connect to ", host)
-	log.Println("get accounts 1")
-	rpcClient := xena.NewTradingRpc(apiKey, apiSecret, xena.WithRestHost("http://api.xena.rc/trading/"))
-	accounts, err = rpcClient.GetAccounts()
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println(accounts)
-	log.Println("get accounts 2")
-
-	accounts, err = rpcClient.GetAccounts()
+	restClient := xena.NewTradingREST(apiKey, apiSecret, xena.WithRestHost("http://api.xena.rc/trading/"))
+	accounts, err = restClient.GetAccounts()
 	if err != nil {
 		log.Println(err)
 	}
@@ -75,7 +68,7 @@ func main() {
 	}
 
 	bestAsk, bestBid = GetBests(symbol)
-	return
+
 	examples := make(map[string]func())
 	examples["market_order"] = exampleMarketOrder
 	examples["limit-order"] = exampleLimitOrder
@@ -92,23 +85,26 @@ func main() {
 	examples["mass-cancel-3"] = exampleMassCancel3
 	examples["mass-cancel-4"] = exampleMassCancel4
 	examples["replace"] = exampleReplace
-	examples["sync_limit_order"] = exampleSyncLimitOrder
 	examples["positions-collapse"] = examplePositionsCollapse
 	examples["positions"] = examplePositions
 	examples["orders"] = exampleOrders
 	examples["balances"] = exampleBalances
 	examples["margin-requirements"] = exampleMarginRequirements
+
 	log.Println("market_order---------------------------------------------")
-	for i := 0; i < 10; i++ {
-		fmt.Println()
+
+	for k, f := range examples {
+		for i := 0; i < 10; i++ {
+			fmt.Println()
+		}
+		log.Printf("%s ---------------------------------------------", k)
+		f()
 	}
-	examples["replace"]()
-	time.Sleep(time.Minute)
 }
 
 func GetBests(symbol string) (bestAsk, bestBid float64) {
 	log.Println("get dom")
-	client := xena.NewMarketDataRpc(
+	client := xena.NewMarketDataREST(
 		xena.WithRestMarketDataHost,
 		xena.WithRestHost("http://api.xena.rc/"),
 	)
@@ -138,7 +134,12 @@ func exampleMarketOrder() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -161,7 +162,12 @@ func exampleMarketOrder() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -187,7 +193,12 @@ func exampleLimitOrder() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -210,7 +221,12 @@ func exampleLimitOrder() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -233,18 +249,26 @@ func exampleLimitOrderPostOnly() {
 	done := make(chan bool)
 	var resp *xmsg.ExecutionReport
 	var reject *xmsg.Reject
+	id := xena.ID("limit-order-")
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ClOrdId != id && resp.OrigClOrdId != id {
+			return
+		}
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
-		reject = m
-		log.Printf("reject: %s\n", m)
+		log.Printf("resp: %s\n", m)
 		done <- false
 	})
 
-	mOrder := xena.CreateLimitOrder(xena.ID("limit-order-"), symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").AddExecInst(xmsg.ExecInst_StayOnOfferSide).Build()
+	mOrder := xena.CreateLimitOrder(id, symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").AddExecInst(xmsg.ExecInst_StayOnOfferSide).Build()
 	err := client.Send(mOrder)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
@@ -254,13 +278,22 @@ func exampleLimitOrderPostOnly() {
 	client.ListenExecutionReport(nil)
 	client.ListenReject(nil)
 
+	id = xena.ID("limit-order-")
 	done = make(chan bool)
 	resp = nil
 	reject = nil
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
-		log.Printf("resp: %s\n", m)
-		done <- true
+		log.Printf("resp1: %s\n", m)
+		if resp.ClOrdId != id && resp.OrigClOrdId != id {
+			return
+		}
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -269,7 +302,7 @@ func exampleLimitOrderPostOnly() {
 	})
 
 	// or using helpers method
-	mOrder = xena.CreateLimitOrder(xena.ID("limit-order-"), symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").AddExecInst(xmsg.ExecInst_PegToOfferSide).Build()
+	mOrder = xena.CreateLimitOrder(id, symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").AddExecInst(xmsg.ExecInst_PegToOfferSide).Build()
 	err = client.Send(mOrder)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
@@ -283,10 +316,19 @@ func exampleStopOrder() {
 	done := make(chan bool)
 	var resp *xmsg.ExecutionReport
 	var reject *xmsg.Reject
+	id := xena.ID("limit-order-")
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
-		log.Printf("resp: %s\n", m)
-		done <- true
+		log.Printf("resp1: %s\n", m)
+		if resp.ClOrdId != id && resp.OrigClOrdId != id {
+			return
+		}
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -294,7 +336,7 @@ func exampleStopOrder() {
 		done <- false
 	})
 
-	err := client.StopOrder(accountId, xena.ID("so-"), symbol, xena.SideBuy, fmt.Sprintf("%.1f", bestAsk+10), "1")
+	err := client.StopOrder(accountId, id, symbol, xena.SideBuy, fmt.Sprintf("%.1f", bestAsk+10), "1")
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
@@ -304,12 +346,21 @@ func exampleStopOrder() {
 	client.ListenReject(nil)
 
 	done = make(chan bool)
+	id = xena.ID("limit-order-")
 	resp = nil
 	reject = nil
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
-		log.Printf("resp: %s\n", m)
-		done <- true
+		log.Printf("resp1: %s\n", m)
+		if resp.ClOrdId != id && resp.OrigClOrdId != id {
+			return
+		}
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -318,7 +369,7 @@ func exampleStopOrder() {
 	})
 
 	// or using helpers method
-	mOrder := xena.CreateStopOrder(xena.ID("so-"), symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("stop order").Build()
+	mOrder := xena.CreateStopOrder(id, symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("stop order").Build()
 	err = client.Send(mOrder)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
@@ -335,7 +386,12 @@ func exampleSLTPGroup() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -362,7 +418,12 @@ func exampleSLTPGroup() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -394,7 +455,12 @@ func exampleStopLossForExistingPosition() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -418,7 +484,12 @@ func exampleStopLossForExistingPosition() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -446,7 +517,12 @@ func exampleTakeProfitForExistingPosition() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		done <- true
+		if resp.ExecType == xmsg.ExecType_NewExec {
+			done <- true
+		}
+		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+			done <- false
+		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -457,7 +533,7 @@ func exampleTakeProfitForExistingPosition() {
 	mOrder := xena.CreateLimitOrder(xena.ID("limit-order"), symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").SetPositionId(positionId).Build()
 	err := client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 }
@@ -467,20 +543,36 @@ func exampleCancelByClientOrderId() {
 
 	defer client.ListenExecutionReport(nil)
 	defer client.ListenReject(nil)
-	done := make(chan bool)
-	var resp *xmsg.ExecutionReport
+	done := make(chan bool, 1)
 	var reject *xmsg.Reject
+	wg := &sync.WaitGroup{}
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
-		for _, id := range ids {
-			if resp.ClOrdId == id {
-				err := client.CancelByOrderId(accountId, xena.ID("cancel-1"), resp.OrderId, symbol, xena.SideBuy)
-				// fmt.Printf("resp: %s\n", cancelResp)
-				if err != nil {
-					fmt.Printf("error: %v\n", err)
+		if m.ExecType == xmsg.ExecType_NewExec {
+			for _, id := range ids {
+				if m.ClOrdId == id {
+					err := client.CancelByOrderId(accountId, xena.ID("cancel-1"), m.OrderId, symbol, xena.SideBuy)
+					// fmt.Printf("resp: %s\n", cancelResp)
+					if err != nil {
+						fmt.Printf("error: %v\n", err)
+					}
+					log.Printf("exec resp: %s\n", m)
 				}
-				resp = m
-				log.Printf("resp: %s\n", m)
-				done <- true
+			}
+		}
+		if m.ExecType == xmsg.ExecType_CanceledExec {
+			for _, id := range ids {
+				if m.OrigClOrdId == id {
+					log.Printf("cancel resp: %s  %v\n", m, *wg)
+					wg.Done()
+				}
+			}
+		}
+		if m.ExecType == xmsg.ExecType_RejectedExec {
+			for _, id := range ids {
+				if m.OrigClOrdId == id {
+					log.Printf("reject resp: %s\n", m)
+					wg.Done()
+				}
 			}
 		}
 	})
@@ -493,9 +585,13 @@ func exampleCancelByClientOrderId() {
 		err := client.LimitOrder(accountId, id, symbol, xena.SideBuy, fmt.Sprintf("%.1f", bestAsk-1), "1")
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
+			continue
 		}
-		log.Printf("is ok %t\n", <-done)
+		wg.Add(1)
 	}
+	wg.Wait()
+	done <- true
+	log.Printf("is ok %t", <-done)
 }
 
 func exampleCancelByClientClOrdId() {
@@ -503,20 +599,36 @@ func exampleCancelByClientClOrdId() {
 
 	defer client.ListenExecutionReport(nil)
 	defer client.ListenReject(nil)
-	done := make(chan bool)
-	var resp *xmsg.ExecutionReport
+	done := make(chan bool, 1)
 	var reject *xmsg.Reject
+	wg := &sync.WaitGroup{}
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
-		for _, id := range ids {
-			if resp.ClOrdId == id {
-				err := client.CancelByClOrdId(accountId, xena.ID("cancel-1"), resp.ClOrdId, symbol, xena.SideBuy)
-				// fmt.Printf("resp: %s\n", cancelResp)
-				if err != nil {
-					fmt.Printf("error: %v\n", err)
+		if m.ExecType == xmsg.ExecType_NewExec {
+			for _, id := range ids {
+				if m.ClOrdId == id {
+					err := client.CancelByClOrdId(accountId, xena.ID("cancel-1"), m.ClOrdId, symbol, xena.SideBuy)
+					// fmt.Printf("resp: %s\n", cancelResp)
+					if err != nil {
+						fmt.Printf("error: %v\n", err)
+					}
+					log.Printf("exec resp: %s\n", m)
 				}
-				resp = m
-				log.Printf("resp: %s\n", m)
-				done <- true
+			}
+		}
+		if m.ExecType == xmsg.ExecType_CanceledExec {
+			for _, id := range ids {
+				if m.OrigClOrdId == id {
+					log.Printf("cancel resp: %s  %v\n", m, *wg)
+					wg.Done()
+				}
+			}
+		}
+		if m.ExecType == xmsg.ExecType_RejectedExec {
+			for _, id := range ids {
+				if m.OrigClOrdId == id {
+					log.Printf("reject resp: %s\n", m)
+					wg.Done()
+				}
 			}
 		}
 	})
@@ -529,90 +641,110 @@ func exampleCancelByClientClOrdId() {
 		err := client.LimitOrder(accountId, id, symbol, xena.SideBuy, fmt.Sprintf("%.1f", bestAsk-1), "1")
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
+			continue
 		}
-		log.Printf("is ok %t\n", <-done)
+		wg.Add(1)
 	}
+	wg.Wait()
+	done <- true
+	log.Printf("is ok %t", <-done)
 }
 
 func exampleReceivingAllOrderAndCanceling() {
 	defer client.ListenOrderMassStatusResponse(nil)
+	defer client.ListenExecutionReport(nil)
+	defer client.ListenReject(nil)
+	done := make(chan bool)
+	wg := sync.WaitGroup{}
+	resps := make([]*xmsg.ExecutionReport, 0)
+
+	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
+		if m.ExecType == xmsg.ExecType_CanceledExec || m.ExecType == xmsg.ExecType_RejectedExec {
+			wg.Done()
+		}
+		if m.ExecType == xmsg.ExecType_CanceledExec {
+			resps = append(resps, m)
+		}
+		fmt.Printf("resp: %v\n", m)
+	})
+	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
+		fmt.Printf("reject resp: %v\n", m)
+		done <- false
+	})
+	client.ListenOrderMassStatusResponse(func(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
+		wg.Add(len(m.Orders))
+		for _, er := range m.Orders {
+			cancelCmd := xena.CancelFromExecutionReport(xena.ID("cancel-"), er)
+			err := client.Cancel(cancelCmd)
+			if err != nil {
+				fmt.Printf("error: %v\n", err)
+			}
+		}
+		done <- true
+	})
 	err := client.Orders(accountId, "")
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
-	//ws = await get_client()
-	//
-	//# remove default listeners that was added in get_client()
-	//ws.remove_listener(constants.MsgType_OrderMassStatusResponse)
-	//
-	//done = asyncio.Event()
-	//orders = []
-	//async def handle(ws, msg):
-	//if msg.RejectReason:
-	//raise Exception(msg.Text)
-	//
-	//orders.extend(msg.Orders)
-	//done.set()
-	//
-	//ws.listen_type(constants.MsgType_OrderMassStatusResponse, handle)
-	//await ws.orders(1012833459)
-	//await done.wait()
-	//
-	//canceled = asyncio.Event()
-	//counter = 0
-	//async def handle_execution_report(ws, msg):
-	//nonlocal counter
-	//if msg.ExecType == constants.ExecType_CanceledExec:
-	//for o in orders:
-	//if o.OrderId == msg.OrderId:
-	//counter += 1
-	//
-	//if counter == len(orders):
-	//canceled.set()
-	//
-	//ws.listen_type(constants.MsgType_ExecutionReportMsgType, handle_execution_report)
-	//for order in orders:
-	//cmd = helpers.cancel_from_execution_report(id("cancel"), order)
-	//await ws.cancel(cmd)
-	//
-	//await canceled.wait()
+
+	ok := <-done
+	log.Printf("is ok %t\n", ok)
+	if !ok {
+		return
+	}
+	wg.Wait()
+	log.Printf("%d orders were cancelled", len(resps))
 }
 
 func exampleMassCancel1() {
+	defer client.ListenOrderMassCancelReport(nil)
 	defer client.ListenExecutionReport(nil)
 	defer client.ListenReject(nil)
 	done := make(chan bool)
-	var resp *xmsg.ExecutionReport
+	resps := make([]*xmsg.ExecutionReport, 0)
+	var respReport *xmsg.OrderMassCancelReport
 	var reject *xmsg.Reject
-	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
-		resp = m
+	client.ListenOrderMassCancelReport(func(t xena.TradingClient, m *xmsg.OrderMassCancelReport) {
+		respReport = m
 		log.Printf("resp: %s\n", m)
+		time.Sleep(time.Second)
 		done <- true
+	})
+	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
+		resps = append(resps, m)
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
 		log.Printf("reject: %s\n", m)
 		done <- false
 	})
-	//example_of_mass_cancel
+
 	err := client.MassCancel(accountId, xena.ID("mass-cancel-1-"))
-	//fmt.Printf("resp: %s\n", resp)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
+	for _, cancel := range resps {
+		log.Printf("%s was cancel \n", cancel.ClOrdId)
+	}
 }
 
 func exampleMassCancel2() {
+	defer client.ListenOrderMassCancelReport(nil)
 	defer client.ListenExecutionReport(nil)
 	defer client.ListenReject(nil)
 	done := make(chan bool)
-	var resp *xmsg.ExecutionReport
+	resps := make([]*xmsg.ExecutionReport, 0)
+	var respReport *xmsg.OrderMassCancelReport
 	var reject *xmsg.Reject
-	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
-		resp = m
+	client.ListenOrderMassCancelReport(func(t xena.TradingClient, m *xmsg.OrderMassCancelReport) {
+		respReport = m
 		log.Printf("resp: %s\n", m)
+		time.Sleep(time.Second)
 		done <- true
+	})
+	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
+		resps = append(resps, m)
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -622,23 +754,31 @@ func exampleMassCancel2() {
 
 	massCancel := xena.CreateOrderMassCancel(accountId, xena.ID("mass-cancel-2-")).SetSymbol(symbol)
 	err := client.Send(massCancel.Build())
-	//fmt.Printf("resp: %s\n", resp)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
+	for _, cancel := range resps {
+		log.Printf("%s was cancel \n", cancel.ClOrdId)
+	}
 }
 
 func exampleMassCancel3() {
+	defer client.ListenOrderMassCancelReport(nil)
 	defer client.ListenExecutionReport(nil)
 	defer client.ListenReject(nil)
 	done := make(chan bool)
-	var resp *xmsg.ExecutionReport
+	resps := make([]*xmsg.ExecutionReport, 0)
+	var respReport *xmsg.OrderMassCancelReport
 	var reject *xmsg.Reject
-	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
-		resp = m
+	client.ListenOrderMassCancelReport(func(t xena.TradingClient, m *xmsg.OrderMassCancelReport) {
+		respReport = m
 		log.Printf("resp: %s\n", m)
+		time.Sleep(time.Second)
 		done <- true
+	})
+	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
+		resps = append(resps, m)
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -648,23 +788,31 @@ func exampleMassCancel3() {
 
 	massCancel := xena.CreateOrderMassCancel(accountId, xena.ID("mass-cancel-3-")).SetSymbol(symbol).SetSide(xena.SideBuy)
 	err := client.Send(massCancel.Build())
-	//fmt.Printf("resp: %s\n", resp)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
+	for _, cancel := range resps {
+		log.Printf("%s was cancel \n", cancel.ClOrdId)
+	}
 }
 
 func exampleMassCancel4() {
+	defer client.ListenOrderMassCancelReport(nil)
 	defer client.ListenExecutionReport(nil)
 	defer client.ListenReject(nil)
 	done := make(chan bool)
-	var resp *xmsg.ExecutionReport
+	resps := make([]*xmsg.ExecutionReport, 0)
+	var respReport *xmsg.OrderMassCancelReport
 	var reject *xmsg.Reject
-	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
-		resp = m
+	client.ListenOrderMassCancelReport(func(t xena.TradingClient, m *xmsg.OrderMassCancelReport) {
+		respReport = m
 		log.Printf("resp: %s\n", m)
+		time.Sleep(time.Second)
 		done <- true
+	})
+	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
+		resps = append(resps, m)
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
 		reject = m
@@ -678,7 +826,11 @@ func exampleMassCancel4() {
 		fmt.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
+	for _, cancel := range resps {
+		log.Printf("%s was cancel \n", cancel.ClOrdId)
+	}
 }
+
 func exampleReplace() {
 	id := xena.ID("limit-order-")
 	defer client.ListenExecutionReport(nil)
@@ -709,7 +861,9 @@ func exampleReplace() {
 			return
 		}
 		if strings.Contains(resp.ClOrdId, "replace-") {
-			done <- true
+			if resp.ExecType == xmsg.ExecType_ReplacedExec {
+				done <- true
+			}
 		}
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
@@ -724,26 +878,6 @@ func exampleReplace() {
 	}
 	log.Printf("is ok %t\n", <-done)
 
-}
-
-func exampleSyncLimitOrder() {
-	//ws = await get_client()
-	//
-	//
-	//done = asyncio.Event()
-	//order_id = id("limit-order")
-	//fill_qty = "0"
-	//async def handle(ws, msg):
-	//nonlocal fill_qty
-	//# wait to fill order
-	//if msg.ExecType == constants.ExecType_Trade and msg.ClOrdId == order_id:
-	//fill_qty = msg.LastQty
-	//done.set()
-	//
-	//ws.listen_type(constants.MsgType_ExecutionReportMsgType, handle)
-	//await ws.limit_order(8263200, order_id, "BTC/USDT", constants.Side_Buy, "10000", "0.01")
-	//await done.wait()
-	//assert fill_qty == "0.01"
 }
 
 func examplePositionsCollapse() {
