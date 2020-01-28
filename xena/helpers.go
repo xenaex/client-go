@@ -119,3 +119,15 @@ func CreateReplace(replaceId string, executionReport *xmsg.ExecutionReport) xmsg
 
 	return cmd
 }
+
+func CancelFromExecutionReport(cancelID string, executionReport *xmsg.ExecutionReport) *xmsg.OrderCancelRequest {
+	cmd := &xmsg.OrderCancelRequest{}
+	cmd.MsgType = xmsg.MsgType_OrderCancelRequestMsgType
+	cmd.ClOrdId = cancelID
+	cmd.OrigClOrdId = executionReport.ClOrdId
+	cmd.Symbol = executionReport.Symbol
+	cmd.Side = executionReport.Side
+	cmd.TransactTime = time.Now().UnixNano()
+	cmd.Account = executionReport.Account
+	return cmd
+}

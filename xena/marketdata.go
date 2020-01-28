@@ -357,6 +357,8 @@ func (m *marketData) incomeHandler(msg []byte) {
 	}
 
 	switch mth.MsgType {
+	case xmsg.MsgType_Heartbeat:
+		// do nothing.
 	case xmsg.MsgType_LogonMsgType:
 		v := new(xmsg.Logon)
 		_, err := m.unmarshal(msg, v)
