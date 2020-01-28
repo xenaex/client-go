@@ -47,6 +47,7 @@ func (r *baseREST) get(query query) (*http.Response, []byte, error) {
 	for k, v := range r.getHeaders(query.headers) {
 		req.Header.Add(k, v)
 	}
+	//r.config.logger.Debugf("%s", req.Header)
 	st := time.Now()
 	resp, err := r.http.Do(req)
 	if time.Now().Sub(st) > time.Second {
@@ -259,11 +260,8 @@ func (q query) AddHeader(key, value string) query {
 	return q
 }
 
-var start = time.Now()
-
 func (q query) AddSecret(apiSecret string) (query, error) {
-	//	nonce := time.Now().UTC().UnixNano()
-	nonce := start.Add(time.Since(start)).UnixNano()
+	nonce := time.Now().UnixNano()
 	payload := fmt.Sprintf("AUTH%d", nonce)
 
 	// Signature - SHA512 + ECDSA
@@ -282,7 +280,10 @@ func (q query) AddSecret(apiSecret string) (query, error) {
 	if err != nil {
 		return q, fmt.Errorf("%s on ecdsa.Sign()", err)
 	}
-	signature := append(r.Bytes(), s.Bytes()...)
+	rPart := r.Bytes()
+	sPart := s.Bytes()
+	signature := append(make([]byte, 32-len(rPart), 32), rPart...)
+	signature = append(signature, append(make([]byte, 32-len(sPart), 32), sPart...)...)
 	sigHex := hex.EncodeToString(signature)
 
 	return q.AddHeader("X-Auth-Api-Payload", payload).AddHeader("X-Auth-Api-Signature", sigHex).AddHeader("X-Auth-Api-Nonce", strconv.FormatInt(nonce, 10)), nil

@@ -44,6 +44,7 @@ func main() {
 	accounts, err = restClient.GetAccounts()
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	log.Println(accounts)
 	if len(accounts) == 0 || accounts == nil {
@@ -1035,7 +1036,6 @@ func exampleMarginRequirements() {
 					fmt.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
 				log.Printf("is ok %t\n", <-done)
-				time.Sleep(time.Minute)
 			}()
 		}
 	}
