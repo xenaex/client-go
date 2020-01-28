@@ -196,27 +196,24 @@ func (c *wsClient) connect() error {
 
 func (c *wsClient) connectAndListen() error {
 	// Connection loop
-	for {
-		if c.close {
-			err := errors.New("connection was closed by user")
-			c.handleError(err)
-			return err
-		}
-		// TODO: fix connect with timeout.
-		conn, _, err := websocket.DefaultDialer.Dial(c.url, nil)
-		if err != nil {
-			c.logger.Errorf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
-			c.handleError(err)
-			time.Sleep(c.conf.reconnectInterval)
-			continue
-		}
-		// OK
-		c.mu.Lock()
-		c.conn = conn
-		c.stopChan = make(chan struct{})
-		c.mu.Unlock()
-		break
+	if c.close {
+		err := errors.New("connection was closed by user")
+		c.handleError(err)
+		return err
 	}
+	// TODO: fix connect with timeout.
+	conn, _, err := websocket.DefaultDialer.Dial(c.url, nil)
+	if err != nil {
+		c.logger.Errorf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
+		c.handleError(err)
+		c.disconnectHandler()
+		return err
+	}
+	// OK
+	c.mu.Lock()
+	c.conn = conn
+	c.stopChan = make(chan struct{})
+	c.mu.Unlock()
 
 	c.connectHandler(c)
 	c.connectInternalHandler(c)
@@ -320,7 +317,7 @@ func (c *wsClient) handleMsg(msg []byte) {
 }
 
 func (c *wsClient) handleError(err error) {
-	c.logger.Debugf("ws. error: %s", err)
+	c.logger.Errorf("ws. error: %s", err)
 	c.errHandler(err)
 }
 

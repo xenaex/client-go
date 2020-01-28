@@ -58,16 +58,13 @@ type marketData struct {
 //DefaultMarketDisconnectHandler default Disconnect handler.
 func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
 	go func(client MarketDataClient) {
-		for {
-			logonResponse, err := client.Connect()
-			if err != nil {
-				logger.Debugf("GOT logonResponse ", logonResponse)
-			}
-			if err == nil {
-				break
-			}
+		time.Sleep(time.Second)
+		logonResponse, err := client.Connect()
+		if err != nil {
 			logger.Errorf("%s on client.ConnectAndLogon()\n", err)
-			time.Sleep(time.Minute)
+		}
+		if err == nil {
+			logger.Debugf("GOT logonResponse ", logonResponse)
 		}
 	}(client)
 }

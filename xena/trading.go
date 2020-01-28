@@ -93,16 +93,13 @@ type TradingClient interface {
 // DefaultTradingDisconnectHandler default Disconnect handler.
 func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 	go func(client TradingClient) {
-		for {
-			logonResponse, err := client.ConnectAndLogon()
-			if err != nil {
-				logger.Debugf("GOT logonResponse ", logonResponse)
-			}
-			if err == nil {
-				break
-			}
+		time.Sleep(time.Second)
+		logonResponse, err := client.ConnectAndLogon()
+		if err != nil {
 			logger.Errorf("%s on client.ConnectAndLogon()\n", err)
-			time.Sleep(time.Minute)
+		}
+		if err == nil {
+			logger.Debugf("GOT logonResponse ", logonResponse)
 		}
 	}(client)
 }
@@ -159,7 +156,7 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	}
 	wg.Wait()
 	if loginErr != nil {
-		return nil, err
+		return nil, loginErr
 	}
 	select {
 	case m, ok := <-logMgs:
