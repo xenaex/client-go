@@ -2,11 +2,6 @@ package xena
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/rand"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -261,31 +256,10 @@ func (q query) AddHeader(key, value string) query {
 }
 
 func (q query) AddSecret(apiSecret string) (query, error) {
-	nonce := time.Now().UnixNano()
-	payload := fmt.Sprintf("AUTH%d", nonce)
-
-	// Signature - SHA512 + ECDSA
-	privKeyData, err := hex.DecodeString(apiSecret)
+	nonce, payload, sigHex, err := sing(apiSecret)
 	if err != nil {
-		return q, fmt.Errorf("error: %s on DecodeString", err)
+		return q, fmt.Errorf("%s on query.sing()", err)
 	}
-
-	privKey, err := x509.ParseECPrivateKey(privKeyData)
-	if err != nil {
-		return q, fmt.Errorf("error: %s on ParseECPrivateKey", err)
-	}
-
-	digest := sha256.Sum256([]byte(payload))
-	r, s, err := ecdsa.Sign(rand.Reader, privKey, digest[:])
-	if err != nil {
-		return q, fmt.Errorf("%s on ecdsa.Sign()", err)
-	}
-	rPart := r.Bytes()
-	sPart := s.Bytes()
-	signature := append(make([]byte, 32-len(rPart), 32), rPart...)
-	signature = append(signature, append(make([]byte, 32-len(sPart), 32), sPart...)...)
-	sigHex := hex.EncodeToString(signature)
-
 	return q.AddHeader("X-Auth-Api-Payload", payload).AddHeader("X-Auth-Api-Signature", sigHex).AddHeader("X-Auth-Api-Nonce", strconv.FormatInt(nonce, 10)), nil
 }
 

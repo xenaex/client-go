@@ -1,11 +1,6 @@
 package xena
 
 import (
-	"crypto/ecdsa"
-	"crypto/rand"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/hex"
 	"fmt"
 	"sync"
 	"time"
@@ -585,30 +580,10 @@ func (t *tradingClient) onConnect(WsClient) {
 }
 
 func (t *tradingClient) loginCmd() []byte {
-	nonce := time.Now().UnixNano()
-	payload := fmt.Sprintf("AUTH%d", nonce)
-
-	// Signature - SHA512 + ECDSA
-	privKeyData, err := hex.DecodeString(t.apiSecret)
+	nonce, payload, sigHex, err := sing(t.apiSecret)
 	if err != nil {
-		t.client.Logger().Errorf("error: %s on DecodeString", err)
-		return nil
+		t.client.Logger().Errorf("%s on query.sing()", err)
 	}
-
-	privKey, err := x509.ParseECPrivateKey(privKeyData)
-	if err != nil {
-		t.client.Logger().Errorf("error: %s on ParseECPrivateKey", err)
-		return nil
-	}
-
-	digest := sha256.Sum256([]byte(payload))
-	r, s, err := ecdsa.Sign(rand.Reader, privKey, digest[:])
-	if err != nil {
-		t.client.Logger().Errorf("%s on ecdsa.Sign()", err)
-		return nil
-	}
-	signature := append(r.Bytes(), s.Bytes()...)
-	sigHex := hex.EncodeToString(signature)
 
 	logonCmd := xmsg.Logon{
 		MsgType:     xmsg.MsgType_LogonMsgType,

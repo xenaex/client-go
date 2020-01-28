@@ -95,7 +95,7 @@ func main() {
 	log.Println("market_order---------------------------------------------")
 
 	for k, f := range examples {
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 4; i++ {
 			fmt.Println()
 		}
 		log.Printf("%s ---------------------------------------------", k)
@@ -135,10 +135,10 @@ func exampleMarketOrder() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		if resp.ExecType == xmsg.ExecType_NewExec {
+		if m.ExecType == xmsg.ExecType_NewExec {
 			done <- true
 		}
-		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+		if m.ExecType == xmsg.ExecType_RejectedExec || m.ExecType == xmsg.ExecType_CanceledExec {
 			done <- false
 		}
 	})
@@ -163,10 +163,10 @@ func exampleMarketOrder() {
 	client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
 		resp = m
 		log.Printf("resp: %s\n", m)
-		if resp.ExecType == xmsg.ExecType_NewExec {
+		if m.ExecType == xmsg.ExecType_NewExec {
 			done <- true
 		}
-		if resp.ExecType == xmsg.ExecType_RejectedExec || resp.ExecType == xmsg.ExecType_CanceledExec {
+		if m.ExecType == xmsg.ExecType_RejectedExec || m.ExecType == xmsg.ExecType_CanceledExec {
 			done <- false
 		}
 	})
