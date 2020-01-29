@@ -13,23 +13,20 @@ import (
 
 const (
 	heartbeatMsg        = `{"35":"0"}`
-	wsReconnectInterval = time.Second
 	wsHeartbeatInterval = 3 * time.Second
 	wsTimeoutInterval   = 15 * time.Second
 )
 
 type wsConf struct {
-	reconnectInterval         time.Duration
 	heartbeatInterval         time.Duration
 	connectTimeoutInterval    time.Duration
 	disconnectTimeoutInterval time.Duration
 }
 
-// NewWsClient websocket client constructor
+// NewWsClient creates instance of WsClient.
 func NewWsClient(opts ...WsOption) WsClient {
 	c := wsClient{
 		conf: wsConf{
-			reconnectInterval:         wsReconnectInterval,
 			heartbeatInterval:         wsHeartbeatInterval,
 			connectTimeoutInterval:    wsTimeoutInterval,
 			disconnectTimeoutInterval: 2 * wsHeartbeatInterval,
@@ -48,7 +45,7 @@ func NewWsClient(opts ...WsOption) WsClient {
 	return &c
 }
 
-// WsClient websocket client interface
+//WsClient is base websocket client interface of Xena.
 type WsClient interface {
 	IsConnected() bool
 	Connect() error
@@ -59,14 +56,14 @@ type WsClient interface {
 	WriteBytes(data []byte) error
 	Logger() Logger
 	getConf() wsConf
-	SetDisconnectHandler(handler DisconnectHandler)
+	setDisconnectHandler(handler DisconnectHandler)
 	setConnectInternalHandler(handler ConnectHandler)
 }
 
 type wsClient struct {
 	// settings
 	url            string
-	logPingMessage bool
+	disablePingLog bool
 	conf           wsConf
 
 	// handlers
@@ -85,22 +82,22 @@ type wsClient struct {
 	close    bool
 }
 
-// Handler handle raw websocket message
+//Handler function is raw message handler.
 type Handler func(msg []byte)
 
-// ErrHandler handles errors
+//ErrHandler function is a error handler.
 type ErrHandler func(err error)
 
-// ConnectHandler will be called when connection will be established
+//ConnectHandler function is a connection handler.
 type ConnectHandler func(client WsClient)
 
-// DisconnectHandler will be called when connection will be dropped
+//DisconnectHandler function is a disconnect handler.
 type DisconnectHandler func()
 
-// WsOption is a function that can alter behavior
+//WsOption is function that alter behavior.
 type WsOption func(s *wsClient)
 
-// With applies modification of behavior
+//With applies modification of behavior.
 func (c *wsClient) With(opt WsOption) {
 	opt(c)
 }
@@ -117,7 +114,7 @@ func (c *wsClient) initDefaultHandlers() {
 	c.disconnectHandler = func() {}
 }
 
-// Connect start connecting
+//Connect connects to the server
 func (c *wsClient) Connect() error {
 	err := c.connect()
 	if err != nil {
@@ -127,17 +124,17 @@ func (c *wsClient) Connect() error {
 	return nil
 }
 
-// IsConnected return true if connection was established
+//IsConnected returns true if the connection is established.
 func (c *wsClient) IsConnected() bool {
 	return c.conn != nil
 }
 
-// Logger return logger
+// Logger returns logger.
 func (c *wsClient) Logger() Logger {
 	return c.logger
 }
 
-// Write marshal and send message to socket
+// Write marshals and sends a message to the socket.
 func (c *wsClient) Write(v interface{}) error {
 	data, err := fixjson.Marshal(v)
 	if err != nil {
@@ -146,12 +143,12 @@ func (c *wsClient) Write(v interface{}) error {
 	return c.WriteBytes(data)
 }
 
-// WriteString send message to socket
+// WriteString sends a message to the socket.
 func (c *wsClient) WriteString(msg string) error {
 	return c.WriteBytes([]byte(msg))
 }
 
-// WriteBytes send message to socket
+// WriteBytes sends a message to socket.
 func (c *wsClient) WriteBytes(data []byte) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -165,7 +162,7 @@ func (c *wsClient) WriteBytes(data []byte) error {
 		go c.stop()
 	}
 
-	if string(data) != heartbeatMsg || c.logPingMessage {
+	if string(data) != heartbeatMsg || !c.disablePingLog {
 		c.logger.Debugf("ws. sent: %s", string(data))
 	}
 
@@ -195,7 +192,6 @@ func (c *wsClient) connect() error {
 }
 
 func (c *wsClient) connectAndListen() error {
-	// Connection loop
 	if c.close {
 		err := errors.New("connection was closed by user")
 		c.handleError(err)
@@ -304,7 +300,7 @@ func (c *wsClient) heartbeats() {
 func (c *wsClient) handleMsg(msg []byte) {
 	str := string(msg)
 
-	if str != heartbeatMsg || c.logPingMessage {
+	if str != heartbeatMsg || !c.disablePingLog {
 		c.logger.Debugf("ws. received: %s", str)
 	}
 
@@ -321,10 +317,12 @@ func (c *wsClient) handleError(err error) {
 	c.errHandler(err)
 }
 
-func (c *wsClient) SetDisconnectHandler(handler DisconnectHandler) {
+//setDisconnectHandler subscribes to disconnect event.
+func (c *wsClient) setDisconnectHandler(handler DisconnectHandler) {
 	c.disconnectHandler = handler
 }
 
+//setConnectInternalHandler subscribes to connection event.
 func (c *wsClient) setConnectInternalHandler(handler ConnectHandler) {
 	c.connectInternalHandler = handler
 }

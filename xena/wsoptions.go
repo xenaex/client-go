@@ -10,56 +10,56 @@ const (
 	prodWsTradingURL = "wss://api.xena.exchange/ws/trading"
 )
 
-// WithLocalURL set localhost... url for connection.
+//WithTradingURL sets the url for connection to the local market data.
 func WithLocalURL() WsOption {
 	return func(c *wsClient) {
 		c.url = localWsMdURL
 	}
 }
 
-// WithTradingURL set trading url for connection.
+//WithTradingURL sets the url for connection to the trading api.
 func WithTradingURL() WsOption {
 	return func(c *wsClient) {
 		c.url = prodWsTradingURL
 	}
 }
 
-// WithMarketDataURL set market data url for connection.
+//WithLocalURL sets the url for connection to the market data.
 func WithMarketDataURL() WsOption {
 	return func(c *wsClient) {
 		c.url = prodWsMdURL
 	}
 }
 
-// WithURL set URL for connection
+//WithURL sets the url for connection.
 func WithURL(url string) WsOption {
 	return func(c *wsClient) {
 		c.url = url
 	}
 }
 
-// WithDebug enable debug logging
+//WithDebug enables debug logging.
 func WithDebug() WsOption {
 	return func(c *wsClient) {
 		c.logger.debug = true
 	}
 }
 
-// WithIgnorePingLog enable ignore ping logs.
-func WithIgnorePingLog(ignore bool) WsOption {
+//WithIgnorePingLog disables ping logs.
+func WithIgnorePingLog(disable bool) WsOption {
 	return func(c *wsClient) {
-		c.logPingMessage = ignore
+		c.disablePingLog = disable
 	}
 }
 
-// WithOutDebug disable debug logging
+//WithDebug disables debug logging.
 func WithOutDebug() WsOption {
 	return func(c *wsClient) {
 		c.logger.debug = false
 	}
 }
 
-// WithConnectHandler set custom connect handler
+//WithConnectHandler sets custom connection handler.
 func WithConnectHandler(fnc ConnectHandler) WsOption {
 	return func(c *wsClient) {
 		if fnc == nil {
@@ -69,17 +69,7 @@ func WithConnectHandler(fnc ConnectHandler) WsOption {
 	}
 }
 
-// WithConnectHandler set custom connect handler
-func withConnectInternalHandler(fnc ConnectHandler) WsOption {
-	return func(c *wsClient) {
-		if fnc == nil {
-			fnc = func(client WsClient) {}
-		}
-		c.connectInternalHandler = fnc
-	}
-}
-
-// WithDisconnectHandler set custom disconnect handler
+//WithDisconnectHandler sets custom disconnection handler.
 func WithDisconnectHandler(fnc DisconnectHandler) WsOption {
 	return func(c *wsClient) {
 		if fnc == nil {
@@ -89,7 +79,7 @@ func WithDisconnectHandler(fnc DisconnectHandler) WsOption {
 	}
 }
 
-// WithHandler set custom common handler
+//WithHandler sets custom common message handler.
 func WithHandler(fnc Handler) WsOption {
 	return func(c *wsClient) {
 		if fnc == nil {
@@ -99,7 +89,7 @@ func WithHandler(fnc Handler) WsOption {
 	}
 }
 
-//WithErrHandler set custom common handler
+//WithErrHandler sets custom common error handler.
 func WithErrHandler(fnc ErrHandler) WsOption {
 	return func(c *wsClient) {
 		if fnc == nil {
@@ -109,35 +99,28 @@ func WithErrHandler(fnc ErrHandler) WsOption {
 	}
 }
 
-//WithReconnectInterval set time interval between reconnects
-func WithReconnectInterval(d time.Duration) WsOption {
-	return func(c *wsClient) {
-		c.conf.reconnectInterval = d
-	}
-}
-
-//WithHeartbeatInterval set time interval between heartbeats
+//WithHeartbeatInterval sets time interval between heartbeats.
 func WithHeartbeatInterval(d time.Duration) WsOption {
 	return func(c *wsClient) {
 		c.conf.heartbeatInterval = d
 	}
 }
 
-//WithLogger set custom logger.
+//WithLogger sets custom logger.
 func WithLogger(logger Logger) WsOption {
 	return func(c *wsClient) {
 		c.logger.logger = logger
 	}
 }
 
-//WithConnectTimeoutConnect set connect timeout interval.
+//WithConnectTimeoutConnect sets timeout interval connection.
 func WithConnectTimeoutConnect(interval time.Duration) WsOption {
 	return func(c *wsClient) {
 		c.conf.connectTimeoutInterval = interval
 	}
 }
 
-//WithDisconnectTimeoutInterval set disconnect timeout interval.
+//WithConnectTimeoutConnect sets timeout interval disconnect.
 func WithDisconnectTimeoutInterval(interval time.Duration) WsOption {
 	return func(c *wsClient) {
 		c.conf.disconnectTimeoutInterval = interval

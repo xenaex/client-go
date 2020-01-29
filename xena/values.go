@@ -1,6 +1,6 @@
 package xena
 
-// Symbol is an instrument
+//Symbol is an instrument.
 type Symbol string
 type Side string
 type DOMThrottle string

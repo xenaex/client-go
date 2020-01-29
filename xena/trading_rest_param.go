@@ -8,30 +8,22 @@ import (
 )
 
 type PositionsHistoryRequest struct {
-	// ID of a concrete position to get an only one.
 	PositionId *uint64
 
-	// Parent position id to get all positions with specified parent.
 	ParentPositionId *uint64
 
-	// Symbol.
 	Symbol *string
 
-	// Position open date "From".
 	OpenFrom *time.Time
 
-	// Position open date "To".
 	OpenTo *time.Time
 
-	// Position close date "From" (filters by SettlDate).
 	CloseFrom *time.Time
 
-	// Position close date "To" (filters by SettlDate).
 	CloseTo *time.Time
-	// Page number (pagination).
+
 	PageNumber *int
 
-	// Number of positions to get (pagination).
 	Limit *int
 }
 
@@ -88,16 +80,16 @@ func (p PositionsHistoryRequest) SetPage(limit, pageNumber int) PositionsHistory
 }
 
 func (t *tradingREST) GetPositionsHistory(accountId uint64, request PositionsHistoryRequest) ([]*xmsg.PositionReport, error) {
-	query := NewQuery("accounts", strconv.FormatUint(accountId, 10), "positions-history")
-	query.AddQueryf("id", request.PositionId)
-	query.AddQueryf("parentid", request.ParentPositionId)
-	query.AddQueryf("symbol", request.Symbol)
-	query.AddQueryf("openfrom", request.OpenFrom)
-	query.AddQueryf("opento", request.OpenTo)
-	query.AddQueryf("closefrom", request.CloseFrom)
-	query.AddQueryf("closeto", request.CloseTo)
-	query.AddQueryf("page", request.PageNumber)
-	query.AddQueryf("limit", request.Limit)
+	query := newQuery("accounts", strconv.FormatUint(accountId, 10), "positions-history")
+	query.addQueryf("id", request.PositionId)
+	query.addQueryf("parentid", request.ParentPositionId)
+	query.addQueryf("symbol", request.Symbol)
+	query.addQueryf("openfrom", request.OpenFrom)
+	query.addQueryf("opento", request.OpenTo)
+	query.addQueryf("closefrom", request.CloseFrom)
+	query.addQueryf("closeto", request.CloseTo)
+	query.addQueryf("page", request.PageNumber)
+	query.addQueryf("limit", request.Limit)
 
 	resp := make([]*xmsg.PositionReport, 0)
 	err := t.sendGet(query, &resp)

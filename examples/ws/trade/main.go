@@ -675,7 +675,7 @@ func exampleReceivingAllOrderAndCanceling() {
 	client.ListenOrderMassStatusResponse(func(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
 		wg.Add(len(m.Orders))
 		for _, er := range m.Orders {
-			cancelCmd := xena.CancelFromExecutionReport(xena.ID("cancel-"), er)
+			cancelCmd := xena.CreateCancelRequestFromExecutionReport(xena.ID("cancel-"), er)
 			err := client.Cancel(cancelCmd)
 			if err != nil {
 				fmt.Printf("error: %v\n", err)

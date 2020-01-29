@@ -30,7 +30,7 @@ type baseREST struct {
 
 func (r *baseREST) get(query query) (*http.Response, []byte, error) {
 	var body []byte
-	u, err := query.SetHost(r.config.host)
+	u, err := query.setHost(r.config.host)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -70,7 +70,7 @@ func (r *baseREST) get(query query) (*http.Response, []byte, error) {
 }
 
 func (r *baseREST) post(query query, reqBody []byte) (*http.Response, []byte, error) {
-	u, err := query.SetHost(r.config.host)
+	u, err := query.setHost(r.config.host)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -138,12 +138,14 @@ type restConf struct {
 
 type RestOption func(conf *restConf)
 
+//WithRestHost sets the url for connection.
 func WithRestHost(url string) RestOption {
 	return func(conf *restConf) {
 		conf.host = url
 	}
 }
 
+//WithRestLogger sets custom logger.
 func WithRestLogger(logger Logger) RestOption {
 	if logger != nil {
 		logger = newEmptyLogger()
@@ -153,10 +155,12 @@ func WithRestLogger(logger Logger) RestOption {
 	}
 }
 
+//WithRestMarketDataHost sets the url for connection to market data api.
 func WithRestMarketDataHost(conf *restConf) {
 	conf.host = "https://api.xena.exchange"
 }
 
+//WithRestMarketDataHost sets the url for connection to trading api.
 func WithRestTradingHost(conf *restConf) {
 	conf.host = "https://api.xena.exchange/trading"
 }
@@ -169,6 +173,7 @@ func withRestDefaultLogger(conf *restConf) {
 	conf.logger = newLogger(true)
 }
 
+//WithRestUserAgent sets user agent.
 func WithRestUserAgent(userAgent string) RestOption {
 	return func(conf *restConf) {
 		conf.userAgent = userAgent
@@ -190,7 +195,7 @@ type query struct {
 	headers map[string]string
 }
 
-func NewQuery(path ...string) query {
+func newQuery(path ...string) query {
 	return query{
 		path:    append([]string{}, path...),
 		values:  url.Values{},
@@ -198,36 +203,36 @@ func NewQuery(path ...string) query {
 	}
 }
 
-func (q query) AddPath(path ...string) query {
+func (q query) addPath(path ...string) query {
 	q.path = append(q.path, path...)
 	return q
 }
 
-func (q query) AddPathf(path ...interface{}) query {
+func (q query) addPathf(path ...interface{}) query {
 	for _, v := range path {
 		q.path = append(q.path, fmt.Sprintf("%s", v))
 	}
 	return q
 }
 
-func (q query) AddQuery(key, value string) query {
+func (q query) addQuery(key, value string) query {
 	q.values.Add(key, value)
 	return q
 }
 
-func (q query) AddQueryf(key string, value interface{}) query {
+func (q query) addQueryf(key string, value interface{}) query {
 	if value != nil && !reflect.ValueOf(value).IsNil() {
 		switch t := value.(type) {
 		case *int:
-			q.AddQuery(key, fmt.Sprintf("%d", *t))
+			q.addQuery(key, fmt.Sprintf("%d", *t))
 		case *int64:
-			q.AddQuery(key, fmt.Sprintf("%d", *t))
+			q.addQuery(key, fmt.Sprintf("%d", *t))
 		case *uint64:
-			q.AddQuery(key, fmt.Sprintf("%d", *t))
+			q.addQuery(key, fmt.Sprintf("%d", *t))
 		case *string:
-			q.AddQuery(key, fmt.Sprintf("%s", *t))
+			q.addQuery(key, fmt.Sprintf("%s", *t))
 		case *time.Time:
-			q.AddQuery(key, fmt.Sprintf("%d", (*t).UnixNano()))
+			q.addQuery(key, fmt.Sprintf("%d", (*t).UnixNano()))
 			//default:
 			//	fmt.Printf("%s, %s\n", key, value)
 		}
@@ -235,12 +240,12 @@ func (q query) AddQueryf(key string, value interface{}) query {
 	return q
 }
 
-func (q query) AddQueryInt(key string, value int64) query {
+func (q query) addQueryInt(key string, value int64) query {
 	q.values.Add(key, strconv.FormatInt(value, 10))
 	return q
 }
 
-func (q query) SetHost(host string) (string, error) {
+func (q query) setHost(host string) (string, error) {
 	u, err := url.Parse(host)
 	if err != nil {
 		return "", err
@@ -250,17 +255,17 @@ func (q query) SetHost(host string) (string, error) {
 	return u.String(), nil
 }
 
-func (q query) AddHeader(key, value string) query {
+func (q query) addHeader(key, value string) query {
 	q.headers[key] = value
 	return q
 }
 
-func (q query) AddSecret(apiSecret string) (query, error) {
+func (q query) addSecret(apiSecret string) (query, error) {
 	nonce, payload, sigHex, err := sing(apiSecret)
 	if err != nil {
 		return q, fmt.Errorf("%s on query.sing()", err)
 	}
-	return q.AddHeader("X-Auth-Api-Payload", payload).AddHeader("X-Auth-Api-Signature", sigHex).AddHeader("X-Auth-Api-Nonce", strconv.FormatInt(nonce, 10)), nil
+	return q.addHeader("X-Auth-Api-Payload", payload).addHeader("X-Auth-Api-Signature", sigHex).addHeader("X-Auth-Api-Nonce", strconv.FormatInt(nonce, 10)), nil
 }
 
 type xenaError struct {

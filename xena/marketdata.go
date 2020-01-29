@@ -13,34 +13,55 @@ const (
 	wsMdURL = "wss://api.xena.exchange/ws/market-data"
 )
 
-// MarketDisconnectHandler will be called when connection will be dropped
+//MarketDisconnectHandler function is a disconnect handler.
 type MarketDisconnectHandler func(client MarketDataClient, logger Logger)
 
-// DOMHandler called on order book updated
+//DOMHandler function is a DOM handler.
 type DOMHandler func(md MarketDataClient, m *xmsg.MarketDataRefresh)
 
+//DOMHandler function is a marker date handler.
 type MDHandler func(md MarketDataClient, r *xmsg.MarketDataRequestReject, m *xmsg.MarketDataRefresh)
 
-//MarketDataLogonHandler will be called on Logon response received.
+//DOMHandler function is logon response handler.
 type MarketDataLogonHandler func(md MarketDataClient, m *xmsg.Logon)
 
-// MarketDataRejectHandler will be called on Reject received.
+//MarketDataRejectHandler function is reject response handler.
 type MarketDataRejectHandler func(md MarketDataClient, m *xmsg.MarketDataRequestReject)
 
-// MarketDataClient is the main interface that helps to receive market data
+//MarketDataClient is websocket client interface of Xena market data.
 type MarketDataClient interface {
+	//Client is obsolete and will be removed next version
 	Client() WsClient
+
+	//SubscribeOnDOM is obsolete and it will be removed next version
 	SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...interface{}) (streamID string, err error)
+
+	//UnsubscribeOnDOM is obsolete and it will be removed next version
 	UnsubscribeOnDOM(streamID string) error
+
+	//ConnectAndLogon connects to websocket and it wait Logon message.
+	//Logon.RejectText contains reject reason.
 	Connect() (*xmsg.Logon, error)
+
+	//SetDisconnectHandler subscribes to disconnect event.
 	SetDisconnectHandler(handler MarketDisconnectHandler)
 
+	//SubscribeOnCandles subscribes on candles messages.
 	SubscribeOnCandles(symbol, timeframe string, handler MDHandler, opts ...interface{}) (streamID string, err error)
+
+	//SubscribeOnDom subscribes on candles messages.
 	SubscribeOnDom(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error)
+
+	//SubscribeOnTrades subscribes on candles messages.
 	SubscribeOnTrades(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error)
+
+	//SubscribeOnMarketWatch subscribes on candles messages.
 	SubscribeOnMarketWatch(symbol string, handler MDHandler) (streamID string, err error)
+
+	//Unsubscribe unsubscribes from messages by streamID.
 	Unsubscribe(streamID string) error
 }
+
 type marketData struct {
 	client WsClient
 	// subscriptions
@@ -55,7 +76,7 @@ type marketData struct {
 	mutexLogon sync.Mutex
 }
 
-//DefaultMarketDisconnectHandler default Disconnect handler.
+//DefaultMarketDisconnectHandler default handler reconnects.
 func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
 	go func(client MarketDataClient) {
 		time.Sleep(time.Second)
@@ -69,7 +90,7 @@ func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
 	}(client)
 }
 
-// NewMarketData constructor
+//NewMarketData creates websocket client of Xena market data.
 func NewMarketData(opts ...WsOption) MarketDataClient {
 	md := marketData{
 		subscriptions:    make(map[string]xmsg.MarketDataRequest),
@@ -82,6 +103,7 @@ func NewMarketData(opts ...WsOption) MarketDataClient {
 		WithURL(wsMdURL),
 		WithConnectHandler(md.onConnect),
 		WithHandler(md.incomeHandler),
+		WithIgnorePingLog(true),
 	}
 	opts = append(defaultOpts, opts...)
 
@@ -140,7 +162,6 @@ func (m *marketData) ListenReject(handler MarketDataRejectHandler) {
 	m.handlers.reject = handler
 }
 
-// UnsubscribeOnDOM from DOM stream
 func (m *marketData) UnsubscribeOnDOM(streamID string) error {
 	m.subscribeMu.Lock()
 	defer m.subscribeMu.Unlock()
@@ -152,7 +173,6 @@ func (m *marketData) UnsubscribeOnDOM(streamID string) error {
 	return nil
 }
 
-// SubscribeOnDOM subscribe on order book updates. Opts can be: Throttle or AggregateBook
 func (m *marketData) SubscribeOnDOM(symbol Symbol, handler DOMHandler, opts ...interface{}) (streamID string, err error) {
 	m.subscribeMu.Lock()
 	defer m.subscribeMu.Unlock()
@@ -266,6 +286,7 @@ func (m *marketData) SubscribeOnCandles(symbol, timeframe string, handler MDHand
 	}
 	return req.MDStreamId, nil
 }
+
 func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
 	aggregatedBook := int64(0)
 	throttleInterval := int64(500)
@@ -300,6 +321,7 @@ func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...in
 	}
 	return req.MDStreamId, nil
 }
+
 func (m *marketData) SubscribeOnTrades(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
 	throttleInterval := int64(500)
 	req := xmsg.MarketDataRequest{}
@@ -331,6 +353,7 @@ func (m *marketData) SubscribeOnTrades(symbol string, handler MDHandler, opts ..
 	}
 	return req.MDStreamId, nil
 }
+
 func (m *marketData) SubscribeOnMarketWatch(symbol string, handler MDHandler) (streamID string, err error) {
 	req := xmsg.MarketDataRequest{}
 	req, err = m.createRequest(xmsg.MsgType_MarketDataRequest, "market-watch", "", "")
@@ -368,6 +391,7 @@ func (m *marketData) incomeHandler(msg []byte) {
 		}
 
 	case xmsg.MsgType_RejectMsgType:
+	case xmsg.MsgType_MarketDataRequestReject:
 		v := new(xmsg.MarketDataRequestReject)
 		if _, err := m.unmarshal(msg, v); err == nil {
 			if m.handlers.reject != nil {
@@ -401,7 +425,7 @@ func (m *marketData) incomeHandler(msg []byte) {
 		}
 
 	default:
-		m.client.Logger().Errorf("unknown message type %s", string(msg))
+		m.client.Logger().Errorf("unknown message type (%s) %s", mth.MsgType, string(msg))
 	}
 }
 
@@ -419,9 +443,8 @@ func (m *marketData) getLogger() Logger {
 	return m.client.Logger()
 }
 
-// SetDisconnectHandler set disconnect handler.
 func (m *marketData) SetDisconnectHandler(handler MarketDisconnectHandler) {
-	m.client.SetDisconnectHandler(func() {
+	m.client.setDisconnectHandler(func() {
 		handler(m, m.client.Logger())
 	})
 }
