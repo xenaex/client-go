@@ -172,7 +172,6 @@ func (c *wsClient) WriteBytes(data []byte) error {
 
 // Close connection permanent
 func (c *wsClient) Close() {
-	c.close = true
 	go c.stop()
 }
 
@@ -229,10 +228,6 @@ func (c *wsClient) listen() {
 		c.logger.Debugf("ws. disconnected")
 	}()
 
-	c.mu.Lock()
-	c.close = false
-	c.mu.Unlock()
-
 	mgs := make(chan []byte)
 	go func() {
 		m := mgs
@@ -285,10 +280,9 @@ func (c *wsClient) heartbeats() {
 	defer ticker.Stop()
 	for {
 		c.mu.Lock()
-		ok := !c.close
 		conn := c.conn
 		c.mu.Unlock()
-		if ok && conn != nil {
+		if conn != nil {
 			_ = c.WriteString(heartbeatMsg)
 		}
 		<-ticker.C
