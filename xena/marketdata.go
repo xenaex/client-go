@@ -83,8 +83,7 @@ func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
 		logonResponse, err := client.Connect()
 		if err != nil {
 			logger.Errorf("%s on client.ConnectAndLogon()\n", err)
-		}
-		if err == nil {
+		} else {
 			logger.Debugf("GOT logonResponse ", logonResponse)
 		}
 	}(client)
@@ -151,7 +150,7 @@ func (m *marketData) onConnect(WsClient) {
 
 	for _, r := range m.subscriptions {
 		err := m.client.Write(r)
-		if err == nil {
+		if err != nil {
 			m.client.Logger().Errorf("%s on m.client.Write(%s)", err, &r)
 		}
 

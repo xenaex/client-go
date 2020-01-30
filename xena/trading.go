@@ -174,7 +174,7 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 			}
 			return m, nil
 		}
-	case <-time.NewTimer(t.client.getConf().disconnectTimeoutInterval).C:
+	case <-time.NewTimer(t.client.getConf().connectTimeoutInterval).C:
 		t.client.Close()
 		return nil, fmt.Errorf("timeout logon")
 	}

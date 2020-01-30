@@ -1,6 +1,7 @@
 package xena
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -185,6 +186,7 @@ func (c *wsClient) connect() error {
 
 	err := c.connectAndListen()
 	if err != nil {
+		c.logger.Errorf("%s on c.connectAndListen()")
 		return err
 	}
 
@@ -192,13 +194,8 @@ func (c *wsClient) connect() error {
 }
 
 func (c *wsClient) connectAndListen() error {
-	if c.close {
-		err := errors.New("connection was closed by user")
-		c.handleError(err)
-		return err
-	}
-	// TODO: fix connect with timeout.
-	conn, _, err := websocket.DefaultDialer.Dial(c.url, nil)
+	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(c.conf.connectTimeoutInterval))
+	conn, _, err := websocket.DefaultDialer.DialContext(ctx, c.url, nil)
 	if err != nil {
 		c.logger.Errorf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
 		c.handleError(err)
@@ -278,6 +275,7 @@ func (c *wsClient) stop() {
 	defer c.mu.Unlock()
 	select {
 	case c.stopChan <- struct{}{}:
+		c.logger.Debugf("wsClient.stop is called")
 	default:
 	}
 }
