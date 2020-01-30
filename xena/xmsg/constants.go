@@ -101,18 +101,19 @@ const (
 	PegOffsetType_BasisPoints       = "1" // real FIX value is 1
 
 	// enum ExecType
-	ExecType_UnknownExecType    = ""
-	ExecType_NewExec            = "0" // real FIX value is 0
-	ExecType_CanceledExec       = "4" // real FIX value is 4
-	ExecType_ReplacedExec       = "5" // real FIX value is 5
-	ExecType_PendingCancelExec  = "6" // real FIX value is 6
-	ExecType_RejectedExec       = "8" // real FIX value is 8
-	ExecType_SuspendedExec      = "9" // real FIX value is 9
-	ExecType_PendingNewExec     = "A" // real FIX value is 'A'
-	ExecType_Restated           = "D" // real FIX value is 'D'
-	ExecType_PendingReplaceExec = "E" // real FIX value is 'E'
-	ExecType_Trade              = "F" // real FIX value is 'F'
-	ExecType_OrderStatus        = "I" // real FIX value is 'I'
+	ExecType_UnknownExecType              = ""
+	ExecType_NewExec                      = "0" // real FIX value is 0
+	ExecType_CanceledExec                 = "4" // real FIX value is 4
+	ExecType_ReplacedExec                 = "5" // real FIX value is 5
+	ExecType_PendingCancelExec            = "6" // real FIX value is 6
+	ExecType_RejectedExec                 = "8" // real FIX value is 8
+	ExecType_SuspendedExec                = "9" // real FIX value is 9
+	ExecType_PendingNewExec               = "A" // real FIX value is 'A'
+	ExecType_Restated                     = "D" // real FIX value is 'D'
+	ExecType_PendingReplaceExec           = "E" // real FIX value is 'E'
+	ExecType_Trade                        = "F" // real FIX value is 'F'
+	ExecType_OrderStatus                  = "I" // real FIX value is 'I'
+	ExecType_TriggeredOrActivatedBySystem = "L" // real FIX value is 'L'
 
 	// enum ExecRestatementReason
 	ExecRestatementReason_UnknownRestatementReason = ""
