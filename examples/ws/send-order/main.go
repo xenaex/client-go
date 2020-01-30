@@ -16,7 +16,7 @@ import (
 // export XENA_API_SECRET=""
 // export XENA_HOST="ws://api.xena.rc/ws/trading/"
 
-var accountId = uint64(1012000000)
+var accountId = uint64(1000000000)
 
 func main() {
 	log.Printf("Start")

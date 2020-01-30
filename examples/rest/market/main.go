@@ -21,7 +21,6 @@ func main() {
 	}
 	client := xena.NewMarketDataREST(
 		xena.WithRestMarketDataHost,
-		//		xena.WithRestHost("http://api.xena.test/"),
 	)
 
 	examples := make(map[string]func())

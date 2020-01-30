@@ -36,13 +36,6 @@ func main() {
 	indexAccountId := rand.Intn(len(accounts) - 1)
 	fmt.Println(indexAccountId)
 	var accountId = accounts[indexAccountId].Id
-	bal, err := client.GetBalance(accountId)
-	fmt.Printf("resp: %s\n", bal)
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
-	currentBal, _ := strconv.ParseFloat(bal.Balances[0].Available, 10)
-	fmt.Println(currentBal - 198.99142009)
 	bestAsk, bestBid := GetBests(symbol)
 	fmt.Printf("bestAsk: %f, bestBid: %f\n", bestAsk, bestBid)
 

@@ -54,10 +54,14 @@ func main() {
 	indexAccountId := rand.Intn(len(accounts) - 1)
 	fmt.Println(indexAccountId)
 	accountId = accounts[indexAccountId].Id
-	accountId = uint64(1012833706)
+	accountId = uint64(1000000000)
 
-	// , xena.WithDebug()
-	client = xena.NewTradingClient(apiKey, apiSecret, xena.WithURL(host), xena.WithDebug())
+	client = xena.NewTradingClient(
+		apiKey,
+		apiSecret,
+		xena.WithURL(host),
+		xena.WithDebug(),
+	)
 	resp, err := client.ConnectAndLogon()
 	if err != nil {
 		log.Printf("loggon err: %s\n", err)
