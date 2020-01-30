@@ -249,8 +249,8 @@ func (m *marketData) createRequest(MsgType, streamName, symbol, streamPostfix st
 }
 
 func (m *marketData) SubscribeOnCandles(symbol, timeframe string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
-	aggregatedBook := int64(0)
-	throttleInterval := int64(250)
+	aggregatedBook := int64(AggregateBookDefault)
+	throttleInterval, err := time.ParseDuration(string(ThrottleCandles250ms))
 	if len(timeframe) == 0 {
 		timeframe = "1m"
 	}
@@ -261,7 +261,7 @@ func (m *marketData) SubscribeOnCandles(symbol, timeframe string, handler MDHand
 			if err != nil {
 				return "", err
 			}
-			throttleInterval = d.Nanoseconds()
+			throttleInterval = d
 		case AggregateBook:
 			aggregatedBook = int64(v)
 		default:
@@ -276,7 +276,7 @@ func (m *marketData) SubscribeOnCandles(symbol, timeframe string, handler MDHand
 	req.AggregatedBook = aggregatedBook
 
 	req.ThrottleType = xmsg.ThrottleType_OutstandingRequests
-	req.ThrottleTimeInterval = throttleInterval
+	req.ThrottleTimeInterval = throttleInterval.Nanoseconds()
 	req.ThrottleTimeUnit = xmsg.ThrottleTimeUnit_Nanoseconds
 
 	err = m.subscribe(req, handler)
@@ -287,17 +287,16 @@ func (m *marketData) SubscribeOnCandles(symbol, timeframe string, handler MDHand
 }
 
 func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
-	aggregatedBook := int64(0)
-	throttleInterval := int64(500)
+	aggregatedBook := int64(AggregateBookDefault)
+	throttleInterval, _ := time.ParseDuration(string(ThrottleDOM500ms))
 	req := xmsg.MarketDataRequest{}
 	for _, o := range opts {
 		switch v := o.(type) {
 		case DOMThrottle:
-			d, err := time.ParseDuration(string(v))
+			throttleInterval, err = time.ParseDuration(string(v))
 			if err != nil {
 				return "", err
 			}
-			throttleInterval = d.Nanoseconds()
 		case AggregateBook:
 			aggregatedBook = int64(v)
 		default:
@@ -311,7 +310,7 @@ func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...in
 	}
 	req.AggregatedBook = aggregatedBook
 	req.ThrottleType = xmsg.ThrottleType_OutstandingRequests
-	req.ThrottleTimeInterval = throttleInterval
+	req.ThrottleTimeInterval = throttleInterval.Nanoseconds()
 	req.ThrottleTimeUnit = xmsg.ThrottleTimeUnit_Nanoseconds
 
 	err = m.subscribe(req, handler)
@@ -322,7 +321,7 @@ func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...in
 }
 
 func (m *marketData) SubscribeOnTrades(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
-	throttleInterval := int64(500)
+	throttleInterval, _ := time.ParseDuration(string(ThrottleTrades500ms))
 	req := xmsg.MarketDataRequest{}
 	for _, o := range opts {
 		switch v := o.(type) {
@@ -332,7 +331,7 @@ func (m *marketData) SubscribeOnTrades(symbol string, handler MDHandler, opts ..
 				if err != nil {
 					return "", err
 				}
-				throttleInterval = d.Nanoseconds()
+				throttleInterval = d
 			} else {
 				throttleInterval = 0
 			}
@@ -342,7 +341,7 @@ func (m *marketData) SubscribeOnTrades(symbol string, handler MDHandler, opts ..
 	}
 
 	req, err = m.createRequest(xmsg.MsgType_MarketDataRequest, "trades", symbol, "")
-	req.ThrottleTimeInterval = throttleInterval
+	req.ThrottleTimeInterval = throttleInterval.Nanoseconds()
 	if err != nil {
 		return "", err
 	}
