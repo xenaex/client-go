@@ -24,7 +24,6 @@ func newOrderSingle(clOrdId string, symbol string, side Side, orderQty string, a
 }
 
 type baseOrder struct {
-	client TradingClient
 	*xmsg.NewOrderSingle
 }
 
