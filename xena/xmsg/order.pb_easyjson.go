@@ -1827,6 +1827,8 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(in *jlexer.Lexer, o
 			}
 		case "text":
 			out.Text = string(in.String())
+		case "grpId":
+			out.GrpID = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -2121,6 +2123,16 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(out *jwriter.Writer
 			out.RawString(prefix)
 		}
 		out.String(string(in.Text))
+	}
+	if in.GrpID != "" {
+		const prefix string = ",\"grpId\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.GrpID))
 	}
 	out.RawByte('}')
 }
@@ -3236,4 +3248,81 @@ func (v ExecutionReport) MarshalEasyJSON(w *jwriter.Writer) {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ExecutionReport) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(l, v)
+}
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg16(in *jlexer.Lexer, out *ApplicationHeartbeat) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeString()
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "grpId":
+			out.GrpID = string(in.String())
+		case "heartBtInt":
+			out.HeartBtInt = int32(in.Int32())
+		case "msgType":
+			out.MsgType = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(out *jwriter.Writer, in ApplicationHeartbeat) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if in.GrpID != "" {
+		const prefix string = ",\"grpId\":"
+		first = false
+		out.RawString(prefix[1:])
+		out.String(string(in.GrpID))
+	}
+	if in.HeartBtInt != 0 {
+		const prefix string = ",\"heartBtInt\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.HeartBtInt))
+	}
+	if in.MsgType != "" {
+		const prefix string = ",\"msgType\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.MsgType))
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v ApplicationHeartbeat) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *ApplicationHeartbeat) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg16(l, v)
 }

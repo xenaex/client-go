@@ -33,6 +33,7 @@ const (
 	MsgType_Heartbeat                        = "0"   // real FIX value is '0'
 	MsgType_OrderMassCancelRequest           = "q"
 	MsgType_OrderMassCancelReport            = "r"
+	MsgType_ApplicationHeartbeat             = "XAH" // real FIX value is 'XAH';
 
 	// enum BusinessRejectReason
 	BusinessRejectReason_UnknownBisRejReason     = ""

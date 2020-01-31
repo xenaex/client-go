@@ -74,6 +74,10 @@ func (b baseOrder) setTrailingOffset(trailingOffset string, capPrice string) {
 	}
 }
 
+func (b baseOrder) setGroupId(text string) {
+	b.NewOrderSingle.GrpID = text
+}
+
 func (b baseOrder) build() *xmsg.NewOrderSingle {
 	return b.NewOrderSingle
 }
@@ -116,9 +120,15 @@ func (m marketOrder) SetTakeProfitPrice(takeProfitPrice string) marketOrder {
 	return m
 }
 
-//SetText sets user comment no longer than 38 characters in free format
+//SetText sets user comment no longer than 38 characters in free format.
 func (m marketOrder) SetText(text string) marketOrder {
 	m.order.setText(text)
+	return m
+}
+
+//SetGroupId sets group id to cancel orders when missing a client’s hardbit.
+func (m marketOrder) SetGroupId(id string) marketOrder {
+	m.order.setGroupId(id)
 	return m
 }
 
@@ -184,6 +194,12 @@ func (l limitOrder) SetTrailingOffsetAndCapPrice(trailingOffset string, capPrice
 	return l
 }
 
+//SetGroupId sets group id to cancel orders when missing a client’s heartbeat.
+func (l limitOrder) SetGroupId(id string) limitOrder {
+	l.order.setGroupId(id)
+	return l
+}
+
 //Build function returns command.
 func (l limitOrder) Build() *xmsg.NewOrderSingle {
 	return l.order.build()
@@ -243,6 +259,12 @@ func (s stopOrder) SetTrailingOffset(trailingOffset string) stopOrder {
 //SetTrailingOffsetAndCapPrice sets trailing offset value and cap price.
 func (s stopOrder) SetTrailingOffsetAndCapPrice(trailingOffset string, capPrice string) stopOrder {
 	s.order.setTrailingOffset(trailingOffset, capPrice)
+	return s
+}
+
+//SetGroupId sets group id to cancel orders when missing a client’s heartbeat.
+func (s stopOrder) SetGroupId(id string) stopOrder {
+	s.order.setGroupId(id)
 	return s
 }
 
@@ -306,6 +328,12 @@ func (m marketIfTouchOrder) SetTrailingOffset(trailingOffset string) marketIfTou
 //SetTrailingOffsetAndCapPrice sets trailing offset value and cap price.
 func (m marketIfTouchOrder) SetTrailingOffsetAndCapPrice(trailingOffset string, capPrice string) marketIfTouchOrder {
 	m.order.setTrailingOffset(trailingOffset, capPrice)
+	return m
+}
+
+//SetGroupId sets group id to cancel orders when missing a client’s heartbeat.
+func (m marketIfTouchOrder) SetGroupId(id string) marketIfTouchOrder {
+	m.order.setGroupId(id)
 	return m
 }
 

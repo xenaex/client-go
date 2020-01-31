@@ -317,3 +317,17 @@ func (t *tradingREST) GetAccounts() ([]*xmsg.AccountInfo, error) {
 	}
 	return resp.Accounts, nil
 }
+
+func (t *tradingREST) SendApplicationHeartbeat(groupId string, heartbeatInSec int32) error {
+	cmd := xmsg.ApplicationHeartbeat{
+		MsgType:    xmsg.MsgType_ApplicationHeartbeat,
+		GrpID:      groupId,
+		HeartBtInt: heartbeatInSec,
+	}
+	query := newQuery("heartbeat")
+	err := t.sendPost(query, &cmd, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}

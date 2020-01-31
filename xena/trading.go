@@ -99,6 +99,9 @@ type TradingClient interface {
 
 	//SetDisconnectHandler subscribes to disconnect event.
 	SetDisconnectHandler(handler TradingDisconnectHandler)
+
+	//SendApplicationHeartbeat sends application heartbeat.
+	SendApplicationHeartbeat(GrpID string, HeartBtInt int64) error
 }
 
 //DefaultTradingDisconnectHandler default handler reconnects and logs on.
@@ -428,6 +431,15 @@ func (t *tradingClient) SendAccountStatusReportRequest(accountID uint64) error {
 	cmd := xmsg.NewOrderSingle{
 		MsgType: xmsg.MsgType_AccountStatusReportRequest,
 		Account: accountID,
+	}
+	return t.Send(cmd)
+}
+
+func (t *tradingClient) SendApplicationHeartbeat(groupId string, heartbeatInSec int32) error {
+	cmd := xmsg.ApplicationHeartbeat{
+		MsgType:    xmsg.MsgType_ApplicationHeartbeat,
+		GrpID:      groupId,
+		HeartBtInt: heartbeatInSec,
 	}
 	return t.Send(cmd)
 }
