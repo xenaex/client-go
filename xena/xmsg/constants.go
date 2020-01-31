@@ -86,6 +86,7 @@ const (
 	ExecInst_Suspend                   = "s"     // real FIX value is 's'
 	ExecInst_LiquidationOrder          = "Y"     // real FIX value is 'Y'
 	ExecInst_IgnorePriceRangeChecks    = "70081" // real FIX value is none
+	ExecInst_CancelOnConnectionLoss    = "o"
 
 	// enum TimeInForce
 	TimeInForce_UnknownTimeInForce = ""

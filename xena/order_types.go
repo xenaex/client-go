@@ -74,8 +74,9 @@ func (b baseOrder) setTrailingOffset(trailingOffset string, capPrice string) {
 	}
 }
 
-func (b baseOrder) setGroupId(text string) {
-	b.NewOrderSingle.GrpID = text
+func (b baseOrder) setGroupId(id string) {
+	b.NewOrderSingle.GrpID = id
+	b.addExecInst(xmsg.ExecInst_CancelOnConnectionLoss)
 }
 
 func (b baseOrder) build() *xmsg.NewOrderSingle {

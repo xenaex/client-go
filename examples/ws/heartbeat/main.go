@@ -58,21 +58,21 @@ func main() {
 	})
 	go func() {
 		for {
-			err := client.SendApplicationHeartbeat("42", 20)
+			err := client.SendApplicationHeartbeat("42", 3)
 			if err != nil {
 				log.Printf("error %s", err)
 			}
-			time.Sleep(10 * time.Second)
+			time.Sleep(2 * time.Second)
 		}
 	}()
 	started := time.Now()
-	for time.Now().Sub(started) < 2*time.Minute {
+	for time.Now().Sub(started) < time.Minute {
 		go func() {
-			ord := xena.CreateLimitOrder(xena.ID(""), xena.XBTUSD.String(), xena.SideSell, "1", accountId, "20000").Build()
-			ord.GrpID = "42"
+			ord := xena.CreateLimitOrder(xena.ID(""), xena.XBTUSD.String(), xena.SideSell, "1", accountId, "10000")
+			ord = ord.SetGroupId("42")
 			log.Printf("send order")
 
-			err := client.Send(ord)
+			err := client.Send(ord.Build())
 			if err != nil {
 				log.Printf("err %s", err)
 			}
