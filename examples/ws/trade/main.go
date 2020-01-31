@@ -25,22 +25,14 @@ func main() {
 
 	apiKey := os.Getenv("XENA_API_KEY")
 	apiSecret := os.Getenv("XENA_API_SECRET")
-	host := os.Getenv("XENA_HOST")
 
 	if len(apiKey) == 0 || len(apiSecret) == 0 {
 		log.Println("api key or api secret not found.")
 		return
 	}
-	if len(host) == 0 {
-		host = "wss://api.xena.exchange/ws/market-data/"
-		host = "ws://api.xena.rc/ws/trading"
-	}
-	host = "ws://api.xena.rc/ws/trading"
 
 	var err error
-
-	log.Println("will be connect to ", host)
-	restClient := xena.NewTradingREST(apiKey, apiSecret, xena.WithRestHost("http://api.xena.rc/trading/"))
+	restClient := xena.NewTradingREST(apiKey, apiSecret, xena.WithRestTradingHost)
 	accounts, err = restClient.GetAccounts()
 	if err != nil {
 		log.Println(err)
@@ -54,12 +46,11 @@ func main() {
 	indexAccountId := rand.Intn(len(accounts) - 1)
 	fmt.Println(indexAccountId)
 	accountId = accounts[indexAccountId].Id
-	accountId = uint64(1000000000)
 
 	client = xena.NewTradingClient(
 		apiKey,
 		apiSecret,
-		xena.WithURL(host),
+		xena.WithTradingURL(),
 		xena.WithDebug(),
 	)
 	resp, err := client.ConnectAndLogon()
@@ -111,7 +102,6 @@ func GetBests(symbol string) (bestAsk, bestBid float64) {
 	log.Println("get dom")
 	client := xena.NewMarketDataREST(
 		xena.WithRestMarketDataHost,
-		xena.WithRestHost("http://api.xena.rc/"),
 	)
 	dom, err := client.GetDom(symbol)
 	if err != nil {

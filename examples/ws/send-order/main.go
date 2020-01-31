@@ -14,7 +14,6 @@ import (
 // set api ket in environment.
 // export XENA_API_KEY=""
 // export XENA_API_SECRET=""
-// export XENA_HOST="ws://api.xena.rc/ws/trading/"
 
 var accountId = uint64(1000000000)
 
@@ -23,18 +22,13 @@ func main() {
 
 	apiKey := os.Getenv("XENA_API_KEY")
 	apiSecret := os.Getenv("XENA_API_SECRET")
-	host := os.Getenv("XENA_HOST")
 
 	if len(apiKey) == 0 || len(apiSecret) == 0 {
 		fmt.Println("api key or api secret not found.")
 		return
 	}
-	if len(host) == 0 {
-		host = "wss://api.xena.exchange/ws/market-data/"
-	}
 
-	log.Println("will be connect to ", host)
-	var client = xena.NewTradingClient(apiKey, apiSecret, xena.WithURL(host), xena.WithDebug())
+	var client = xena.NewTradingClient(apiKey, apiSecret, xena.WithTradingURL(), xena.WithDebug())
 	client.SetDisconnectHandler(xena.DefaultTradingDisconnectHandler)
 
 	client.ListenBalanceIncrementalRefresh(onBalanceIncrementalRefreshHandler)

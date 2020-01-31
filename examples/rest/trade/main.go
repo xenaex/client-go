@@ -21,7 +21,7 @@ func main() {
 		fmt.Println("api key or api secret not found.")
 		return
 	}
-	client := xena.NewTradingREST(apiKey, apiSecret, xena.WithRestHost("http://api.xena.rc/trading/"))
+	client := xena.NewTradingREST(apiKey, apiSecret, xena.WithRestTradingHost)
 	accounts, err := client.GetAccounts()
 	if err != nil {
 		fmt.Sprintln(err)
@@ -347,7 +347,6 @@ func main() {
 func GetBests(symbol string) (bestAsk, bestBid float64) {
 	client := xena.NewMarketDataREST(
 		xena.WithRestMarketDataHost,
-		xena.WithRestHost("http://api.xena.rc/"),
 	)
 	dom, err := client.GetDom(symbol)
 	if err != nil {
