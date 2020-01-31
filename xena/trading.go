@@ -101,7 +101,7 @@ type TradingClient interface {
 	SetDisconnectHandler(handler TradingDisconnectHandler)
 
 	//SendApplicationHeartbeat sends application heartbeat.
-	SendApplicationHeartbeat(GrpID string, HeartBtInt int64) error
+	SendApplicationHeartbeat(GrpID string, HeartBtInt int32) error
 }
 
 //DefaultTradingDisconnectHandler default handler reconnects and logs on.
