@@ -123,7 +123,7 @@ func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient 
 	}
 
 	defaultOpts := []WsOption{
-		WithURL(wsTradingURL),
+		WithTradingURL(),
 		WithHandler(t.incomeHandler),
 		WithIgnorePingLog(true),
 	}

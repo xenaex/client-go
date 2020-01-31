@@ -147,15 +147,8 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"os"
-	"sort"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/xenaex/client-go/xena"
-	"github.com/xenaex/client-go/xena/xmsg"
 )
 
 func main() {
