@@ -9,6 +9,9 @@ type TradesThrottle string
 type AggregateBook int64
 type PositionEffect string
 
+//MarketDepth is level depth limit in dom.
+type MarketDepth int64
+
 func (s Symbol) String() string {
 	return string(s)
 }
@@ -51,4 +54,8 @@ const (
 	AggregateBook50      AggregateBook = 50
 	AggregateBook100     AggregateBook = 100
 	AggregateBook250     AggregateBook = 250
+
+	MarketDepth0  MarketDepth = 0
+	MarketDepth10 MarketDepth = 10
+	MarketDepth20 MarketDepth = 20
 )

@@ -3,10 +3,11 @@
 package xmsg
 
 import (
-	json "encoding/json"
-	easyjson "github.com/mailru/easyjson"
-	jlexer "github.com/mailru/easyjson/jlexer"
-	jwriter "github.com/mailru/easyjson/jwriter"
+	"encoding/json"
+
+	"github.com/mailru/easyjson"
+	"github.com/mailru/easyjson/jlexer"
+	"github.com/mailru/easyjson/jwriter"
 )
 
 // suppress unused package warning
@@ -3268,12 +3269,12 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg16(in *jlexer.Lexer, o
 			continue
 		}
 		switch key {
+		case "msgType":
+			out.MsgType = string(in.String())
 		case "grpId":
 			out.GrpID = string(in.String())
 		case "heartBtInt":
 			out.HeartBtInt = int32(in.Int32())
-		case "msgType":
-			out.MsgType = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -3288,10 +3289,20 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(out *jwriter.Writer
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.GrpID != "" {
-		const prefix string = ",\"grpId\":"
+	if in.MsgType != "" {
+		const prefix string = ",\"msgType\":"
 		first = false
 		out.RawString(prefix[1:])
+		out.String(string(in.MsgType))
+	}
+	if in.GrpID != "" {
+		const prefix string = ",\"grpId\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.GrpID))
 	}
 	if in.HeartBtInt != 0 {
@@ -3303,16 +3314,6 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(out *jwriter.Writer
 			out.RawString(prefix)
 		}
 		out.Int32(int32(in.HeartBtInt))
-	}
-	if in.MsgType != "" {
-		const prefix string = ",\"msgType\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.String(string(in.MsgType))
 	}
 	out.RawByte('}')
 }

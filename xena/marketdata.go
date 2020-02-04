@@ -289,6 +289,8 @@ func (m *marketData) SubscribeOnCandles(symbol, timeframe string, handler MDHand
 func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
 	aggregatedBook := int64(AggregateBookDefault)
 	throttleInterval, _ := time.ParseDuration(string(ThrottleDOM500ms))
+	marketDepth := int64(MarketDepth0)
+
 	req := xmsg.MarketDataRequest{}
 	for _, o := range opts {
 		switch v := o.(type) {
@@ -299,6 +301,8 @@ func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...in
 			}
 		case AggregateBook:
 			aggregatedBook = int64(v)
+		case MarketDepth:
+			marketDepth = int64(v)
 		default:
 			return "", fmt.Errorf("unsupported type of %#v", o)
 		}
@@ -312,6 +316,7 @@ func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...in
 	req.ThrottleType = xmsg.ThrottleType_OutstandingRequests
 	req.ThrottleTimeInterval = throttleInterval.Nanoseconds()
 	req.ThrottleTimeUnit = xmsg.ThrottleTimeUnit_Nanoseconds
+	req.MarketDepth = marketDepth
 
 	err = m.subscribe(req, handler)
 	if err != nil {

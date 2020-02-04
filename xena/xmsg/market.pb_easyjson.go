@@ -127,6 +127,8 @@ func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg1(in *jlexer.Lexer, ou
 			out.ThrottleTimeUnit = string(in.String())
 		case "AggregatedBook":
 			out.AggregatedBook = int64(in.Int64())
+		case "MarketDepth":
+			out.MarketDepth = int64(in.Int64())
 		default:
 			in.SkipRecursive()
 		}
@@ -206,6 +208,16 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg1(out *jwriter.Writer,
 			out.RawString(prefix)
 		}
 		out.Int64(int64(in.AggregatedBook))
+	}
+	if in.MarketDepth != 0 {
+		const prefix string = ",\"MarketDepth\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.MarketDepth))
 	}
 	out.RawByte('}')
 }
