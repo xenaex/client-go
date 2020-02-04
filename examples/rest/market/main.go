@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -26,37 +26,37 @@ func main() {
 	examples := make(map[string]func())
 	examples["server-time"] = func() {
 		resp, err = client.GetServerTime()
-		fmt.Printf("resp: %s, \nerror: %#v\n", resp, err)
+		log.Printf("resp: %s, \nerror: %#v\n", resp, err)
 	}
 	examples["instruments"] = func() {
 		resp, err = client.GetInstruments()
-		fmt.Printf("resp: %s, \nerror: %#v\n", resp, err)
+		log.Printf("resp: %s, \nerror: %#v\n", resp, err)
 	}
 
 	examples["trades"] = func() {
 		resp, err = client.GetTrades(xena.XBTUSD.String(), time.Now().Add(-10*Day), time.Now(), 1, 10)
-		fmt.Printf("resp: %s, \nerror: %#v\n", resp, err)
+		log.Printf("resp: %s, \nerror: %#v\n", resp, err)
 	}
 
 	examples["dom"] = func() {
 		resp, err = client.GetDom(xena.XBTUSD.String())
-		fmt.Printf("resp: %s, \nerror: %#v\n", resp, err)
+		log.Printf("resp: %s, \nerror: %#v\n", resp, err)
 	}
 
 	examples["candles"] = func() {
 		resp, err = client.GetCandles(xena.BTCUSDT.String(), "1m", time.Now().Add(-5*time.Minute), time.Now())
-		fmt.Printf("resp: %s, \nerror: %#v\n", resp, err)
+		log.Printf("resp: %s, \nerror: %#v\n", resp, err)
 	}
 	for i, a := range os.Args {
-		fmt.Printf("%d - %s\n", i, a)
+		log.Printf("%d - %s\n", i, a)
 		if strings.EqualFold(a, "-h") ||
 			strings.EqualFold(a, "h") ||
 			strings.EqualFold(a, "help") ||
 			strings.EqualFold(a, "--help") ||
 			strings.EqualFold(a, "-help") {
-			fmt.Println("list of available examples")
+			log.Println("list of available examples")
 			for k := range examples {
-				fmt.Printf("\t%s\n", k)
+				log.Printf("\t%s\n", k)
 			}
 			return
 		}
@@ -72,7 +72,7 @@ func main() {
 	for _, key := range keyExamples {
 		f, ok := examples[key]
 		if !ok {
-			fmt.Printf("key not found %s\n", key)
+			log.Printf("key not found %s\n", key)
 			continue
 		}
 		f()

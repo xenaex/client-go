@@ -42,7 +42,6 @@ func (r *baseREST) get(query query) (*http.Response, []byte, error) {
 	for k, v := range r.getHeaders(query.headers) {
 		req.Header.Add(k, v)
 	}
-	//r.config.logger.Debugf("%s", req.Header)
 	st := time.Now()
 	resp, err := r.http.Do(req)
 	if time.Now().Sub(st) > time.Second {
@@ -53,7 +52,6 @@ func (r *baseREST) get(query query) (*http.Response, []byte, error) {
 		if err != nil {
 			return resp, nil, err
 		}
-		//r.config.logger.Debugf("body: %s", body)
 		if resp.StatusCode == http.StatusBadRequest {
 			xenaError := xenaError{}
 			err := json.Unmarshal(body, &xenaError)

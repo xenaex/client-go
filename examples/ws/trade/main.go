@@ -40,11 +40,11 @@ func main() {
 	}
 	log.Println(accounts)
 	if len(accounts) == 0 || accounts == nil {
-		fmt.Println("account not founds")
+		log.Println("account not founds")
 		return
 	}
 	indexAccountId := rand.Intn(len(accounts) - 1)
-	fmt.Println(indexAccountId)
+	log.Println(indexAccountId)
 	accountId = accounts[indexAccountId].Id
 
 	client = xena.NewTradingClient(
@@ -91,7 +91,7 @@ func main() {
 
 	for k, f := range examples {
 		for i := 0; i < 4; i++ {
-			fmt.Println()
+			log.Println()
 		}
 		log.Printf("%s ---------------------------------------------", k)
 		f()
@@ -203,7 +203,7 @@ func exampleLimitOrder() {
 
 	err := client.LimitOrder(accountId, xena.ID("lo-"), symbol, xena.SideBuy, fmt.Sprintf("%.1f", bestAsk+10), "1")
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 
@@ -233,7 +233,7 @@ func exampleLimitOrder() {
 	mOrder := xena.CreateLimitOrder(xena.ID("lo-"), symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").Build()
 	err = client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 }
@@ -266,7 +266,7 @@ func exampleLimitOrderPostOnly() {
 	mOrder := xena.CreateLimitOrder(id, symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").AddExecInst(xmsg.ExecInst_StayOnOfferSide).Build()
 	err := client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 
@@ -300,7 +300,7 @@ func exampleLimitOrderPostOnly() {
 	mOrder = xena.CreateLimitOrder(id, symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").AddExecInst(xmsg.ExecInst_PegToOfferSide).Build()
 	err = client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 }
@@ -333,7 +333,7 @@ func exampleStopOrder() {
 
 	err := client.StopOrder(accountId, id, symbol, xena.SideBuy, fmt.Sprintf("%.1f", bestAsk+10), "1")
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 
@@ -367,7 +367,7 @@ func exampleStopOrder() {
 	mOrder := xena.CreateStopOrder(id, symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("stop order").Build()
 	err = client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 }
@@ -400,7 +400,7 @@ func exampleSLTPGroup() {
 		SetStopLossPrice("500.00000572").Build()
 	err := client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 
@@ -433,7 +433,7 @@ func exampleSLTPGroup() {
 		SetStopLossPrice("500.00000572").Build()
 	err = client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 
 	log.Printf("is ok %t\n", <-done)
@@ -466,7 +466,7 @@ func exampleStopLossForExistingPosition() {
 	mOrder := xena.CreateLimitOrder(xena.ID("stop-order"), symbol, xena.SideBuy, "1", accountId, fmt.Sprintf("%.1f", bestAsk+10)).SetText("my comment").SetPositionId(positionId).Build()
 	err := client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 
@@ -495,7 +495,7 @@ func exampleStopLossForExistingPosition() {
 	mOrder = xena.CreateStopOrder(xena.ID("stop-order"), symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").SetPositionId(positionId).Build()
 	err = client.Send(mOrder)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 
 	log.Printf("is ok %t\n", <-done)
@@ -546,9 +546,8 @@ func exampleCancelByClientOrderId() {
 			for _, id := range ids {
 				if m.ClOrdId == id {
 					err := client.CancelByOrderId(accountId, xena.ID("cancel-1"), m.OrderId, symbol, xena.SideBuy)
-					// fmt.Printf("resp: %s\n", cancelResp)
 					if err != nil {
-						fmt.Printf("error: %v\n", err)
+						log.Printf("error: %v\n", err)
 					}
 					log.Printf("exec resp: %s\n", m)
 				}
@@ -579,7 +578,7 @@ func exampleCancelByClientOrderId() {
 	for _, id := range ids {
 		err := client.LimitOrder(accountId, id, symbol, xena.SideBuy, fmt.Sprintf("%.1f", bestAsk-1), "1")
 		if err != nil {
-			fmt.Printf("error: %v\n", err)
+			log.Printf("error: %v\n", err)
 			continue
 		}
 		wg.Add(1)
@@ -602,9 +601,8 @@ func exampleCancelByClientClOrdId() {
 			for _, id := range ids {
 				if m.ClOrdId == id {
 					err := client.CancelByClOrdId(accountId, xena.ID("cancel-1"), m.ClOrdId, symbol, xena.SideBuy)
-					// fmt.Printf("resp: %s\n", cancelResp)
 					if err != nil {
-						fmt.Printf("error: %v\n", err)
+						log.Printf("error: %v\n", err)
 					}
 					log.Printf("exec resp: %s\n", m)
 				}
@@ -635,7 +633,7 @@ func exampleCancelByClientClOrdId() {
 	for _, id := range ids {
 		err := client.LimitOrder(accountId, id, symbol, xena.SideBuy, fmt.Sprintf("%.1f", bestAsk-1), "1")
 		if err != nil {
-			fmt.Printf("error: %v\n", err)
+			log.Printf("error: %v\n", err)
 			continue
 		}
 		wg.Add(1)
@@ -660,10 +658,10 @@ func exampleReceivingAllOrderAndCanceling() {
 		if m.ExecType == xmsg.ExecType_CanceledExec {
 			resps = append(resps, m)
 		}
-		fmt.Printf("resp: %v\n", m)
+		log.Printf("resp: %v\n", m)
 	})
 	client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
-		fmt.Printf("reject resp: %v\n", m)
+		log.Printf("reject resp: %v\n", m)
 		done <- false
 	})
 	client.ListenOrderMassStatusResponse(func(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
@@ -672,14 +670,14 @@ func exampleReceivingAllOrderAndCanceling() {
 			cancelCmd := xena.CreateCancelRequestFromExecutionReport(xena.ID("cancel-"), er)
 			err := client.Cancel(cancelCmd)
 			if err != nil {
-				fmt.Printf("error: %v\n", err)
+				log.Printf("error: %v\n", err)
 			}
 		}
 		done <- true
 	})
 	err := client.Orders(accountId, "")
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 
 	ok := <-done
@@ -716,7 +714,7 @@ func exampleMassCancel1() {
 
 	err := client.MassCancel(accountId, xena.ID("mass-cancel-1-"))
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 	for _, cancel := range resps {
@@ -750,7 +748,7 @@ func exampleMassCancel2() {
 	massCancel := xena.CreateOrderMassCancel(accountId, xena.ID("mass-cancel-2-")).SetSymbol(symbol)
 	err := client.Send(massCancel.Build())
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 	for _, cancel := range resps {
@@ -784,7 +782,7 @@ func exampleMassCancel3() {
 	massCancel := xena.CreateOrderMassCancel(accountId, xena.ID("mass-cancel-3-")).SetSymbol(symbol).SetSide(xena.SideBuy)
 	err := client.Send(massCancel.Build())
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 	for _, cancel := range resps {
@@ -818,7 +816,7 @@ func exampleMassCancel4() {
 	massCancel := xena.CreateOrderMassCancel(accountId, xena.ID("mass-cancel-4-")).SetSymbol(symbol).SetPositionEffect(xena.PositionEffectOpen)
 	err := client.Send(massCancel.Build())
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v\n", err)
 	}
 	log.Printf("is ok %t\n", <-done)
 	for _, cancel := range resps {
@@ -897,7 +895,7 @@ func examplePositionsCollapse() {
 
 				err := client.CollapsePositions(acc.Id, symbol, "")
 				if err != nil {
-					fmt.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
 
 				log.Printf("is ok %t\n", <-done)
@@ -928,7 +926,7 @@ func examplePositions() {
 
 				err := client.GetPositions(acc.Id, "")
 				if err != nil {
-					fmt.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
 
 				log.Printf("is ok %t\n", <-done)
@@ -959,7 +957,7 @@ func exampleOrders() {
 
 				err := client.Orders(acc.Id, "")
 				if err != nil {
-					fmt.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
 
 				log.Printf("is ok %t\n", <-done)
@@ -997,7 +995,7 @@ func exampleBalances() {
 
 				err := client.AccountStatusReport(acc.Id, "")
 				if err != nil {
-					fmt.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
 
 				log.Printf("is ok %t\n", <-done)
@@ -1027,7 +1025,7 @@ func exampleMarginRequirements() {
 
 				err := client.Orders(acc.Id, "")
 				if err != nil {
-					fmt.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
 				log.Printf("is ok %t\n", <-done)
 			}()

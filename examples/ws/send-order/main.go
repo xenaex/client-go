@@ -24,7 +24,7 @@ func main() {
 	apiSecret := os.Getenv("XENA_API_SECRET")
 
 	if len(apiKey) == 0 || len(apiSecret) == 0 {
-		fmt.Println("api key or api secret not found.")
+		log.Println("api key or api secret not found.")
 		return
 	}
 
@@ -46,27 +46,27 @@ func main() {
 
 	logonResponse, err := client.ConnectAndLogon()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	log.Println("GOT logonResponse ", logonResponse)
 	log.Println("logon completed")
 
 	err = client.AccountStatusReport(accountId, "")
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	order := xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD.String(), xena.SideSell, "1", accountId, "7523.4").Build()
 	err = client.Send(order)
 	err = xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD.String(), xena.SideSell, "1", accountId, "7523.4").Send(client)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	limitOrder := xena.CreateLimitOrder(fmt.Sprint(rand.Int()), xena.XBTUSD.String(), xena.SideSell, "1", accountId, "7523.4").SetTimeInForce("").SetPositionId(0).SetTakeProfitPrice("8000").Build()
 	err = client.Send(limitOrder)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	interrupt := make(chan os.Signal, 1)

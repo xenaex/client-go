@@ -416,7 +416,6 @@ func (m *marketData) incomeHandler(msg []byte) {
 	case xmsg.MsgType_MarketDataIncrementalRefresh, xmsg.MsgType_MarketDataSnapshotFullRefresh:
 		v := new(xmsg.MarketDataRefresh)
 		if _, err := m.unmarshal(msg, v); err == nil {
-			// m.client.Logger().Debugf("got %#v", v)
 			m.subscribeMu.RLock()
 			if handler, ok := m.domSubscriptions[v.MDStreamId]; ok {
 				go handler(m, v)
