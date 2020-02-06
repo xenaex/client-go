@@ -289,7 +289,7 @@ func (m *marketData) SubscribeOnCandles(symbol, timeframe string, handler MDHand
 func (m *marketData) SubscribeOnDom(symbol string, handler MDHandler, opts ...interface{}) (streamID string, err error) {
 	aggregatedBook := int64(AggregateBookDefault)
 	throttleInterval, _ := time.ParseDuration(string(ThrottleDOM500ms))
-	marketDepth := int64(MarketDepth0)
+	marketDepth := int64(MarketDepthDefault)
 
 	req := xmsg.MarketDataRequest{}
 	for _, o := range opts {

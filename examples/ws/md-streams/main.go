@@ -27,7 +27,7 @@ func main() {
 	id := ""
 	id, err = md.SubscribeOnCandles(xena.XBTUSD.String(), "1m", handler, xena.ThrottleCandles1s, xena.AggregateBook25)
 	log.Println(id, err)
-	id, err = md.SubscribeOnDom(xena.XBTUSD.String(), handler, xena.ThrottleDOM5s)
+	id, err = md.SubscribeOnDom(xena.XBTUSD.String(), handler, xena.ThrottleDOM5s, xena.MarketDepth10)
 	log.Println(id, err)
 	id, err = md.SubscribeOnTrades(xena.XBTUSD.String(), handler, xena.ThrottleTrades5s)
 	log.Println(id, err)

@@ -55,7 +55,7 @@ const (
 	AggregateBook100     AggregateBook = 100
 	AggregateBook250     AggregateBook = 250
 
-	MarketDepth0  MarketDepth = 0
-	MarketDepth10 MarketDepth = 10
-	MarketDepth20 MarketDepth = 20
+	MarketDepthDefault MarketDepth = 0
+	MarketDepth10      MarketDepth = 10
+	MarketDepth20      MarketDepth = 20
 )

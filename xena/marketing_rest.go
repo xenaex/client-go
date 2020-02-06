@@ -63,7 +63,7 @@ func (m *marketDataREST) GetCandles(symbol string, timeFrame string, from, to ti
 func (m *marketDataREST) GetDom(symbol string, opts ...interface{}) (*xmsg.MarketDataRefresh, error) {
 	const method = "dom"
 	aggregatedBook := int64(AggregateBookDefault)
-	marketDepth := int64(MarketDepth0)
+	marketDepth := int64(MarketDepthDefault)
 
 	for _, o := range opts {
 		switch v := o.(type) {
@@ -76,9 +76,9 @@ func (m *marketDataREST) GetDom(symbol string, opts ...interface{}) (*xmsg.Marke
 		}
 	}
 
-	query := newQuery("market-data", method, symbol) //.
-	//addQueryf("aggregated", aggregatedBook).
-	//addQueryf("depth", marketDepth)
+	query := newQuery("market-data", method, symbol).
+		addQueryf("aggr", &aggregatedBook).
+		addQueryf("depth", &marketDepth)
 
 	resp, body, err := m.get(query)
 	if err != nil {
