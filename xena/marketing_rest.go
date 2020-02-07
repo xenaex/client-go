@@ -9,7 +9,7 @@ import (
 	"github.com/xenaex/client-go/xena/xmsg"
 )
 
-//NewMarketDataREST creates rest client of Xena market data.
+// NewMarketDataREST creates a rest client of Xena market data.
 func NewMarketDataREST(options ...RestOption) MarketDataREST {
 	cfg := &restConf{}
 	for _, ots := range []RestOption{withRestDefaultLogger, WithRestMarketDataHost, withRestDefaultTimeout, WithRestUserAgent(userAgent)} {
@@ -23,17 +23,17 @@ func NewMarketDataREST(options ...RestOption) MarketDataREST {
 	}
 }
 
-//MarketDataREST is rest client interface of the Xena market data.
+// MarketDataREST is a rest client interface of the Xena market data.
 type MarketDataREST interface {
-	//GetServerTime returns server time.
+	// GetServerTime returns server time.
 	GetServerTime() (time.Time, error)
-	//GetInstruments returns instruments.
+	// GetInstruments returns instruments.
 	GetInstruments() ([]*xmsg.Instrument, error)
-	//GetTrades returns traders.
+	// GetTrades returns trades.
 	GetTrades(symbol string, from, to time.Time, page, limit int64) (*xmsg.MarketDataRefresh, error)
-	//GetDom returns dom.
+	// GetDom returns dom.
 	GetDom(symbol string, opts ...interface{}) (*xmsg.MarketDataRefresh, error)
-	//GetCandles returns candles.
+	// GetCandles returns candles.
 	GetCandles(symbol string, timeFrame string, from, to time.Time) (*xmsg.MarketDataRefresh, error)
 }
 

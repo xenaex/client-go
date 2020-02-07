@@ -100,7 +100,7 @@ func main() {
 		if err != nil {
 			log.Printf("error: %v\n", err)
 		}
-		//or using helpers method
+		// or using helpers method
 		mOrder = xena.CreateLimitOrder(xena.ID("sltp-"), symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).
 			SetText("my comment").
 			SetTakeProfitPrice(fmt.Sprintf("%.1f0000572", bestBid+500)).
@@ -112,7 +112,7 @@ func main() {
 		}
 	}
 	examples["stop-loss-for-existing-position"] = func() {
-		//example_of_stop_loss_for_existing_position
+		// example_of_stop_loss_for_existing_position
 		positionId := uint64(130723016)
 		mOrder := xena.CreateLimitOrder(xena.ID("stop-order"), symbol, xena.SideBuy, "1", accountId, fmt.Sprintf("%.1f", bestAsk+10)).SetText("my comment").SetPositionId(positionId).Build()
 		resp, err := client.NewOrder(mOrder)
@@ -120,7 +120,7 @@ func main() {
 		if err != nil {
 			log.Printf("error: %v\n", err)
 		}
-		//or using helpers method
+		// or using helpers method
 		mOrder = xena.CreateStopOrder(xena.ID("stop-order"), symbol, xena.SideSell, "1", accountId, fmt.Sprintf("%.1f", bestBid-10)).SetText("my comment").SetPositionId(positionId).Build()
 		resp, err = client.NewOrder(mOrder)
 		log.Printf("resp: %s\n", resp)
@@ -186,7 +186,7 @@ func main() {
 		}
 	}
 	examples["mass-cancel-1"] = func() {
-		//example_of_mass_cancel
+		// example_of_mass_cancel
 		massCancel := xena.CreateOrderMassCancel(accountId, xena.ID("mass-cancel-1-"))
 		resp, err := client.SendMassCancelCmd(massCancel.Build())
 		log.Printf("resp: %s\n", resp)

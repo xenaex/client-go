@@ -1,6 +1,6 @@
 package xena
 
-//Symbol is an instrument.
+// Symbol is an instrument.
 type Symbol string
 type Side string
 type DOMThrottle string
@@ -9,7 +9,7 @@ type TradesThrottle string
 type AggregateBook int64
 type PositionEffect string
 
-//MarketDepth is level depth limit in dom.
+// MarketDepth is level depth limit in dom.
 type MarketDepth int64
 
 func (s Symbol) String() string {

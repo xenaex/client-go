@@ -102,17 +102,6 @@ func (r *baseREST) post(query query, reqBody []byte) (*http.Response, []byte, er
 	return resp, respBody, err
 }
 
-func (r *baseREST) do(req *http.Request) error {
-	resp, err := r.http.Do(req)
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode == http.StatusOK {
-
-	}
-	return nil
-}
-
 func (r *baseREST) getHeaders(paramsHeaders map[string]string) map[string]string {
 	headers := make(map[string]string, 2)
 	headers["Accept"] = "application/json"
@@ -136,14 +125,14 @@ type restConf struct {
 
 type RestOption func(conf *restConf)
 
-//WithRestHost sets the url for connection.
+// WithRestHost sets the url for connection.
 func WithRestHost(url string) RestOption {
 	return func(conf *restConf) {
 		conf.host = url
 	}
 }
 
-//WithRestLogger sets custom logger.
+// WithRestLogger sets custom logger.
 func WithRestLogger(logger Logger) RestOption {
 	if logger != nil {
 		logger = newEmptyLogger()
@@ -153,12 +142,12 @@ func WithRestLogger(logger Logger) RestOption {
 	}
 }
 
-//WithRestMarketDataHost sets the url for connection to market data api.
+// WithRestMarketDataHost sets the url for connection to market data api.
 func WithRestMarketDataHost(conf *restConf) {
 	conf.host = "https://api.xena.exchange"
 }
 
-//WithRestMarketDataHost sets the url for connection to trading api.
+// WithRestMarketDataHost sets the url for connection to trading api.
 func WithRestTradingHost(conf *restConf) {
 	conf.host = "https://api.xena.exchange/trading"
 }
@@ -171,7 +160,7 @@ func withRestDefaultLogger(conf *restConf) {
 	conf.logger = newLogger(true)
 }
 
-//WithRestUserAgent sets user agent.
+// WithRestUserAgent sets user agent.
 func WithRestUserAgent(userAgent string) RestOption {
 	return func(conf *restConf) {
 		conf.userAgent = userAgent
@@ -231,7 +220,7 @@ func (q query) addQueryf(key string, value interface{}) query {
 			q.addQuery(key, fmt.Sprintf("%s", *t))
 		case *time.Time:
 			q.addQuery(key, fmt.Sprintf("%d", (*t).UnixNano()))
-			//default:
+			// default:
 			//	fmt.Printf("%s, %s\n", key, value)
 		}
 	}

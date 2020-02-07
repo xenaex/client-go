@@ -33,7 +33,7 @@ func main() {
 	if err != nil {
 		log.Printf("error %s on md.Connect()", err)
 	}
-	log.Printf("loggon message %s", resp)
+	log.Printf("logon message %s", resp)
 
 	id, err := md.SubscribeOnCandles(xena.XBTUSD.String(), "1m", handler, xena.ThrottleCandles1s, xena.AggregateBook25)
 	log.Println(id, err)
@@ -52,7 +52,7 @@ func handler(md xena.MarketDataClient, r *xmsg.MarketDataRequestReject, m *xmsg.
 #### Trading websocket example
 
 Register an account with [Xena](https://trading.xena.exchange/registration). Generate an API Key and assign relevant permissions.
-	
+
 ```go
 package main
 
@@ -84,7 +84,7 @@ func main() {
 
 	resp, err := client.ConnectAndLogon()
 	if err != nil {
-		log.Printf("loggon err: %s\n", err)
+		log.Printf("logon err: %s\n", err)
 		return
 	} else {
 		log.Printf("resp: %s\n", resp)

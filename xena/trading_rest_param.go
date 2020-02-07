@@ -1,10 +1,7 @@
 package xena
 
 import (
-	"strconv"
 	"time"
-
-	"github.com/xenaex/client-go/xena/xmsg"
 )
 
 type PositionsHistoryRequest struct {
@@ -77,26 +74,6 @@ func (p PositionsHistoryRequest) SetPage(limit, pageNumber int) PositionsHistory
 	p.PageNumber = &pageNumber
 	return p
 
-}
-
-func (t *tradingREST) GetPositionsHistory(accountId uint64, request PositionsHistoryRequest) ([]*xmsg.PositionReport, error) {
-	query := newQuery("accounts", strconv.FormatUint(accountId, 10), "positions-history")
-	query.addQueryf("id", request.PositionId)
-	query.addQueryf("parentid", request.ParentPositionId)
-	query.addQueryf("symbol", request.Symbol)
-	query.addQueryf("openfrom", request.OpenFrom)
-	query.addQueryf("opento", request.OpenTo)
-	query.addQueryf("closefrom", request.CloseFrom)
-	query.addQueryf("closeto", request.CloseTo)
-	query.addQueryf("page", request.PageNumber)
-	query.addQueryf("limit", request.Limit)
-
-	resp := make([]*xmsg.PositionReport, 0)
-	err := t.sendGet(query, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
 }
 
 type TradeHistoryRequest struct {

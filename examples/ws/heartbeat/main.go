@@ -39,7 +39,7 @@ func main() {
 	})
 	resp, err := client.ConnectAndLogon()
 	if err != nil {
-		log.Printf("loggon err: %s\n", err)
+		log.Printf("logon err: %s\n", err)
 	} else {
 		log.Printf("resp: %s\n", resp)
 		if len(resp.RejectText) > 0 {

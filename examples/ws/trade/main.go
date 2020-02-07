@@ -55,7 +55,7 @@ func main() {
 	)
 	resp, err := client.ConnectAndLogon()
 	if err != nil {
-		log.Printf("loggon err: %s\n", err)
+		log.Printf("logon err: %s\n", err)
 		return
 	}
 	log.Printf("resp: %s\n", resp)

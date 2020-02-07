@@ -20,7 +20,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-//IsMargin returns true if accountId is margin account.
+// IsMargin returns true if accountId is margin account.
 func IsMargin(accountId uint64) bool {
 	if accountId > 1000000000 {
 		return true
@@ -28,7 +28,7 @@ func IsMargin(accountId uint64) bool {
 	return false
 }
 
-//ID function generates new random id.
+// ID function generates new random id.
 func ID(prefix string) string {
 	if len(prefix) > maxIdLen {
 		return prefix[:maxIdLen]
@@ -48,7 +48,7 @@ func randString(n int) string {
 	return string(b)
 }
 
-//CreateMarketIfTouchOrder creates new builder of market-if-touch order.
+// CreateMarketIfTouchOrder creates new builder of market-if-touch order.
 func CreateMarketIfTouchOrder(clOrdId string, symbol string, side Side, orderQty string, account uint64, stopPx string) marketIfTouchOrder {
 	return marketIfTouchOrder{
 		order: baseOrder{
@@ -57,7 +57,7 @@ func CreateMarketIfTouchOrder(clOrdId string, symbol string, side Side, orderQty
 	}
 }
 
-//CreateMarketOrder creates new builder of market order.
+// CreateMarketOrder creates new builder of market order.
 func CreateMarketOrder(clOrdId string, symbol string, side Side, orderQty string, account uint64) marketOrder {
 	return marketOrder{
 		order: baseOrder{
@@ -66,7 +66,7 @@ func CreateMarketOrder(clOrdId string, symbol string, side Side, orderQty string
 	}
 }
 
-//CreateLimitOrder creates new builder of limit order.
+// CreateLimitOrder creates new builder of limit order.
 func CreateLimitOrder(clOrdId string, symbol string, side Side, orderQty string, account uint64, price string) limitOrder {
 	return limitOrder{
 		order: baseOrder{
@@ -75,7 +75,7 @@ func CreateLimitOrder(clOrdId string, symbol string, side Side, orderQty string,
 	}
 }
 
-//CreateStopOrder creates new builder of stop order.
+// CreateStopOrder creates new builder of stop order.
 func CreateStopOrder(clOrdId string, symbol string, side Side, orderQty string, account uint64, stopPx string) stopOrder {
 	return stopOrder{
 		order: baseOrder{
@@ -84,12 +84,12 @@ func CreateStopOrder(clOrdId string, symbol string, side Side, orderQty string, 
 	}
 }
 
-//CreateOrderMassCancel creates new builder of mass cancel order.
+// CreateOrderMassCancel creates new builder of mass cancel order.
 func CreateOrderMassCancel(account uint64, clOrdId string) orderMassCancel {
 	return newOrderMassCancel(account, clOrdId)
 }
 
-//CreateReplace creates new cancel request and replace request of order, based on execution report.
+// CreateReplace creates new cancel request and replace request of order, based on execution report.
 func CreateReplace(replaceId string, executionReport *xmsg.ExecutionReport) xmsg.OrderCancelReplaceRequest {
 	cmd := xmsg.OrderCancelReplaceRequest{}
 	cmd.MsgType = xmsg.MsgType_OrderCancelReplaceRequestMsgType
@@ -122,7 +122,7 @@ func CreateReplace(replaceId string, executionReport *xmsg.ExecutionReport) xmsg
 	return cmd
 }
 
-//CreateCancelRequestFromExecutionReport creates new cancel request of order, based on execution report.
+// CreateCancelRequestFromExecutionReport creates new cancel request of order, based on execution report.
 func CreateCancelRequestFromExecutionReport(cancelID string, executionReport *xmsg.ExecutionReport) *xmsg.OrderCancelRequest {
 	cmd := &xmsg.OrderCancelRequest{}
 	cmd.MsgType = xmsg.MsgType_OrderCancelRequestMsgType

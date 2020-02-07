@@ -13,98 +13,98 @@ const (
 	wsTradingURL = "ws://localhost/api/ws/trading"
 )
 
-//TradingDisconnectHandler function is a disconnect handler.
+// TradingDisconnectHandler function is a disconnect handler.
 type TradingDisconnectHandler func(client TradingClient, logger Logger)
 
-//TradingClient is websocket client interface of the Xena trading api.
+// TradingClient is websocket client interface of the Xena trading api.
 type TradingClient interface {
-	//ListenLogon subscribes to Logon event.
+	// ListenLogon subscribes to Logon event.
 	ListenLogon(handler LogonHandler)
-	//ListenMarginRequirementReport subscribes to MarginRequirementReport event.
+	// ListenMarginRequirementReport subscribes to MarginRequirementReport event.
 	ListenMarginRequirementReport(handler MarginRequirementReportHandler)
-	//ListenExecutionReport subscribes to ExecutionReport event.
+	// ListenExecutionReport subscribes to ExecutionReport event.
 	ListenExecutionReport(handler ExecutionReportHandler)
-	//ListenOrderCancelReject subscribes to OrderCancelReject event.
+	// ListenOrderCancelReject subscribes to OrderCancelReject event.
 	ListenOrderCancelReject(handler OrderCancelRejectHandler)
-	//ListenOrderMassStatusResponse subscribes to OrderMassStatusResponse event.
+	// ListenOrderMassStatusResponse subscribes to OrderMassStatusResponse event.
 	ListenOrderMassStatusResponse(handler OrderMassStatusResponseHandler)
-	//ListenBalanceIncrementalRefresh subscribes to BalanceIncrementalRefresh event.
+	// ListenBalanceIncrementalRefresh subscribes to BalanceIncrementalRefresh event.
 	ListenBalanceIncrementalRefresh(handler BalanceIncrementalRefreshHandler)
-	//ListenBalanceSnapshotRefresh subscribes to BalanceSnapshotRefresh event.
+	// ListenBalanceSnapshotRefresh subscribes to BalanceSnapshotRefresh event.
 	ListenBalanceSnapshotRefresh(handler BalanceSnapshotRefreshHandler)
-	//ListenPositionReport subscribes to PositionReport event.
+	// ListenPositionReport subscribes to PositionReport event.
 	ListenPositionReport(handler PositionReportHandler)
-	//ListenMassPositionReport subscribes to MassPositionReport event.
+	// ListenMassPositionReport subscribes to MassPositionReport event.
 	ListenMassPositionReport(handler MassPositionReportHandler)
-	//ListenPositionMaintenanceReport subscribes to PositionMaintenanceReport event.
+	// ListenPositionMaintenanceReport subscribes to PositionMaintenanceReport event.
 	ListenPositionMaintenanceReport(handler PositionMaintenanceReportHandler)
-	//ListenReject subscribes to Reject event.
+	// ListenReject subscribes to Reject event.
 	ListenReject(handler RejectHandler)
-	//ListenListStatus subscribes to ListStatus event.
+	// ListenListStatus subscribes to ListStatus event.
 	ListenListStatus(handler ListStatusHandler)
-	//ListenOrderMassCancelReport subscribes to OrderMassCancelReport event.
+	// ListenOrderMassCancelReport subscribes to OrderMassCancelReport event.
 	ListenOrderMassCancelReport(handler OrderMassCancelReportHandler)
-	//ListenHeartbeat subscribes to Heartbeat event.
+	// ListenHeartbeat subscribes to Heartbeat event.
 	ListenHeartbeat(handler HeartbeatHandler)
 
-	//ConnectAndLogon connects to websocket and sends Logon message.
-	//Logon.RejectText contains reject reason.
+	// ConnectAndLogon connects to websocket and sends Logon message.
+	// Logon.RejectText contains reject reason.
 	ConnectAndLogon() (*xmsg.Logon, error)
 
-	//Send function sends command to server.
+	// Send function sends command to server.
 	Send(cmd interface{}) error
 
-	//AccountStatusReport requests an account status report.
-	//To receive a response, the client need listen ListenBalanceSnapshotRefresh.
+	// AccountStatusReport requests an account status report.
+	// To receive a response, the client should listen for ListenBalanceSnapshotRefresh.
 	AccountStatusReport(account uint64, requestId string) error
 
-	//GetPositions requests all positions.
-	//To receive a response, the client need listen ListenMassPositionReport.
+	// GetPositions requests all positions.
+	// To receive a response, the client should listen for ListenMassPositionReport.
 	GetPositions(account uint64, requestId string) error
 
-	//Orders requests all orders and all fills.
-	//To receive a response, the client need listen ListenOrderMassStatusResponse.
+	// Orders requests all orders and all fills.
+	// To receive a response, the client should listen for ListenOrderMassStatusResponse.
 	Orders(account uint64, requestId string) error
 
-	//MarketOrder places new market order.
+	// MarketOrder places new market order.
 	MarketOrder(account uint64, clOrdId string, symbol string, side Side, orderQty string) error
 
-	//LimitOrder places new limit order.
+	// LimitOrder places new limit order.
 	LimitOrder(account uint64, clOrdId string, symbol string, side Side, price string, orderQty string) error
 
-	//StopOrder places new stop order.
+	// StopOrder places new stop order.
 	StopOrder(account uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) error
 
-	//MarketIfTouchOrder places new market-if-touch order.
+	// MarketIfTouchOrder places new market-if-touch order.
 	MarketIfTouchOrder(account uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) error
 
-	//Cancel function cancels an existing order.
+	// Cancel function cancels an existing order.
 	Cancel(cmd *xmsg.OrderCancelRequest) error
 
-	//CancelByClOrdId cancels an existing order by original client order id.
+	// CancelByClOrdId cancels an existing order by original client order id.
 	CancelByClOrdId(account uint64, clOrdId, origClOrdId, symbol string, side Side) error
 
-	//CancelByOrderId cancels an existing order by order id.
+	// CancelByOrderId cancels an existing order by order id.
 	CancelByOrderId(account uint64, clOrdId, orderId, symbol string, side Side) error
 
-	//MassCancel cancels all existing orders.
-	//To receive a response, the client need listen ListenOrderMassCancelReport.
+	// MassCancel cancels all existing orders.
+	// To receive a response, the client should listen for ListenOrderMassCancelReport.
 	MassCancel(account uint64, clOrdId string) error
 
-	//Replace cancels existing order and replaces by new order.
+	// Replace cancels existing order and replaces by new order.
 	Replace(request xmsg.OrderCancelReplaceRequest) error
 
-	//CollapsePositions collapses all existing positions for margin account and symbol.
+	// CollapsePositions collapses all existing positions for margin account and symbol.
 	CollapsePositions(account uint64, symbol string, requestId string) error
 
-	//SetDisconnectHandler subscribes to disconnect event.
+	// SetDisconnectHandler subscribes to disconnect events.
 	SetDisconnectHandler(handler TradingDisconnectHandler)
 
-	//SendApplicationHeartbeat sends application heartbeat.
-	SendApplicationHeartbeat(GrpID string, HeartBtInt int32) error
+	// SendApplicationHeartbeat sends application heartbeat.
+	SendApplicationHeartbeat(groupId string, heartbeatInSec int32) error
 }
 
-//DefaultTradingDisconnectHandler default handler reconnects and logs on.
+// DefaultTradingDisconnectHandler is a default reconnects handler.
 func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 	go func(client TradingClient) {
 		time.Sleep(time.Second)
@@ -118,7 +118,7 @@ func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 	}(client)
 }
 
-//NewTradingClient creates websocket client of Xena trading.
+// NewTradingClient creates websocket client of Xena trading.
 func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient {
 	t := &tradingClient{
 		apiKey:    apiKey,
@@ -184,46 +184,46 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	return nil, fmt.Errorf("login response didn't come")
 }
 
-//LogonHandler is used to handling logon message.
+// LogonHandler is used to handling logon message.
 type LogonHandler func(t TradingClient, m *xmsg.Logon)
 
-//MarginRequirementReportHandler is used to handling MarginRequirementReport message.
+// MarginRequirementReportHandler is used to handling MarginRequirementReport message.
 type MarginRequirementReportHandler func(t TradingClient, m *xmsg.MarginRequirementReport)
 
-//BalanceIncrementalRefreshHandler is used to handling BalanceIncrementalRefresh message.
+// BalanceIncrementalRefreshHandler is used to handling BalanceIncrementalRefresh message.
 type BalanceIncrementalRefreshHandler func(t TradingClient, m *xmsg.BalanceIncrementalRefresh)
 
-//BalanceSnapshotRefreshHandler is used to handling BalanceSnapshotRefresh message.
+// BalanceSnapshotRefreshHandler is used to handling BalanceSnapshotRefresh message.
 type BalanceSnapshotRefreshHandler func(t TradingClient, m *xmsg.BalanceSnapshotRefresh)
 
-//ExecutionReportHandler is used to handling ExecutionReport message.
+// ExecutionReportHandler is used to handling ExecutionReport message.
 type ExecutionReportHandler func(t TradingClient, m *xmsg.ExecutionReport)
 
-//OrderCancelRejectHandler is used to handling OrderCancelReject message.
+// OrderCancelRejectHandler is used to handling OrderCancelReject message.
 type OrderCancelRejectHandler func(t TradingClient, m *xmsg.OrderCancelReject)
 
-//OrderMassStatusResponseHandler is used to handling OrderMassStatusResponse message.
+// OrderMassStatusResponseHandler is used to handling OrderMassStatusResponse message.
 type OrderMassStatusResponseHandler func(t TradingClient, m *xmsg.OrderMassStatusResponse)
 
-//PositionReportHandler is used to handling PositionReport message.
+// PositionReportHandler is used to handling PositionReport message.
 type PositionReportHandler func(t TradingClient, m *xmsg.PositionReport)
 
-//MassPositionReportHandler is used to handling MassPositionReport message.
+// MassPositionReportHandler is used to handling MassPositionReport message.
 type MassPositionReportHandler func(t TradingClient, m *xmsg.MassPositionReport)
 
-//PositionMaintenanceReportHandler is used to handling PositionMaintenanceReport message.
+// PositionMaintenanceReportHandler is used to handling PositionMaintenanceReport message.
 type PositionMaintenanceReportHandler func(t TradingClient, m *xmsg.PositionMaintenanceReport)
 
-//RejectHandler is used to handling Reject message.
+// RejectHandler is used to handling Reject message.
 type RejectHandler func(t TradingClient, m *xmsg.Reject)
 
-//ListStatusHandler is used to handling ListStatus message.
+// ListStatusHandler is used to handling ListStatus message.
 type ListStatusHandler func(t TradingClient, m *xmsg.ListStatus)
 
-//OrderMassCancelReportHandler is used to handling OrderMassCancelReport message.
+// OrderMassCancelReportHandler is used to handling OrderMassCancelReport message.
 type OrderMassCancelReportHandler func(t TradingClient, m *xmsg.OrderMassCancelReport)
 
-//HeartbeatHandler is used to handling Heartbeat message.
+// HeartbeatHandler is used to handling Heartbeat message.
 type HeartbeatHandler func(t TradingClient, m *xmsg.Heartbeat)
 
 type tradingClient struct {

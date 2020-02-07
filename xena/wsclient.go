@@ -46,7 +46,7 @@ func NewWsClient(opts ...WsOption) WsClient {
 	return &c
 }
 
-//WsClient is base websocket client interface of Xena.
+// WsClient is base websocket client interface of Xena.
 type WsClient interface {
 	IsConnected() bool
 	Connect() error
@@ -83,22 +83,22 @@ type wsClient struct {
 	close    bool
 }
 
-//Handler function is raw message handler.
+// Handler function is raw message handler.
 type Handler func(msg []byte)
 
-//ErrHandler function is a error handler.
+// ErrHandler function is a error handler.
 type ErrHandler func(err error)
 
-//ConnectHandler function is a connection handler.
+// ConnectHandler function is a connection handler.
 type ConnectHandler func(client WsClient)
 
-//DisconnectHandler function is a disconnect handler.
+// DisconnectHandler function is a disconnect handler.
 type DisconnectHandler func()
 
-//WsOption is function that alter behavior.
+// WsOption is function that alter behavior.
 type WsOption func(s *wsClient)
 
-//With applies modification of behavior.
+// With applies modification of behavior.
 func (c *wsClient) With(opt WsOption) {
 	opt(c)
 }
@@ -115,7 +115,7 @@ func (c *wsClient) initDefaultHandlers() {
 	c.disconnectHandler = func() {}
 }
 
-//Connect connects to the server
+// Connect connects to the server
 func (c *wsClient) Connect() error {
 	err := c.connect()
 	if err != nil {
@@ -125,7 +125,7 @@ func (c *wsClient) Connect() error {
 	return nil
 }
 
-//IsConnected returns true if the connection is established.
+// IsConnected returns true if the connection is established.
 func (c *wsClient) IsConnected() bool {
 	return c.conn != nil
 }
@@ -228,9 +228,9 @@ func (c *wsClient) listen() {
 		c.logger.Debugf("ws. disconnected")
 	}()
 
-	mgs := make(chan []byte)
+	msg := make(chan []byte)
 	go func() {
-		m := mgs
+		m := msg
 		defer close(m)
 		for {
 			conn := c.conn
@@ -253,9 +253,9 @@ func (c *wsClient) listen() {
 		select {
 		case <-c.stopChan:
 			return
-		case message, ok := <-mgs:
+		case message, ok := <-msg:
 			if !ok {
-				mgs = nil
+				msg = nil
 				continue
 			}
 			c.handleMsg(message)
@@ -295,13 +295,7 @@ func (c *wsClient) handleMsg(msg []byte) {
 	if str != heartbeatMsg || !c.disablePingLog {
 		c.logger.Debugf("ws. received: %s", str)
 	}
-
-	switch str {
-	case heartbeatMsg:
-		c.handler(msg)
-	default:
-		c.handler(msg)
-	}
+	c.handler(msg)
 }
 
 func (c *wsClient) handleError(err error) {
@@ -309,12 +303,12 @@ func (c *wsClient) handleError(err error) {
 	c.errHandler(err)
 }
 
-//setDisconnectHandler subscribes to disconnect event.
+// setDisconnectHandler subscribes to disconnect event.
 func (c *wsClient) setDisconnectHandler(handler DisconnectHandler) {
 	c.disconnectHandler = handler
 }
 
-//setConnectInternalHandler subscribes to connection event.
+// setConnectInternalHandler subscribes to connection event.
 func (c *wsClient) setConnectInternalHandler(handler ConnectHandler) {
 	c.connectInternalHandler = handler
 }

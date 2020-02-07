@@ -10,7 +10,7 @@ import (
 	"github.com/xenaex/client-go/xena/xmsg"
 )
 
-//NewTradingREST creates rest client of Xena trading api.
+// NewTradingREST creates rest client of Xena trading api.
 func NewTradingREST(apiKey, apiSecret string, options ...RestOption) TradingREST {
 	cfg := &restConf{}
 	for _, ots := range []RestOption{withRestDefaultLogger, WithRestTradingHost, withRestDefaultTimeout, WithRestUserAgent(userAgent), withRestHeader("X-Auth-Api-Key", apiKey)} {
@@ -25,63 +25,63 @@ func NewTradingREST(apiKey, apiSecret string, options ...RestOption) TradingREST
 	}
 }
 
-//TradingClient is rest client interface of the Xena trading api.
+// TradingClient is rest client interface of the Xena trading api.
 type TradingREST interface {
-	//NewOrder places new order.
+	// NewOrder places new order.
 	NewOrder(cmd *xmsg.NewOrderSingle) (*xmsg.ExecutionReport, error)
 
-	//SendMarketOrder places new market order.
+	// SendMarketOrder places new market order.
 	SendMarketOrder(accountId uint64, clOrdId string, symbol string, side Side, orderQty string) (*xmsg.ExecutionReport, error)
 
-	//SendLimitOrder places new limit order.
+	// SendLimitOrder places new limit order.
 	SendLimitOrder(accountId uint64, clOrdId string, symbol string, side Side, price string, orderQty string) (*xmsg.ExecutionReport, error)
 
-	//SendStopOrder places new stop order.
+	// SendStopOrder places new stop order.
 	SendStopOrder(accountId uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) (*xmsg.ExecutionReport, error)
 
-	//SendMarketIfTouchOrder place new market-if-touch order.
+	// SendMarketIfTouchOrder place new market-if-touch order.
 	SendMarketIfTouchOrder(accountId uint64, clOrdId string, symbol string, side Side, stopPx string, orderQty string) (*xmsg.ExecutionReport, error)
 
-	//SendCancel function cancels existing order.
+	// SendCancel function cancels existing order.
 	SendCancel(cmd *xmsg.OrderCancelRequest) (*xmsg.ExecutionReport, error)
 
-	//SendMassCancelCmd cancels all existing orders.
+	// SendMassCancelCmd cancels all existing orders.
 	SendMassCancelCmd(cmd *xmsg.OrderMassCancelRequest) (*xmsg.ExecutionReport, error)
 
-	//SendCancelByClOrdId cancels existing order by original client order id.
+	// SendCancelByClOrdId cancels existing order by original client order id.
 	SendCancelByClOrdId(account uint64, clOrdId, origClOrdId, symbol string, side Side) (*xmsg.ExecutionReport, error)
 
-	//SendCancelByOrderId cancels existing order by order id.
+	// SendCancelByOrderId cancels existing order by order id.
 	SendCancelByOrderId(account uint64, clOrdId, orderId, symbol string, side Side) (*xmsg.ExecutionReport, error)
 
-	//SendMassCancel cancels all existing orders.
+	// SendMassCancel cancels all existing orders.
 	SendMassCancel(account uint64, clOrdId string) (*xmsg.ExecutionReport, error)
 
-	//SendReplace cancels existing order and replaces by new order.
+	// SendReplace cancels existing order and replaces by new order.
 	SendReplace(request xmsg.OrderCancelReplaceRequest) (*xmsg.ExecutionReport, error)
 
-	//SendCollapsePositions collapses all existing positions for margin account and symbol.
+	// SendCollapsePositions collapses all existing positions for margin account and symbol.
 	SendCollapsePositions(account uint64, symbol string, requestId string) (*xmsg.PositionMaintenanceReport, error)
 
-	//GetPositions requests all positions.
+	// GetPositions requests all positions.
 	GetPositions(account uint64, requestId string) ([]*xmsg.PositionReport, error)
 
-	//GetPositionsHistory requests all positions history.
+	// GetPositionsHistory requests all positions history.
 	GetPositionsHistory(accountId uint64, request PositionsHistoryRequest) ([]*xmsg.PositionReport, error)
 
-	//GetOrders returns all orders and all fills.
+	// GetOrders returns all orders and all fills.
 	GetOrders(account uint64, requestId string) ([]*xmsg.ExecutionReport, error)
 
-	//GetTradeHistory returns trade history.
+	// GetTradeHistory returns trade history.
 	GetTradeHistory(accountId uint64, request TradeHistoryRequest) ([]*xmsg.ExecutionReport, error)
 
-	//GetTradeHistory returns balance.
+	// GetTradeHistory returns balance.
 	GetBalance(accountId uint64) (*xmsg.BalanceSnapshotRefresh, error)
 
-	//GetTradeHistory returns MarginRequirements.
+	// GetTradeHistory returns MarginRequirements.
 	GetMarginRequirements(accountId uint64) (*xmsg.MarginRequirementReport, error)
 
-	//GetTradeHistory returns accounts.
+	// GetTradeHistory returns accounts.
 	GetAccounts() ([]*xmsg.AccountInfo, error)
 }
 
@@ -264,6 +264,26 @@ func (t *tradingREST) sendGet(query query, ret interface{}) error {
 		t.config.logger.Errorf("%s. on json.Unmarshal(%s)", err, string(body))
 	}
 	return err
+}
+
+func (t *tradingREST) GetPositionsHistory(accountId uint64, request PositionsHistoryRequest) ([]*xmsg.PositionReport, error) {
+	query := newQuery("accounts", strconv.FormatUint(accountId, 10), "positions-history")
+	query.addQueryf("id", request.PositionId)
+	query.addQueryf("parentid", request.ParentPositionId)
+	query.addQueryf("symbol", request.Symbol)
+	query.addQueryf("openfrom", request.OpenFrom)
+	query.addQueryf("opento", request.OpenTo)
+	query.addQueryf("closefrom", request.CloseFrom)
+	query.addQueryf("closeto", request.CloseTo)
+	query.addQueryf("page", request.PageNumber)
+	query.addQueryf("limit", request.Limit)
+
+	resp := make([]*xmsg.PositionReport, 0)
+	err := t.sendGet(query, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (t *tradingREST) GetOrders(account uint64, requestId string) ([]*xmsg.ExecutionReport, error) {

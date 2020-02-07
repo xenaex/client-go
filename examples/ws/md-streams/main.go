@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Printf("error %s on md.Connect()", err)
 	}
-	log.Printf("loggon message %s", resp)
+	log.Printf("logon message %s", resp)
 
 	id := ""
 	id, err = md.SubscribeOnCandles(xena.XBTUSD.String(), "1m", handler, xena.ThrottleCandles1s, xena.AggregateBook25)
