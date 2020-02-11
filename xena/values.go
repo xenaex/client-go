@@ -25,7 +25,7 @@ const (
 	SideBuy  Side = "1"
 	SideSell Side = "2"
 
-	ThrottleDOMDefault DOMThrottle = ""
+	ThrottleDOMDefault DOMThrottle = "0s"
 	ThrottleDOM500ms   DOMThrottle = "500ms"
 	ThrottleDOM5s      DOMThrottle = "5s"
 
