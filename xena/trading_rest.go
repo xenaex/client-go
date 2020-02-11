@@ -344,7 +344,7 @@ func (t *tradingREST) SendApplicationHeartbeat(groupId string, heartbeatInSec in
 		GrpID:      groupId,
 		HeartBtInt: heartbeatInSec,
 	}
-	query := newQuery("position", "heartbeat")
+	query := newQuery("order", "heartbeat")
 	err := t.sendPost(query, &cmd, nil)
 	if err != nil {
 		return err
