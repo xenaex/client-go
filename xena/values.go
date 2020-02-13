@@ -29,11 +29,11 @@ const (
 	ThrottleDOM500ms   DOMThrottle = "500ms"
 	ThrottleDOM5s      DOMThrottle = "5s"
 
-	ThrottleCandlesDefault CandlesThrottle = ""
+	ThrottleCandlesDefault CandlesThrottle = "0s"
 	ThrottleCandles250ms   CandlesThrottle = "250ms"
 	ThrottleCandles1s      CandlesThrottle = "1s"
 
-	ThrottleTradesDefault TradesThrottle = ""
+	ThrottleTradesDefault TradesThrottle = "0s"
 	ThrottleTrades500ms   TradesThrottle = "500ms"
 	ThrottleTrades5s      TradesThrottle = "5s"
 
