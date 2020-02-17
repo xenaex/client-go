@@ -50,6 +50,7 @@ func main() {
 	client = xena.NewTradingClient(
 		apiKey,
 		apiSecret,
+		nil,
 		xena.WithTradingURL(),
 		xena.WithDebug(),
 	)

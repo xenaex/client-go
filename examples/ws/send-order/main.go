@@ -29,7 +29,7 @@ func main() {
 		return
 	}
 
-	var client = xena.NewTradingClient(apiKey, apiSecret, xena.WithTradingURL(), xena.WithDebug(), xena.WithURL("ws://api.xena.rc/ws/trading"))
+	var client = xena.NewTradingClient(apiKey, apiSecret, []uint64{}, xena.WithTradingURL(), xena.WithDebug(), xena.WithURL("ws://api.xena.rc/ws/trading"))
 	client.SetDisconnectHandler(xena.DefaultTradingDisconnectHandler)
 
 	client.ListenBalanceIncrementalRefresh(onBalanceIncrementalRefreshHandler)

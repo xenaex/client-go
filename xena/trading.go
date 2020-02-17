@@ -120,10 +120,14 @@ func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 }
 
 // NewTradingClient creates websocket client of Xena trading.
-func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient {
+func NewTradingClient(apiKey, apiSecret string, accounts []uint64, opts ...WsOption) TradingClient {
+	if accounts == nil {
+		accounts = make([]uint64, 0)
+	}
 	t := &tradingClient{
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
+		accounts:  accounts,
 	}
 
 	defaultOpts := []WsOption{
@@ -229,6 +233,7 @@ type tradingClient struct {
 	client    WsClient
 	apiKey    string
 	apiSecret string
+	accounts  []uint64
 	handlers  struct {
 		heartbeat                 HeartbeatHandler
 		balanceSnapshotRefresh    BalanceSnapshotRefreshHandler
@@ -589,6 +594,7 @@ func (t *tradingClient) loginCmd() []byte {
 		Username:    t.apiKey,
 		Password:    sigHex,
 		RawData:     payload,
+		Account:     t.accounts,
 	}
 	cmd, _ := fixjson.Marshal(logonCmd)
 
