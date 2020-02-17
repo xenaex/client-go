@@ -18,12 +18,22 @@ func main() {
 		xena.WithMarketDataURL(),
 	)
 	md.SetDisconnectHandler(xena.DefaultMarketDisconnectHandler)
-	resp, err := md.Connect()
-	if err != nil {
-		log.Printf("error %s on md.Connect()", err)
-	}
-	log.Printf("logon message %s", resp)
 
+	var err error
+	var resp *xmsg.Logon
+	for {
+		resp, err = md.Connect()
+		if err != nil {
+			log.Printf("error %s on md.Connect()", err)
+			time.Sleep(time.Second)
+			continue
+		}
+		log.Printf("logon message %s", resp)
+		if len(resp.RejectText) > 0 {
+			return
+		}
+		break
+	}
 	id := ""
 	id, err = md.SubscribeOnCandles(xena.XBTUSD.String(), "1m", handler, xena.ThrottleCandles1s, xena.AggregateBook25)
 	log.Println(id, err)

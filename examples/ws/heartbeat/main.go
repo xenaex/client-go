@@ -24,6 +24,7 @@ func main() {
 	}
 
 	var err error
+	var resp *xmsg.Logon
 	client := xena.NewTradingClient(
 		apiKey,
 		apiSecret,
@@ -37,13 +38,16 @@ func main() {
 			connected <- struct{}{}
 		}
 	})
-	resp, err := client.ConnectAndLogon()
-	if err != nil {
-		log.Printf("logon err: %s\n", err)
-	} else {
-		log.Printf("resp: %s\n", resp)
-		if len(resp.RejectText) > 0 {
-			return
+	for {
+		resp, err = client.ConnectAndLogon()
+		if err != nil {
+			log.Printf("logon err: %s\n", err)
+		} else {
+			log.Printf("resp: %s\n", resp)
+			if len(resp.RejectText) > 0 {
+				return
+			}
+			break
 		}
 	}
 	<-connected

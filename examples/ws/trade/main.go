@@ -53,14 +53,19 @@ func main() {
 		xena.WithTradingURL(),
 		xena.WithDebug(),
 	)
-	resp, err := client.ConnectAndLogon()
-	if err != nil {
-		log.Printf("logon err: %s\n", err)
-		return
-	}
-	log.Printf("resp: %s\n", resp)
-	if len(resp.RejectText) > 0 {
-		return
+	var logonResponse *xmsg.Logon
+	for {
+		logonResponse, err = client.ConnectAndLogon()
+		if err != nil {
+			log.Printf("logon err: %s\n", err)
+			time.Sleep(time.Second)
+			continue
+		}
+		log.Printf("resp: %s\n", logonResponse)
+		if len(logonResponse.RejectText) > 0 {
+			return
+		}
+		break
 	}
 
 	bestAsk, bestBid = GetBests(symbol)

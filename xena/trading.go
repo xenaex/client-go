@@ -106,7 +106,7 @@ type TradingClient interface {
 
 // DefaultTradingDisconnectHandler is a default reconnects handler.
 func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
-	go func(client TradingClient) {
+	for {
 		time.Sleep(time.Second)
 		logonResponse, err := client.ConnectAndLogon()
 		if err != nil {
@@ -114,8 +114,9 @@ func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 		}
 		if err == nil {
 			logger.Debugf("GOT logonResponse ", logonResponse)
+			break
 		}
-	}(client)
+	}
 }
 
 // NewTradingClient creates websocket client of Xena trading.
@@ -172,15 +173,13 @@ func (t *tradingClient) ConnectAndLogon() (*xmsg.Logon, error) {
 	select {
 	case m, ok := <-logMgs:
 		if ok && m != nil {
-			if len(m.RejectText) != 0 {
-				return nil, fmt.Errorf("reject reason: %s", m.RejectText)
-			}
 			return m, nil
 		}
 	case <-time.NewTimer(t.client.getConf().connectTimeoutInterval).C:
 		t.client.Close()
 		return nil, fmt.Errorf("timeout logon")
 	}
+	t.client.Close()
 	return nil, fmt.Errorf("login response didn't come")
 }
 

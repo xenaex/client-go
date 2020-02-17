@@ -78,15 +78,16 @@ type marketData struct {
 
 // DefaultMarketDisconnectHandler is a default reconnects handler.
 func DefaultMarketDisconnectHandler(client MarketDataClient, logger Logger) {
-	go func(client MarketDataClient) {
+	for {
 		time.Sleep(time.Second)
 		logonResponse, err := client.Connect()
 		if err != nil {
 			logger.Errorf("%s on client.ConnectAndLogon()\n", err)
 		} else {
 			logger.Debugf("GOT logonResponse ", logonResponse)
+			break
 		}
-	}(client)
+	}
 }
 
 // NewMarketData creates websocket client of Xena market data.
@@ -127,15 +128,13 @@ func (m *marketData) Connect() (*xmsg.Logon, error) {
 	select {
 	case m, ok := <-logMsg:
 		if ok && m != nil {
-			if len(m.RejectText) != 0 {
-				return nil, fmt.Errorf("reject reason: %s", m.RejectText)
-			}
 			return m, nil
 		}
 	case <-time.NewTimer(m.client.getConf().connectTimeoutInterval).C:
 		m.client.Close()
 		return nil, fmt.Errorf("timeout logon")
 	}
+	m.client.Close()
 	return nil, fmt.Errorf("login response didn't come")
 }
 

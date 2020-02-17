@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/xenaex/client-go/xena"
 	"github.com/xenaex/client-go/xena/xmsg"
@@ -28,7 +29,7 @@ func main() {
 		return
 	}
 
-	var client = xena.NewTradingClient(apiKey, apiSecret, xena.WithTradingURL(), xena.WithDebug())
+	var client = xena.NewTradingClient(apiKey, apiSecret, xena.WithTradingURL(), xena.WithDebug(), xena.WithURL("ws://api.xena.rc/ws/trading"))
 	client.SetDisconnectHandler(xena.DefaultTradingDisconnectHandler)
 
 	client.ListenBalanceIncrementalRefresh(onBalanceIncrementalRefreshHandler)
@@ -44,9 +45,20 @@ func main() {
 	client.ListenPositionReport(onPositionReportHandler)
 	client.ListenReject(onRejectHandler)
 
-	logonResponse, err := client.ConnectAndLogon()
-	if err != nil {
-		log.Println(err)
+	var err error
+	var logonResponse *xmsg.Logon
+	for {
+		logonResponse, err = client.ConnectAndLogon()
+		if err != nil {
+			log.Printf("logon err: %s\n", err)
+			time.Sleep(time.Second)
+			continue
+		}
+		log.Printf("resp: %s\n", logonResponse)
+		if len(logonResponse.RejectText) > 0 {
+			return
+		}
+		break
 	}
 	log.Println("GOT logonResponse ", logonResponse)
 	log.Println("logon completed")

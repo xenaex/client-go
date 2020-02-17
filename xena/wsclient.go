@@ -185,7 +185,7 @@ func (c *wsClient) connect() error {
 
 	err := c.connectAndListen()
 	if err != nil {
-		c.logger.Errorf("%s on c.connectAndListen()")
+		c.logger.Errorf("%s on c.connectAndListen()", err)
 		return err
 	}
 
@@ -198,7 +198,6 @@ func (c *wsClient) connectAndListen() error {
 	if err != nil {
 		c.logger.Errorf("%s on websocket.DefaultDialer.Dial(%s)", err, c.url)
 		c.handleError(err)
-		c.disconnectHandler()
 		return err
 	}
 	// OK
