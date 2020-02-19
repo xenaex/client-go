@@ -308,6 +308,14 @@ func main() {
 			}
 		}
 	}
+	examples["heartbeat"] = func() {
+		gid := "42"
+		hb := int32(42)
+		err := client.SendApplicationHeartbeat(gid, hb)
+		if err != nil {
+			log.Printf("error: %v on SendApplicationHeartbeat(%s, %d)", err, gid, hb)
+		}
+	}
 
 	for i, a := range os.Args {
 		log.Printf("%d - %s\n", i, a)

@@ -243,6 +243,31 @@ func (t *tradingREST) sendPost(query query, cmd, ret interface{}) error {
 	return err
 }
 
+func (t *tradingREST) sendPostWithoutResp(query query, cmd interface{}) error {
+	data, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	query, err = query.addSecret(t.apiSecret)
+	if err != nil {
+		t.config.logger.Errorf("%s on query.addSecret()", err)
+		return nil
+	}
+	resp, body, err := t.post(query, data)
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("%s, body %s", resp.Status, string(body))
+	}
+
+	return err
+}
+
 func (t *tradingREST) sendGet(query query, ret interface{}) error {
 	query, err := query.addSecret(t.apiSecret)
 	if err != nil {
@@ -348,7 +373,7 @@ func (t *tradingREST) SendApplicationHeartbeat(groupId string, heartbeatInSec in
 		HeartBtInt: heartbeatInSec,
 	}
 	query := newQuery("order", "heartbeat")
-	err := t.sendPost(query, &cmd, nil)
+	err := t.sendPostWithoutResp(query, &cmd)
 	if err != nil {
 		return err
 	}
