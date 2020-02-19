@@ -83,6 +83,9 @@ type TradingREST interface {
 
 	// GetTradeHistory returns accounts.
 	GetAccounts() ([]*xmsg.AccountInfo, error)
+
+	// SendApplicationHeartbeat sends application heartbeat.
+	SendApplicationHeartbeat(groupId string, heartbeatInSec int32) error
 }
 
 type tradingREST struct {
