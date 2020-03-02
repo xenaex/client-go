@@ -28,6 +28,7 @@ func main() {
 	client := xena.NewTradingClient(
 		apiKey,
 		apiSecret,
+		[]uint64{accountId},
 		xena.WithTradingURL(),
 		xena.WithDebug(),
 	)

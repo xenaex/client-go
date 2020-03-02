@@ -3,11 +3,10 @@
 package xmsg
 
 import (
-	"encoding/json"
-
-	"github.com/mailru/easyjson"
-	"github.com/mailru/easyjson/jlexer"
-	"github.com/mailru/easyjson/jwriter"
+	json "encoding/json"
+	easyjson "github.com/mailru/easyjson"
+	jlexer "github.com/mailru/easyjson/jlexer"
+	jwriter "github.com/mailru/easyjson/jwriter"
 )
 
 // suppress unused package warning
@@ -107,7 +106,138 @@ func (v TriggeringInstruction) MarshalEasyJSON(w *jwriter.Writer) {
 func (v *TriggeringInstruction) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg1(in *jlexer.Lexer, out *SLTP) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg1(in *jlexer.Lexer, out *TradeCaptureReportRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeString()
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "msgType":
+			out.MsgType = string(in.String())
+		case "tradeRequestID":
+			out.TradeRequestID = string(in.String())
+		case "account":
+			out.Account = uint64(in.Uint64())
+		case "symbol":
+			out.Symbol = string(in.String())
+		case "transactTime":
+			if in.IsNull() {
+				in.Skip()
+				out.TransactTime = nil
+			} else {
+				in.Delim('[')
+				if out.TransactTime == nil {
+					if !in.IsDelim(']') {
+						out.TransactTime = make([]int64, 0, 8)
+					} else {
+						out.TransactTime = []int64{}
+					}
+				} else {
+					out.TransactTime = (out.TransactTime)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v1 int64
+					v1 = int64(in.Int64())
+					out.TransactTime = append(out.TransactTime, v1)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg1(out *jwriter.Writer, in TradeCaptureReportRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if in.MsgType != "" {
+		const prefix string = ",\"msgType\":"
+		first = false
+		out.RawString(prefix[1:])
+		out.String(string(in.MsgType))
+	}
+	if in.TradeRequestID != "" {
+		const prefix string = ",\"tradeRequestID\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.TradeRequestID))
+	}
+	if in.Account != 0 {
+		const prefix string = ",\"account\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.Account))
+	}
+	if in.Symbol != "" {
+		const prefix string = ",\"symbol\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Symbol))
+	}
+	if len(in.TransactTime) != 0 {
+		const prefix string = ",\"transactTime\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
+			out.RawByte('[')
+			for v2, v3 := range in.TransactTime {
+				if v2 > 0 {
+					out.RawByte(',')
+				}
+				out.Int64(int64(v3))
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v TradeCaptureReportRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg1(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *TradeCaptureReportRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg1(l, v)
+}
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg2(in *jlexer.Lexer, out *SLTP) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -150,7 +280,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg1(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg1(out *jwriter.Writer, in SLTP) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer, in SLTP) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -225,14 +355,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg1(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SLTP) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg1(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg2(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SLTP) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg1(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg2(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg2(in *jlexer.Lexer, out *Reject) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg3(in *jlexer.Lexer, out *Reject) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -267,7 +397,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg2(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer, in Reject) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer, in Reject) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -302,14 +432,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Reject) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg2(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg3(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Reject) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg2(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg3(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg3(in *jlexer.Lexer, out *Partie) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg4(in *jlexer.Lexer, out *Partie) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -342,7 +472,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg3(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer, in Partie) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg4(out *jwriter.Writer, in Partie) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -367,14 +497,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Partie) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg3(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg4(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Partie) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg3(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg4(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg4(in *jlexer.Lexer, out *OrderStatusRequest) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg5(in *jlexer.Lexer, out *OrderStatusRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -395,10 +525,14 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg4(in *jlexer.Lexer, ou
 		switch key {
 		case "msgType":
 			out.MsgType = string(in.String())
-		case "massStatusReqId":
-			out.MassStatusReqId = string(in.String())
+		case "ordStatusReqId":
+			out.OrdStatusReqId = string(in.String())
 		case "account":
 			out.Account = uint64(in.Uint64())
+		case "clOrdId":
+			out.ClOrdId = string(in.String())
+		case "orderId":
+			out.OrderId = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -409,7 +543,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg4(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg4(out *jwriter.Writer, in OrderStatusRequest) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg5(out *jwriter.Writer, in OrderStatusRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -419,15 +553,15 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg4(out *jwriter.Writer,
 		out.RawString(prefix[1:])
 		out.String(string(in.MsgType))
 	}
-	if in.MassStatusReqId != "" {
-		const prefix string = ",\"massStatusReqId\":"
+	if in.OrdStatusReqId != "" {
+		const prefix string = ",\"ordStatusReqId\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
 		} else {
 			out.RawString(prefix)
 		}
-		out.String(string(in.MassStatusReqId))
+		out.String(string(in.OrdStatusReqId))
 	}
 	if in.Account != 0 {
 		const prefix string = ",\"account\":"
@@ -439,19 +573,39 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg4(out *jwriter.Writer,
 		}
 		out.Uint64(uint64(in.Account))
 	}
+	if in.ClOrdId != "" {
+		const prefix string = ",\"clOrdId\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.ClOrdId))
+	}
+	if in.OrderId != "" {
+		const prefix string = ",\"orderId\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.OrderId))
+	}
 	out.RawByte('}')
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OrderStatusRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg4(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg5(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OrderStatusRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg4(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg5(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg5(in *jlexer.Lexer, out *OrderMassStatusResponse) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg6(in *jlexer.Lexer, out *OrderMassStatusResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -476,64 +630,33 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg5(in *jlexer.Lexer, ou
 			out.MassStatusReqId = string(in.String())
 		case "account":
 			out.Account = uint64(in.Uint64())
-		case "orders":
+		case "executionReports":
 			if in.IsNull() {
 				in.Skip()
-				out.Orders = nil
+				out.ExecutionReports = nil
 			} else {
 				in.Delim('[')
-				if out.Orders == nil {
+				if out.ExecutionReports == nil {
 					if !in.IsDelim(']') {
-						out.Orders = make([]*ExecutionReport, 0, 8)
+						out.ExecutionReports = make([]*ExecutionReport, 0, 8)
 					} else {
-						out.Orders = []*ExecutionReport{}
+						out.ExecutionReports = []*ExecutionReport{}
 					}
 				} else {
-					out.Orders = (out.Orders)[:0]
+					out.ExecutionReports = (out.ExecutionReports)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v1 *ExecutionReport
+					var v4 *ExecutionReport
 					if in.IsNull() {
 						in.Skip()
-						v1 = nil
+						v4 = nil
 					} else {
-						if v1 == nil {
-							v1 = new(ExecutionReport)
+						if v4 == nil {
+							v4 = new(ExecutionReport)
 						}
-						(*v1).UnmarshalEasyJSON(in)
+						(*v4).UnmarshalEasyJSON(in)
 					}
-					out.Orders = append(out.Orders, v1)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "fills":
-			if in.IsNull() {
-				in.Skip()
-				out.Fills = nil
-			} else {
-				in.Delim('[')
-				if out.Fills == nil {
-					if !in.IsDelim(']') {
-						out.Fills = make([]*ExecutionReport, 0, 8)
-					} else {
-						out.Fills = []*ExecutionReport{}
-					}
-				} else {
-					out.Fills = (out.Fills)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v2 *ExecutionReport
-					if in.IsNull() {
-						in.Skip()
-						v2 = nil
-					} else {
-						if v2 == nil {
-							v2 = new(ExecutionReport)
-						}
-						(*v2).UnmarshalEasyJSON(in)
-					}
-					out.Fills = append(out.Fills, v2)
+					out.ExecutionReports = append(out.ExecutionReports, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -552,7 +675,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg5(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg5(out *jwriter.Writer, in OrderMassStatusResponse) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg6(out *jwriter.Writer, in OrderMassStatusResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -582,8 +705,8 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg5(out *jwriter.Writer,
 		}
 		out.Uint64(uint64(in.Account))
 	}
-	if len(in.Orders) != 0 {
-		const prefix string = ",\"orders\":"
+	if len(in.ExecutionReports) != 0 {
+		const prefix string = ",\"executionReports\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -592,30 +715,7 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg5(out *jwriter.Writer,
 		}
 		{
 			out.RawByte('[')
-			for v3, v4 := range in.Orders {
-				if v3 > 0 {
-					out.RawByte(',')
-				}
-				if v4 == nil {
-					out.RawString("null")
-				} else {
-					(*v4).MarshalEasyJSON(out)
-				}
-			}
-			out.RawByte(']')
-		}
-	}
-	if len(in.Fills) != 0 {
-		const prefix string = ",\"fills\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		{
-			out.RawByte('[')
-			for v5, v6 := range in.Fills {
+			for v5, v6 := range in.ExecutionReports {
 				if v5 > 0 {
 					out.RawByte(',')
 				}
@@ -653,14 +753,157 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg5(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OrderMassStatusResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg5(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg6(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OrderMassStatusResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg5(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg6(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg6(in *jlexer.Lexer, out *OrderMassCancelRequest) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg7(in *jlexer.Lexer, out *OrderMassStatusRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeString()
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "msgType":
+			out.MsgType = string(in.String())
+		case "massStatusReqId":
+			out.MassStatusReqId = string(in.String())
+		case "massStatusReqType":
+			out.MassStatusReqType = string(in.String())
+		case "account":
+			out.Account = uint64(in.Uint64())
+		case "symbol":
+			out.Symbol = string(in.String())
+		case "transactTime":
+			if in.IsNull() {
+				in.Skip()
+				out.TransactTime = nil
+			} else {
+				in.Delim('[')
+				if out.TransactTime == nil {
+					if !in.IsDelim(']') {
+						out.TransactTime = make([]int64, 0, 8)
+					} else {
+						out.TransactTime = []int64{}
+					}
+				} else {
+					out.TransactTime = (out.TransactTime)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v7 int64
+					v7 = int64(in.Int64())
+					out.TransactTime = append(out.TransactTime, v7)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg7(out *jwriter.Writer, in OrderMassStatusRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if in.MsgType != "" {
+		const prefix string = ",\"msgType\":"
+		first = false
+		out.RawString(prefix[1:])
+		out.String(string(in.MsgType))
+	}
+	if in.MassStatusReqId != "" {
+		const prefix string = ",\"massStatusReqId\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.MassStatusReqId))
+	}
+	if in.MassStatusReqType != "" {
+		const prefix string = ",\"massStatusReqType\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.MassStatusReqType))
+	}
+	if in.Account != 0 {
+		const prefix string = ",\"account\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.Account))
+	}
+	if in.Symbol != "" {
+		const prefix string = ",\"symbol\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Symbol))
+	}
+	if len(in.TransactTime) != 0 {
+		const prefix string = ",\"transactTime\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
+			out.RawByte('[')
+			for v8, v9 := range in.TransactTime {
+				if v8 > 0 {
+					out.RawByte(',')
+				}
+				out.Int64(int64(v9))
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v OrderMassStatusRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg7(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *OrderMassStatusRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg7(l, v)
+}
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg8(in *jlexer.Lexer, out *OrderMassCancelRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -703,7 +946,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg6(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg6(out *jwriter.Writer, in OrderMassCancelRequest) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg8(out *jwriter.Writer, in OrderMassCancelRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -778,14 +1021,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg6(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OrderMassCancelRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg6(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg8(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OrderMassCancelRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg6(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg8(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg7(in *jlexer.Lexer, out *OrderMassCancelReport) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg9(in *jlexer.Lexer, out *OrderMassCancelReport) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -836,7 +1079,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg7(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg7(out *jwriter.Writer, in OrderMassCancelReport) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg9(out *jwriter.Writer, in OrderMassCancelReport) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -951,14 +1194,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg7(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OrderMassCancelReport) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg7(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg9(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OrderMassCancelReport) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg7(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg9(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg8(in *jlexer.Lexer, out *OrderListAction) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg10(in *jlexer.Lexer, out *OrderListAction) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -995,9 +1238,9 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg8(in *jlexer.Lexer, ou
 					out.OrderId = (out.OrderId)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v7 string
-					v7 = string(in.String())
-					out.OrderId = append(out.OrderId, v7)
+					var v10 string
+					v10 = string(in.String())
+					out.OrderId = append(out.OrderId, v10)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1012,7 +1255,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg8(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg8(out *jwriter.Writer, in OrderListAction) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg10(out *jwriter.Writer, in OrderListAction) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1032,11 +1275,11 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg8(out *jwriter.Writer,
 		}
 		{
 			out.RawByte('[')
-			for v8, v9 := range in.OrderId {
-				if v8 > 0 {
+			for v11, v12 := range in.OrderId {
+				if v11 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v9))
+				out.String(string(v12))
 			}
 			out.RawByte(']')
 		}
@@ -1046,14 +1289,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg8(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OrderListAction) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg8(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg10(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OrderListAction) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg8(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg10(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg9(in *jlexer.Lexer, out *OrderCancelRequest) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg11(in *jlexer.Lexer, out *OrderCancelRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1098,7 +1341,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg9(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg9(out *jwriter.Writer, in OrderCancelRequest) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg11(out *jwriter.Writer, in OrderCancelRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1183,14 +1426,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg9(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OrderCancelRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg9(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg11(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OrderCancelRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg9(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg11(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg10(in *jlexer.Lexer, out *OrderCancelReplaceRequest) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(in *jlexer.Lexer, out *OrderCancelReplaceRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1241,9 +1484,9 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg10(in *jlexer.Lexer, o
 					out.ExecInst = (out.ExecInst)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v10 string
-					v10 = string(in.String())
-					out.ExecInst = append(out.ExecInst, v10)
+					var v13 string
+					v13 = string(in.String())
+					out.ExecInst = append(out.ExecInst, v13)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1278,17 +1521,17 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg10(in *jlexer.Lexer, o
 					out.SLTP = (out.SLTP)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v11 *SLTP
+					var v14 *SLTP
 					if in.IsNull() {
 						in.Skip()
-						v11 = nil
+						v14 = nil
 					} else {
-						if v11 == nil {
-							v11 = new(SLTP)
+						if v14 == nil {
+							v14 = new(SLTP)
 						}
-						(*v11).UnmarshalEasyJSON(in)
+						(*v14).UnmarshalEasyJSON(in)
 					}
-					out.SLTP = append(out.SLTP, v11)
+					out.SLTP = append(out.SLTP, v14)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1303,7 +1546,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg10(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg10(out *jwriter.Writer, in OrderCancelReplaceRequest) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(out *jwriter.Writer, in OrderCancelReplaceRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1393,11 +1636,11 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg10(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v12, v13 := range in.ExecInst {
-				if v12 > 0 {
+			for v15, v16 := range in.ExecInst {
+				if v15 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v13))
+				out.String(string(v16))
 			}
 			out.RawByte(']')
 		}
@@ -1482,14 +1725,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg10(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v14, v15 := range in.SLTP {
-				if v14 > 0 {
+			for v17, v18 := range in.SLTP {
+				if v17 > 0 {
 					out.RawByte(',')
 				}
-				if v15 == nil {
+				if v18 == nil {
 					out.RawString("null")
 				} else {
-					(*v15).MarshalEasyJSON(out)
+					(*v18).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -1500,14 +1743,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg10(out *jwriter.Writer
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OrderCancelReplaceRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg10(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OrderCancelReplaceRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg10(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg11(in *jlexer.Lexer, out *OrderCancelReject) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg13(in *jlexer.Lexer, out *OrderCancelReject) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1558,7 +1801,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg11(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg11(out *jwriter.Writer, in OrderCancelReject) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg13(out *jwriter.Writer, in OrderCancelReject) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1673,14 +1916,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg11(out *jwriter.Writer
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OrderCancelReject) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg11(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg13(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OrderCancelReject) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg11(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg13(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(in *jlexer.Lexer, out *NewOrderSingle) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg14(in *jlexer.Lexer, out *NewOrderSingle) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1743,9 +1986,9 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(in *jlexer.Lexer, o
 					out.ExecInst = (out.ExecInst)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v16 string
-					v16 = string(in.String())
-					out.ExecInst = append(out.ExecInst, v16)
+					var v19 string
+					v19 = string(in.String())
+					out.ExecInst = append(out.ExecInst, v19)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1776,17 +2019,17 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(in *jlexer.Lexer, o
 					out.TriggeringInstructions = (out.TriggeringInstructions)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v17 *TriggeringInstruction
+					var v20 *TriggeringInstruction
 					if in.IsNull() {
 						in.Skip()
-						v17 = nil
+						v20 = nil
 					} else {
-						if v17 == nil {
-							v17 = new(TriggeringInstruction)
+						if v20 == nil {
+							v20 = new(TriggeringInstruction)
 						}
-						(*v17).UnmarshalEasyJSON(in)
+						(*v20).UnmarshalEasyJSON(in)
 					}
-					out.TriggeringInstructions = append(out.TriggeringInstructions, v17)
+					out.TriggeringInstructions = append(out.TriggeringInstructions, v20)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1811,17 +2054,17 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(in *jlexer.Lexer, o
 					out.SLTP = (out.SLTP)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v18 *SLTP
+					var v21 *SLTP
 					if in.IsNull() {
 						in.Skip()
-						v18 = nil
+						v21 = nil
 					} else {
-						if v18 == nil {
-							v18 = new(SLTP)
+						if v21 == nil {
+							v21 = new(SLTP)
 						}
-						(*v18).UnmarshalEasyJSON(in)
+						(*v21).UnmarshalEasyJSON(in)
 					}
-					out.SLTP = append(out.SLTP, v18)
+					out.SLTP = append(out.SLTP, v21)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1840,7 +2083,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(out *jwriter.Writer, in NewOrderSingle) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg14(out *jwriter.Writer, in NewOrderSingle) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1990,11 +2233,11 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v19, v20 := range in.ExecInst {
-				if v19 > 0 {
+			for v22, v23 := range in.ExecInst {
+				if v22 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v20))
+				out.String(string(v23))
 			}
 			out.RawByte(']')
 		}
@@ -2059,14 +2302,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v21, v22 := range in.TriggeringInstructions {
-				if v21 > 0 {
+			for v24, v25 := range in.TriggeringInstructions {
+				if v24 > 0 {
 					out.RawByte(',')
 				}
-				if v22 == nil {
+				if v25 == nil {
 					out.RawString("null")
 				} else {
-					(*v22).MarshalEasyJSON(out)
+					(*v25).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -2102,14 +2345,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v23, v24 := range in.SLTP {
-				if v23 > 0 {
+			for v26, v27 := range in.SLTP {
+				if v26 > 0 {
 					out.RawByte(',')
 				}
-				if v24 == nil {
+				if v27 == nil {
 					out.RawString("null")
 				} else {
-					(*v24).MarshalEasyJSON(out)
+					(*v27).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -2140,14 +2383,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(out *jwriter.Writer
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v NewOrderSingle) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg12(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg14(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *NewOrderSingle) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg12(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg14(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg13(in *jlexer.Lexer, out *NewOrderList) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(in *jlexer.Lexer, out *NewOrderList) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -2192,17 +2435,17 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg13(in *jlexer.Lexer, o
 					out.ListOrdGrp = (out.ListOrdGrp)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v25 *NewOrderSingle
+					var v28 *NewOrderSingle
 					if in.IsNull() {
 						in.Skip()
-						v25 = nil
+						v28 = nil
 					} else {
-						if v25 == nil {
-							v25 = new(NewOrderSingle)
+						if v28 == nil {
+							v28 = new(NewOrderSingle)
 						}
-						(*v25).UnmarshalEasyJSON(in)
+						(*v28).UnmarshalEasyJSON(in)
 					}
-					out.ListOrdGrp = append(out.ListOrdGrp, v25)
+					out.ListOrdGrp = append(out.ListOrdGrp, v28)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -2223,17 +2466,17 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg13(in *jlexer.Lexer, o
 					out.NestedListGrp = (out.NestedListGrp)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v26 *NewOrderList
+					var v29 *NewOrderList
 					if in.IsNull() {
 						in.Skip()
-						v26 = nil
+						v29 = nil
 					} else {
-						if v26 == nil {
-							v26 = new(NewOrderList)
+						if v29 == nil {
+							v29 = new(NewOrderList)
 						}
-						(*v26).UnmarshalEasyJSON(in)
+						(*v29).UnmarshalEasyJSON(in)
 					}
-					out.NestedListGrp = append(out.NestedListGrp, v26)
+					out.NestedListGrp = append(out.NestedListGrp, v29)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -2254,7 +2497,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg13(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg13(out *jwriter.Writer, in NewOrderList) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg15(out *jwriter.Writer, in NewOrderList) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -2314,14 +2557,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg13(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v27, v28 := range in.ListOrdGrp {
-				if v27 > 0 {
+			for v30, v31 := range in.ListOrdGrp {
+				if v30 > 0 {
 					out.RawByte(',')
 				}
-				if v28 == nil {
+				if v31 == nil {
 					out.RawString("null")
 				} else {
-					(*v28).MarshalEasyJSON(out)
+					(*v31).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -2337,14 +2580,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg13(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v29, v30 := range in.NestedListGrp {
-				if v29 > 0 {
+			for v32, v33 := range in.NestedListGrp {
+				if v32 > 0 {
 					out.RawByte(',')
 				}
-				if v30 == nil {
+				if v33 == nil {
 					out.RawString("null")
 				} else {
-					(*v30).MarshalEasyJSON(out)
+					(*v33).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -2385,14 +2628,169 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg13(out *jwriter.Writer
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v NewOrderList) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg13(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg15(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *NewOrderList) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg13(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg14(in *jlexer.Lexer, out *ListStatus) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg16(in *jlexer.Lexer, out *MassTradeCaptureReportResponse) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeString()
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "msgType":
+			out.MsgType = string(in.String())
+		case "tradeRequestID":
+			out.TradeRequestID = string(in.String())
+		case "account":
+			out.Account = uint64(in.Uint64())
+		case "executionReports":
+			if in.IsNull() {
+				in.Skip()
+				out.ExecutionReports = nil
+			} else {
+				in.Delim('[')
+				if out.ExecutionReports == nil {
+					if !in.IsDelim(']') {
+						out.ExecutionReports = make([]*ExecutionReport, 0, 8)
+					} else {
+						out.ExecutionReports = []*ExecutionReport{}
+					}
+				} else {
+					out.ExecutionReports = (out.ExecutionReports)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v34 *ExecutionReport
+					if in.IsNull() {
+						in.Skip()
+						v34 = nil
+					} else {
+						if v34 == nil {
+							v34 = new(ExecutionReport)
+						}
+						(*v34).UnmarshalEasyJSON(in)
+					}
+					out.ExecutionReports = append(out.ExecutionReports, v34)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "rejectReason":
+			out.RejectReason = string(in.String())
+		case "text":
+			out.Text = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(out *jwriter.Writer, in MassTradeCaptureReportResponse) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if in.MsgType != "" {
+		const prefix string = ",\"msgType\":"
+		first = false
+		out.RawString(prefix[1:])
+		out.String(string(in.MsgType))
+	}
+	if in.TradeRequestID != "" {
+		const prefix string = ",\"tradeRequestID\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.TradeRequestID))
+	}
+	if in.Account != 0 {
+		const prefix string = ",\"account\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.Account))
+	}
+	if len(in.ExecutionReports) != 0 {
+		const prefix string = ",\"executionReports\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
+			out.RawByte('[')
+			for v35, v36 := range in.ExecutionReports {
+				if v35 > 0 {
+					out.RawByte(',')
+				}
+				if v36 == nil {
+					out.RawString("null")
+				} else {
+					(*v36).MarshalEasyJSON(out)
+				}
+			}
+			out.RawByte(']')
+		}
+	}
+	if in.RejectReason != "" {
+		const prefix string = ",\"rejectReason\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.RejectReason))
+	}
+	if in.Text != "" {
+		const prefix string = ",\"text\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Text))
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v MassTradeCaptureReportResponse) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *MassTradeCaptureReportResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg16(l, v)
+}
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg17(in *jlexer.Lexer, out *ListStatus) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -2451,7 +2849,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg14(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg14(out *jwriter.Writer, in ListStatus) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg17(out *jwriter.Writer, in ListStatus) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -2566,14 +2964,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg14(out *jwriter.Writer
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ListStatus) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg14(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg17(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ListStatus) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg14(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg17(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(in *jlexer.Lexer, out *ExecutionReport) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg18(in *jlexer.Lexer, out *ExecutionReport) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -2594,6 +2992,8 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(in *jlexer.Lexer, o
 		switch key {
 		case "msgType":
 			out.MsgType = string(in.String())
+		case "ordStatusReqID":
+			out.OrdStatusReqID = string(in.String())
 		case "account":
 			out.Account = uint64(in.Uint64())
 		case "clOrdId":
@@ -2628,9 +3028,9 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(in *jlexer.Lexer, o
 					out.ExecInst = (out.ExecInst)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v31 string
-					v31 = string(in.String())
-					out.ExecInst = append(out.ExecInst, v31)
+					var v37 string
+					v37 = string(in.String())
+					out.ExecInst = append(out.ExecInst, v37)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -2719,17 +3119,17 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(in *jlexer.Lexer, o
 					out.SLTP = (out.SLTP)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v32 *SLTP
+					var v38 *SLTP
 					if in.IsNull() {
 						in.Skip()
-						v32 = nil
+						v38 = nil
 					} else {
-						if v32 == nil {
-							v32 = new(SLTP)
+						if v38 == nil {
+							v38 = new(SLTP)
 						}
-						(*v32).UnmarshalEasyJSON(in)
+						(*v38).UnmarshalEasyJSON(in)
 					}
-					out.SLTP = append(out.SLTP, v32)
+					out.SLTP = append(out.SLTP, v38)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -2746,7 +3146,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg15(out *jwriter.Writer, in ExecutionReport) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg18(out *jwriter.Writer, in ExecutionReport) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -2755,6 +3155,16 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg15(out *jwriter.Writer
 		first = false
 		out.RawString(prefix[1:])
 		out.String(string(in.MsgType))
+	}
+	if in.OrdStatusReqID != "" {
+		const prefix string = ",\"ordStatusReqID\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.OrdStatusReqID))
 	}
 	if in.Account != 0 {
 		const prefix string = ",\"account\":"
@@ -2856,11 +3266,11 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg15(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v33, v34 := range in.ExecInst {
-				if v33 > 0 {
+			for v39, v40 := range in.ExecInst {
+				if v39 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v34))
+				out.String(string(v40))
 			}
 			out.RawByte(']')
 		}
@@ -3215,14 +3625,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg15(out *jwriter.Writer
 		}
 		{
 			out.RawByte('[')
-			for v35, v36 := range in.SLTP {
-				if v35 > 0 {
+			for v41, v42 := range in.SLTP {
+				if v41 > 0 {
 					out.RawByte(',')
 				}
-				if v36 == nil {
+				if v42 == nil {
 					out.RawString("null")
 				} else {
-					(*v36).MarshalEasyJSON(out)
+					(*v42).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -3243,14 +3653,14 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg15(out *jwriter.Writer
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ExecutionReport) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg15(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg18(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ExecutionReport) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg15(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg18(l, v)
 }
-func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg16(in *jlexer.Lexer, out *ApplicationHeartbeat) {
+func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg19(in *jlexer.Lexer, out *ApplicationHeartbeat) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -3285,7 +3695,7 @@ func easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg16(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(out *jwriter.Writer, in ApplicationHeartbeat) {
+func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg19(out *jwriter.Writer, in ApplicationHeartbeat) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -3320,10 +3730,10 @@ func easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(out *jwriter.Writer
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ApplicationHeartbeat) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg16(w, v)
+	easyjson6b0c9e88EncodeGithubComXenaexClientGoXenaXmsg19(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ApplicationHeartbeat) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg16(l, v)
+	easyjson6b0c9e88DecodeGithubComXenaexClientGoXenaXmsg19(l, v)
 }
