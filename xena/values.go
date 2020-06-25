@@ -4,6 +4,7 @@ package xena
 type Symbol string
 type Side string
 type DOMThrottle string
+type RestDOMThrottle int64
 type CandlesThrottle string
 type TradesThrottle string
 type AggregateBook int64
@@ -28,6 +29,10 @@ const (
 	ThrottleDOMDefault DOMThrottle = "0s"
 	ThrottleDOM500ms   DOMThrottle = "500ms"
 	ThrottleDOM5s      DOMThrottle = "5s"
+
+	RestThrottleDOMDefault RestDOMThrottle = 500
+	RestThrottleDOM500ms   RestDOMThrottle = 50
+	RestThrottleDOM0s      RestDOMThrottle = 0
 
 	ThrottleCandlesDefault CandlesThrottle = "0s"
 	ThrottleCandles250ms   CandlesThrottle = "250ms"
