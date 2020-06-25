@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -50,6 +51,7 @@ func main() {
 	client = xena.NewTradingClient(
 		apiKey,
 		apiSecret,
+		nil,
 		xena.WithTradingURL(),
 		xena.WithDebug(),
 	)
@@ -88,17 +90,30 @@ func main() {
 	examples["replace"] = exampleReplace
 	examples["positions-collapse"] = examplePositionsCollapse
 	examples["positions"] = examplePositions
-	examples["orders"] = exampleOrders
+	examples["order"] = exampleOrder
+	examples["active-orders"] = exampleActiveOrders
+	examples["last-order-statuses"] = exampleLastOrderStatuses
+	examples["order-history"] = exampleOrderHistory
+	examples["trade-history"] = exampleTradeHistory
 	examples["balances"] = exampleBalances
 	examples["margin-requirements"] = exampleMarginRequirements
 
-	log.Println("market_order---------------------------------------------")
-
-	for k, f := range examples {
-		for i := 0; i < 4; i++ {
-			log.Println()
+	keyExamples := os.Args
+	if len(keyExamples) == 0 {
+		for k := range examples {
+			keyExamples = append(keyExamples, k)
 		}
-		log.Printf("%s ---------------------------------------------", k)
+	}
+
+	sort.Strings(keyExamples)
+	for _, key := range keyExamples {
+		log.Printf("--- run key %s\n", key)
+		f, ok := examples[key]
+		if !ok {
+			log.Printf("key not found %s\n", key)
+			time.Sleep(time.Millisecond)
+			continue
+		}
 		f()
 	}
 }
@@ -670,8 +685,8 @@ func exampleReceivingAllOrderAndCanceling() {
 		done <- false
 	})
 	client.ListenOrderMassStatusResponse(func(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
-		wg.Add(len(m.Orders))
-		for _, er := range m.Orders {
+		wg.Add(len(m.ExecutionReports))
+		for _, er := range m.ExecutionReports {
 			cancelCmd := xena.CreateCancelRequestFromExecutionReport(xena.ID("cancel-"), er)
 			err := client.Cancel(cancelCmd)
 			if err != nil {
@@ -680,7 +695,7 @@ func exampleReceivingAllOrderAndCanceling() {
 		}
 		done <- true
 	})
-	err := client.Orders(accountId, "")
+	err := client.GetActiveOrders(accountId, "", xena.ActiveOrdersRequest{}.SetSymbol("ETHUSD"))
 	if err != nil {
 		log.Printf("error: %v\n", err)
 	}
@@ -940,7 +955,35 @@ func examplePositions() {
 	}
 }
 
-func exampleOrders() {
+func exampleOrder() {
+	func() {
+		defer client.ListenOrderMassStatusResponse(nil)
+		defer client.ListenReject(nil)
+		done := make(chan bool)
+		var resp *xmsg.ExecutionReport
+		var reject *xmsg.Reject
+		client.ListenExecutionReport(func(t xena.TradingClient, m *xmsg.ExecutionReport) {
+			resp = m
+			log.Printf("resp: %s\n", m)
+			done <- true
+		})
+		client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
+			reject = m
+			log.Printf("reject: %s\n", m)
+			done <- false
+		})
+
+		err := client.GetOrder(1012833458, "", xena.OrderRequest{}.SetClOrdId("limit-order-5"))
+		if err != nil {
+			log.Printf("error: %v\n", err)
+		}
+
+		log.Printf("is ok %t\n", <-done)
+	}()
+
+}
+
+func exampleActiveOrders() {
 	for _, acc := range accounts {
 		if xena.IsMargin(acc.Id) {
 			func() {
@@ -960,7 +1003,92 @@ func exampleOrders() {
 					done <- false
 				})
 
-				err := client.Orders(acc.Id, "")
+				err := client.GetActiveOrders(acc.Id, "", xena.ActiveOrdersRequest{})
+				if err != nil {
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+				}
+
+				log.Printf("is ok %t\n", <-done)
+			}()
+		}
+	}
+}
+
+func exampleLastOrderStatuses() {
+	for _, acc := range accounts {
+		if xena.IsMargin(acc.Id) {
+			func() {
+				defer client.ListenOrderMassStatusResponse(nil)
+				defer client.ListenReject(nil)
+				done := make(chan bool)
+				var resp *xmsg.OrderMassStatusResponse
+				var reject *xmsg.Reject
+				client.ListenOrderMassStatusResponse(func(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
+					resp = m
+					log.Printf("resp: %s\n", m)
+					done <- true
+				})
+				client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
+					reject = m
+					log.Printf("reject: %s\n", m)
+					done <- false
+				})
+
+				err := client.GetLastOrderStatuses(acc.Id, "", xena.LastOrderStatusesRequest{})
+				if err != nil {
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+				}
+
+				log.Printf("is ok %t\n", <-done)
+			}()
+		}
+	}
+}
+
+func exampleOrderHistory() {
+	for _, acc := range accounts {
+		if xena.IsMargin(acc.Id) {
+			func() {
+				defer client.ListenOrderMassStatusResponse(nil)
+				defer client.ListenReject(nil)
+				done := make(chan bool)
+				client.ListenOrderMassStatusResponse(func(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
+					log.Printf("resp: %s\n", m)
+					done <- true
+				})
+				client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
+					log.Printf("reject: %s\n", m)
+					done <- false
+				})
+
+				err := client.GetOrderHistory(acc.Id, "", xena.OrderHistoryRequest{})
+				if err != nil {
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+				}
+
+				log.Printf("is ok %t\n", <-done)
+			}()
+		}
+	}
+}
+
+func exampleTradeHistory() {
+	for _, acc := range accounts {
+		if xena.IsMargin(acc.Id) {
+			func() {
+				defer client.ListenMassTradeCaptureReportResponse(nil)
+				defer client.ListenReject(nil)
+				done := make(chan bool)
+				client.ListenMassTradeCaptureReportResponse(func(t xena.TradingClient, m *xmsg.MassTradeCaptureReportResponse) {
+					log.Printf("resp: %s\n", m)
+					done <- true
+				})
+				client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
+					log.Printf("reject: %s\n", m)
+					done <- false
+				})
+
+				err := client.GetTradeHistory(acc.Id, "", xena.TradeHistoryRequest{})
 				if err != nil {
 					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
@@ -979,26 +1107,20 @@ func exampleBalances() {
 				defer client.ListenBalanceSnapshotRefresh(nil)
 				defer client.ListenReject(nil)
 				done := make(chan bool)
-				var marginRequirement *xmsg.MarginRequirementReport
-				var balanceSnapshot *xmsg.BalanceSnapshotRefresh
-				var reject *xmsg.Reject
 				client.ListenMarginRequirementReport(func(t xena.TradingClient, m *xmsg.MarginRequirementReport) {
-					marginRequirement = m
 					log.Printf("resp: %s\n", m)
 					done <- true
 				})
 				client.ListenBalanceSnapshotRefresh(func(t xena.TradingClient, m *xmsg.BalanceSnapshotRefresh) {
-					balanceSnapshot = m
 					log.Printf("resp: %s\n", m)
 					done <- true
 				})
 				client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
-					reject = m
 					log.Printf("reject: %s\n", m)
 					done <- false
 				})
 
-				err := client.AccountStatusReport(acc.Id, "")
+				err := client.GetAccountStatusReport(acc.Id, "")
 				if err != nil {
 					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
@@ -1017,18 +1139,16 @@ func exampleMarginRequirements() {
 				defer client.ListenOrderMassStatusResponse(nil)
 				defer client.ListenReject(nil)
 				done := make(chan bool)
-				var reject *xmsg.Reject
 				client.ListenOrderMassStatusResponse(func(t xena.TradingClient, m *xmsg.OrderMassStatusResponse) {
 					log.Printf("resp: %s\n", m)
 					done <- true
 				})
 				client.ListenReject(func(t xena.TradingClient, m *xmsg.Reject) {
-					reject = m
 					log.Printf("reject: %s\n", m)
 					done <- false
 				})
 
-				err := client.Orders(acc.Id, "")
+				err := client.GetActiveOrders(acc.Id, "", xena.ActiveOrdersRequest{})
 				if err != nil {
 					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}

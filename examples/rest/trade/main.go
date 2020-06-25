@@ -266,10 +266,46 @@ func main() {
 			}
 		}
 	}
-	examples["orders"] = func() {
+	examples["order"] = func() {
+		respColl, err := client.GetOrder(1012833458, xena.OrderRequest{}.SetClOrdId("o83821gee"))
+		log.Printf("resp: %s\n", respColl)
+		if err != nil {
+			log.Printf("error: %v\n", err)
+		}
+
+		respColl, err = client.GetOrder(1012833458, xena.OrderRequest{}.SetOrderId("ffbe63f0-f131-4fdf-8cb4-c27752e10d08"))
+		log.Printf("resp: %s\n", respColl)
+		if err != nil {
+			log.Printf("error: %v\n", err)
+		}
+	}
+	examples["active-orders"] = func() {
 		for _, acc := range accounts {
 			if xena.IsMargin(acc.Id) {
-				respColl, err := client.GetOrders(acc.Id, "")
+				respColl, err := client.GetActiveOrders(acc.Id, xena.ActiveOrdersRequest{}.SetSymbol("XBTUSD"))
+				log.Printf("resp: %s\n", respColl)
+				if err != nil {
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+				}
+			}
+		}
+	}
+	examples["last-order-statuses"] = func() {
+		for _, acc := range accounts {
+			if xena.IsMargin(acc.Id) {
+				respColl, err := client.GetLastOrderStatuses(acc.Id, xena.LastOrderStatusesRequest{}.SetSymbol("XBTUSD"))
+				log.Printf("resp: %s\n", respColl)
+				if err != nil {
+					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
+				}
+			}
+		}
+	}
+	examples["order-history"] = func() {
+		for _, acc := range accounts {
+			if xena.IsMargin(acc.Id) {
+				respColl, err := client.GetOrderHistory(acc.Id, xena.OrderHistoryRequest{}.SetSymbol("XBTUSD"))
+				log.Printf("len: %d\n", len(respColl))
 				log.Printf("resp: %s\n", respColl)
 				if err != nil {
 					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
@@ -306,6 +342,14 @@ func main() {
 					log.Printf("error: %v, account: %d, symbol: %s\n", err, acc.Id, acc.Currency)
 				}
 			}
+		}
+	}
+	examples["heartbeat"] = func() {
+		gid := "42"
+		hb := int32(42)
+		err := client.SendApplicationHeartbeat(gid, hb)
+		if err != nil {
+			log.Printf("error: %v on SendApplicationHeartbeat(%s, %d)", err, gid, hb)
 		}
 	}
 

@@ -39,7 +39,7 @@ func main() {
 	}
 
 	examples["dom"] = func() {
-		resp, err = client.GetDom(xena.XBTUSD.String(), xena.MarketDepth10)
+		resp, err = client.GetDom(xena.XBTUSD.String(), xena.RestThrottleDOM0s, xena.MarketDepth10)
 		log.Printf("resp: %s, \nerror: %#v\n", resp, err)
 	}
 

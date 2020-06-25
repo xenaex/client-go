@@ -29,7 +29,8 @@ func main() {
 		return
 	}
 
-	var client = xena.NewTradingClient(apiKey, apiSecret, xena.WithTradingURL(), xena.WithDebug(), xena.WithURL("ws://api.xena.rc/ws/trading"))
+	// var client = xena.NewTradingClient(apiKey, apiSecret, []uint64{}, xena.WithTradingURL(), xena.WithDebug(), xena.WithURL("ws://api.xena.rc/ws/trading"))
+	var client = xena.NewTradingClient(apiKey, apiSecret, []uint64{accountId}, xena.WithTradingURL(), xena.WithDebug(), xena.WithURL("ws://localhost/api/ws/trading"))
 	client.SetDisconnectHandler(xena.DefaultTradingDisconnectHandler)
 
 	client.ListenBalanceIncrementalRefresh(onBalanceIncrementalRefreshHandler)
@@ -63,7 +64,7 @@ func main() {
 	log.Println("GOT logonResponse ", logonResponse)
 	log.Println("logon completed")
 
-	err = client.AccountStatusReport(accountId, "")
+	err = client.GetAccountStatusReport(accountId, "")
 	if err != nil {
 		log.Println(err)
 	}

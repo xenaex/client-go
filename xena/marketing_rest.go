@@ -64,6 +64,7 @@ func (m *marketDataREST) GetDom(symbol string, opts ...interface{}) (*xmsg.Marke
 	const method = "dom"
 	aggregatedBook := int64(AggregateBookDefault)
 	marketDepth := int64(MarketDepthDefault)
+	throttling := int64(RestThrottleDOMDefault)
 
 	for _, o := range opts {
 		switch v := o.(type) {
@@ -71,6 +72,8 @@ func (m *marketDataREST) GetDom(symbol string, opts ...interface{}) (*xmsg.Marke
 			aggregatedBook = int64(v)
 		case MarketDepth:
 			marketDepth = int64(v)
+		case RestDOMThrottle:
+			throttling = int64(v)
 		default:
 			return nil, fmt.Errorf("unsupported type of %#v", o)
 		}
@@ -78,7 +81,8 @@ func (m *marketDataREST) GetDom(symbol string, opts ...interface{}) (*xmsg.Marke
 
 	query := newQuery("market-data", method, symbol).
 		addQueryf("aggr", &aggregatedBook).
-		addQueryf("depth", &marketDepth)
+		addQueryf("depth", &marketDepth).
+		addQueryf("throtling", &throttling)
 
 	resp, body, err := m.get(query)
 	if err != nil {

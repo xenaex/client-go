@@ -1,6 +1,7 @@
 package xena
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -28,6 +29,8 @@ type TradingClient interface {
 	ListenOrderCancelReject(handler OrderCancelRejectHandler)
 	// ListenOrderMassStatusResponse subscribes to OrderMassStatusResponse event.
 	ListenOrderMassStatusResponse(handler OrderMassStatusResponseHandler)
+	// ListenMassTradeCaptureReportResponse subscribes to MassTradeCaptureReportResponse event.
+	ListenMassTradeCaptureReportResponse(handler MassTradeCaptureReportResponseHandler)
 	// ListenBalanceIncrementalRefresh subscribes to BalanceIncrementalRefresh event.
 	ListenBalanceIncrementalRefresh(handler BalanceIncrementalRefreshHandler)
 	// ListenBalanceSnapshotRefresh subscribes to BalanceSnapshotRefresh event.
@@ -56,15 +59,31 @@ type TradingClient interface {
 
 	// AccountStatusReport requests an account status report.
 	// To receive a response, the client should listen for ListenBalanceSnapshotRefresh.
-	AccountStatusReport(account uint64, requestId string) error
+	GetAccountStatusReport(account uint64, requestId string) error
 
 	// GetPositions requests all positions.
 	// To receive a response, the client should listen for ListenMassPositionReport.
 	GetPositions(account uint64, requestId string) error
 
-	// Orders requests all orders and all fills.
+	// Order request for last execution report for order or cancel/replace requests
+	// To receive a response, the client should listen for ListenExecutionReport.
+	GetOrder(account uint64, requestId string, opt OrderRequest) error
+
+	// Orders requests list of last execution reports for active orders.
 	// To receive a response, the client should listen for ListenOrderMassStatusResponse.
-	Orders(account uint64, requestId string) error
+	GetActiveOrders(account uint64, requestId string, opt ActiveOrdersRequest) error
+
+	// Orders requests list of last execution reports for non-active orders.
+	// To receive a response, the client should listen for ListenOrderMassStatusResponse.
+	GetLastOrderStatuses(account uint64, requestId string, opt LastOrderStatusesRequest) error
+
+	// Orders requests list of historical execution reports
+	// To receive a response, the client should listen for ListenOrderMassStatusResponse.
+	GetOrderHistory(account uint64, requestId string, opt OrderHistoryRequest) error
+
+	// Orders requests list of historical execution reports
+	// To receive a response, the client should listen for ListenOrderMassStatusResponse.
+	GetTradeHistory(account uint64, requestId string, opt TradeHistoryRequest) error
 
 	// MarketOrder places new market order.
 	MarketOrder(account uint64, clOrdId string, symbol string, side Side, orderQty string) error
@@ -120,10 +139,14 @@ func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 }
 
 // NewTradingClient creates websocket client of Xena trading.
-func NewTradingClient(apiKey, apiSecret string, opts ...WsOption) TradingClient {
+func NewTradingClient(apiKey, apiSecret string, accounts []uint64, opts ...WsOption) TradingClient {
+	if accounts == nil {
+		accounts = make([]uint64, 0)
+	}
 	t := &tradingClient{
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
+		accounts:  accounts,
 	}
 
 	defaultOpts := []WsOption{
@@ -204,6 +227,9 @@ type OrderCancelRejectHandler func(t TradingClient, m *xmsg.OrderCancelReject)
 // OrderMassStatusResponseHandler is used to handling OrderMassStatusResponse message.
 type OrderMassStatusResponseHandler func(t TradingClient, m *xmsg.OrderMassStatusResponse)
 
+// MassTradeCaptureReportResponseHandler is used to handling MassTradeCaptureReportResponse message.
+type MassTradeCaptureReportResponseHandler func(t TradingClient, m *xmsg.MassTradeCaptureReportResponse)
+
 // PositionReportHandler is used to handling PositionReport message.
 type PositionReportHandler func(t TradingClient, m *xmsg.PositionReport)
 
@@ -229,6 +255,7 @@ type tradingClient struct {
 	client    WsClient
 	apiKey    string
 	apiSecret string
+	accounts  []uint64
 	handlers  struct {
 		heartbeat                 HeartbeatHandler
 		balanceSnapshotRefresh    BalanceSnapshotRefreshHandler
@@ -242,11 +269,18 @@ type tradingClient struct {
 		orderCancelReject         OrderCancelRejectHandler
 		orderMassCancelReport     OrderMassCancelReportHandler
 		orderMassStatus           OrderMassStatusResponseHandler
+		massTradeCapture          MassTradeCaptureReportResponseHandler
 		positionMaintenanceReport PositionMaintenanceReportHandler
 		positionReport            PositionReportHandler
 		reject                    RejectHandler
 	}
 	mutexLogon sync.Mutex
+}
+
+func (t *tradingClient) SetDisconnectHandler(handler TradingDisconnectHandler) {
+	t.client.setDisconnectHandler(func() {
+		handler(t, t.client.Logger())
+	})
 }
 
 func (t *tradingClient) ListenLogon(handler LogonHandler) {
@@ -266,6 +300,14 @@ func (t *tradingClient) ListenOrderCancelReject(handler OrderCancelRejectHandler
 }
 
 func (t *tradingClient) ListenOrderMassStatusResponse(handler OrderMassStatusResponseHandler) {
+	t.handlers.orderMassStatus = handler
+}
+
+func (t *tradingClient) ListenMassTradeCaptureReportResponse(handler MassTradeCaptureReportResponseHandler) {
+	t.handlers.massTradeCapture = handler
+}
+
+func (t *tradingClient) ListenMassTrade(handler OrderMassStatusResponseHandler) {
 	t.handlers.orderMassStatus = handler
 }
 
@@ -303,6 +345,14 @@ func (t *tradingClient) ListenOrderMassCancelReport(handler OrderMassCancelRepor
 
 func (t *tradingClient) ListenHeartbeat(handler HeartbeatHandler) {
 	t.handlers.heartbeat = handler
+}
+
+func (t *tradingClient) Send(cmd interface{}) error {
+	data, err := fixjson.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return t.client.WriteBytes(data)
 }
 
 func (t *tradingClient) MarketOrder(account uint64, clOrdId string, symbol string, side Side, orderQty string) error {
@@ -354,6 +404,10 @@ func (t *tradingClient) CancelByOrderId(account uint64, clOrdId, orderId, symbol
 	return t.Send(cmd)
 }
 
+func (t *tradingClient) MassCancel(account uint64, clOrdId string) error {
+	return newOrderMassCancel(account, clOrdId).Send(t)
+}
+
 func (t *tradingClient) Replace(cmd xmsg.OrderCancelReplaceRequest) error {
 	if cmd.MsgType != xmsg.MsgType_OrderCancelReplaceRequestMsgType {
 		return fmt.Errorf("msgType %s. but must be %s", cmd.MsgType, xmsg.MsgType_OrderCancelReplaceRequestMsgType)
@@ -373,7 +427,7 @@ func (t *tradingClient) CollapsePositions(account uint64, symbol string, request
 	return t.Send(request)
 }
 
-func (t *tradingClient) AccountStatusReport(account uint64, requestId string) error {
+func (t *tradingClient) GetAccountStatusReport(account uint64, requestId string) error {
 	request := xmsg.AccountStatusReportRequest{
 		MsgType:                xmsg.MsgType_AccountStatusReportRequest,
 		Account:                account,
@@ -382,11 +436,128 @@ func (t *tradingClient) AccountStatusReport(account uint64, requestId string) er
 	return t.Send(request)
 }
 
-func (t *tradingClient) Orders(account uint64, requestId string) error {
+func (t *tradingClient) GetOrder(account uint64, requestId string, opt OrderRequest) error {
 	request := xmsg.OrderStatusRequest{
-		MsgType:         xmsg.MsgType_OrderMassStatusRequest,
-		Account:         account,
-		MassStatusReqId: requestId,
+		MsgType:        xmsg.MsgType_OrderStatusRequest,
+		Account:        account,
+		OrdStatusReqId: requestId,
+	}
+
+	if opt.ClOrdId != nil {
+		request.ClOrdId = *opt.ClOrdId
+	}
+	if opt.OrderId != nil {
+		request.OrderId = *opt.OrderId
+	}
+	return t.Send(request)
+}
+
+func (t *tradingClient) GetActiveOrders(account uint64, requestId string, opt ActiveOrdersRequest) error {
+	request := xmsg.OrderMassStatusRequest{
+		MsgType:           xmsg.MsgType_OrderMassStatusRequest,
+		Account:           account,
+		MassStatusReqId:   requestId,
+		MassStatusReqType: xmsg.MassStatusReqType_ActiveOrders,
+	}
+
+	if opt.Symbol != nil {
+		request.Symbol = *opt.Symbol
+	}
+	return t.Send(request)
+}
+
+func (t *tradingClient) GetLastOrderStatuses(account uint64, requestId string, opt LastOrderStatusesRequest) error {
+	request := xmsg.OrderMassStatusRequest{
+		MsgType:           xmsg.MsgType_OrderMassStatusRequest,
+		Account:           account,
+		MassStatusReqId:   requestId,
+		MassStatusReqType: xmsg.MassStatusReqType_DoneOrdersLastStatus,
+	}
+
+	if opt.Symbol != nil {
+		request.Symbol = *opt.Symbol
+	}
+	if opt.From != nil {
+		request.TransactTime = append(request.TransactTime, (*opt.From).UnixNano())
+	}
+	if opt.To != nil {
+		if opt.From == nil {
+			return errors.New("Option From is required")
+		}
+		request.TransactTime = append(request.TransactTime, (*opt.To).UnixNano())
+	}
+	if opt.PageNumber != nil {
+		return errors.New("Option PageNumber not supported")
+	}
+	if opt.Limit != nil {
+		return errors.New("Option Limit not supported")
+	}
+	return t.Send(request)
+}
+
+func (t *tradingClient) GetOrderHistory(account uint64, requestId string, opt OrderHistoryRequest) error {
+	request := xmsg.OrderMassStatusRequest{
+		MsgType:           xmsg.MsgType_OrderMassStatusRequest,
+		Account:           account,
+		MassStatusReqId:   requestId,
+		MassStatusReqType: xmsg.MassStatusReqType_History,
+	}
+
+	if opt.Symbol != nil {
+		request.Symbol = *opt.Symbol
+	}
+	if opt.From != nil {
+		request.TransactTime = append(request.TransactTime, (*opt.From).UnixNano())
+	}
+	if opt.To != nil {
+		if opt.From == nil {
+			return errors.New("Option From is required")
+		}
+		request.TransactTime = append(request.TransactTime, (*opt.To).UnixNano())
+	}
+	if opt.PageNumber != nil {
+		return errors.New("Option PageNumber not supported")
+	}
+	if opt.Limit != nil {
+		return errors.New("Option Limit not supported")
+	}
+	return t.Send(request)
+}
+
+func (t *tradingClient) GetTradeHistory(account uint64, requestId string, opt TradeHistoryRequest) error {
+	request := xmsg.TradeCaptureReportRequest{
+		MsgType:        xmsg.MsgType_TradeCaptureReportRequest,
+		Account:        account,
+		TradeRequestID: requestId,
+	}
+
+	if opt.Symbol != nil {
+		request.Symbol = *opt.Symbol
+	}
+	if opt.From != nil {
+		request.TransactTime = append(request.TransactTime, (*opt.From).UnixNano())
+	}
+	if opt.To != nil {
+		if opt.From == nil {
+			return errors.New("Option From is required")
+		}
+		request.TransactTime = append(request.TransactTime, (*opt.To).UnixNano())
+	}
+
+	if opt.ClOrdId != nil {
+		return errors.New("Option ClOrdId not supported")
+	}
+	if opt.TradeId != nil {
+		return errors.New("Option TradeId not supported")
+	}
+	if opt.Limit != nil {
+		return errors.New("Option Limit not supported")
+	}
+	if opt.PageNumber != nil {
+		return errors.New("Option PageNumber not supported")
+	}
+	if opt.Limit != nil {
+		return errors.New("Option Limit not supported")
 	}
 	return t.Send(request)
 }
@@ -400,40 +571,6 @@ func (t *tradingClient) GetPositions(account uint64, requestId string) error {
 	return t.Send(request)
 }
 
-func (t *tradingClient) MassCancel(account uint64, clOrdId string) error {
-	return newOrderMassCancel(account, clOrdId).Send(t)
-}
-
-func (t *tradingClient) SendOrderCancelRequest(accountID uint64, symbol Symbol, side Side, orderID, clientOrderID string) error {
-	cmd := xmsg.OrderCancelRequest{
-		MsgType:      xmsg.MsgType_OrderCancelRequestMsgType,
-		Account:      accountID,
-		ClOrdId:      ID(""),
-		Symbol:       string(symbol),
-		Side:         string(side),
-		OrderId:      orderID,
-		OrigClOrdId:  clientOrderID,
-		TransactTime: time.Now().UTC().UnixNano(),
-	}
-	return t.Send(cmd)
-}
-
-func (t *tradingClient) SendOrderMassStatusRequest(accountID uint64) error {
-	cmd := xmsg.OrderStatusRequest{
-		MsgType: xmsg.MsgType_OrderMassStatusRequest,
-		Account: accountID,
-	}
-	return t.Send(cmd)
-}
-
-func (t *tradingClient) SendAccountStatusReportRequest(accountID uint64) error {
-	cmd := xmsg.NewOrderSingle{
-		MsgType: xmsg.MsgType_AccountStatusReportRequest,
-		Account: accountID,
-	}
-	return t.Send(cmd)
-}
-
 func (t *tradingClient) SendApplicationHeartbeat(groupId string, heartbeatInSec int32) error {
 	cmd := xmsg.ApplicationHeartbeat{
 		MsgType:    xmsg.MsgType_ApplicationHeartbeat,
@@ -441,14 +578,6 @@ func (t *tradingClient) SendApplicationHeartbeat(groupId string, heartbeatInSec 
 		HeartBtInt: heartbeatInSec,
 	}
 	return t.Send(cmd)
-}
-
-func (t *tradingClient) Send(cmd interface{}) error {
-	data, err := fixjson.Marshal(cmd)
-	if err != nil {
-		return err
-	}
-	return t.client.WriteBytes(data)
 }
 
 func (t *tradingClient) incomeHandler(msg []byte) {
@@ -504,6 +633,13 @@ func (t *tradingClient) incomeHandler(msg []byte) {
 		if _, err := t.unmarshal(msg, v); err == nil {
 			if t.handlers.orderMassStatus != nil {
 				go t.handlers.orderMassStatus(t, v)
+			}
+		}
+	case xmsg.MsgType_MassTradeCaptureReportResponse:
+		v := new(xmsg.MassTradeCaptureReportResponse)
+		if _, err := t.unmarshal(msg, v); err == nil {
+			if t.handlers.massTradeCapture != nil {
+				go t.handlers.massTradeCapture(t, v)
 			}
 		}
 	case xmsg.MsgType_AccountStatusReport:
@@ -589,6 +725,7 @@ func (t *tradingClient) loginCmd() []byte {
 		Username:    t.apiKey,
 		Password:    sigHex,
 		RawData:     payload,
+		Account:     t.accounts,
 	}
 	cmd, _ := fixjson.Marshal(logonCmd)
 
@@ -603,10 +740,4 @@ func (t *tradingClient) unmarshal(msg []byte, v interface{}) (interface{}, error
 	}
 
 	return v, nil
-}
-
-func (t *tradingClient) SetDisconnectHandler(handler TradingDisconnectHandler) {
-	t.client.setDisconnectHandler(func() {
-		handler(t, t.client.Logger())
-	})
 }

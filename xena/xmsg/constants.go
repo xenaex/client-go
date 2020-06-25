@@ -7,33 +7,35 @@ const (
 	MsgType_RejectMsgType                    = "3"
 	MsgType_ExecutionReportMsgType           = "8"
 	MsgType_OrderCancelRejectMsgType         = "9"
-	MsgType_LogonMsgType                     = "A"   // real FIX value is 'A', it's order number in list - 11
-	MsgType_TradeCaptureReportMsgType        = "AE"  // real FIX value is 'AE', it's order number in list - 16
-	MsgType_OrderMassStatusRequest           = "AF"  // real FIX value is 'AF', it's order number in list - 17
-	MsgType_AccountStatusReportRequest       = "XAA" // real FIX value is 'XAA', it's order number in list - 34
-	MsgType_AccountStatusReport              = "XAR" // real FIX value is 'XAR', it's order number in list - 35
-	MsgType_AccountStatusUpdateReport        = "XAF" // real FIX value is 'XAF', it's order number in list - 36
-	MsgType_NewOrderSingleMsgType            = "D"   // real FIX value is 'D', it's order number in list - 92
-	MsgType_NewOrderListMsgType              = "E"   // real FIX value is 'E', it's order number in list - 111
-	MsgType_OrderCancelRequestMsgType        = "F"   // real FIX value is 'F', it's order number in list - 112
-	MsgType_OrderCancelReplaceRequestMsgType = "G"   // real FIX value is 'G', it's order number in list - 113
-	MsgType_OrderStatusRequest               = "H"   // real FIX value is 'H', it's order number in list - 116
-	MsgType_ListStatus                       = "N"   // real FIX value is 'N', it's order number in list - 121
-	MsgType_MarketDataRequest                = "V"   // real FIX value is 'V', it's order number in list - 125
-	MsgType_MarketDataSnapshotFullRefresh    = "W"   // real FIX value is 'W', it's order number in list - 126
-	MsgType_MarketDataIncrementalRefresh     = "X"   // real FIX value is 'X', it's order number in list - 127
-	MsgType_MarketDataRequestReject          = "Y"   // real FIX value is 'Y', it's order number in list - 128
-	MsgType_OrderMassStatusResponse          = "U8"  // custom FIX value 'U8'
-	MsgType_PositionMaintenanceRequest       = "AL"  // real FIX value is 'AL'
-	MsgType_PositionMaintenanceReport        = "AM"  // real FIX value is 'AM'
-	MsgType_RequestForPositions              = "AN"  // real FIX value is AN, it's order number in list = 24
-	MsgType_PositionReport                   = "AP"  // real FIX value is AP, it's order number in list = 26
-	MsgType_MassPositionReport               = "MAP" // custom FIX value 'MAP'
-	MsgType_MarginRequirementReport          = "CJ"  // custom FIX value 'CJ'
-	MsgType_Heartbeat                        = "0"   // real FIX value is '0'
+	MsgType_LogonMsgType                     = "A"
+	MsgType_TradeCaptureReportMsgType        = "AE"
+	MsgType_OrderMassStatusRequest           = "AF"
+	MsgType_AccountStatusReportRequest       = "XAA"
+	MsgType_AccountStatusReport              = "XAR"
+	MsgType_AccountStatusUpdateReport        = "XAF"
+	MsgType_NewOrderSingleMsgType            = "D"
+	MsgType_NewOrderListMsgType              = "E"
+	MsgType_OrderCancelRequestMsgType        = "F"
+	MsgType_OrderCancelReplaceRequestMsgType = "G"
+	MsgType_OrderStatusRequest               = "H"
+	MsgType_ListStatus                       = "N"
+	MsgType_MarketDataRequest                = "V"
+	MsgType_MarketDataSnapshotFullRefresh    = "W"
+	MsgType_MarketDataIncrementalRefresh     = "X"
+	MsgType_MarketDataRequestReject          = "Y"
+	MsgType_OrderMassStatusResponse          = "U8"
+	MsgType_TradeCaptureReportRequest        = "AD"
+	MsgType_MassTradeCaptureReportResponse   = "U9"
+	MsgType_PositionMaintenanceRequest       = "AL"
+	MsgType_PositionMaintenanceReport        = "AM"
+	MsgType_RequestForPositions              = "AN"
+	MsgType_PositionReport                   = "AP"
+	MsgType_MassPositionReport               = "MAP"
+	MsgType_MarginRequirementReport          = "CJ"
+	MsgType_Heartbeat                        = "0"
 	MsgType_OrderMassCancelRequest           = "q"
 	MsgType_OrderMassCancelReport            = "r"
-	MsgType_ApplicationHeartbeat             = "XAH" // real FIX value is 'XAH';
+	MsgType_ApplicationHeartbeat             = "XAH"
 
 	// enum BusinessRejectReason
 	BusinessRejectReason_UnknownBisRejReason     = ""
@@ -305,4 +307,9 @@ const (
 	RelatedTradeType_OpenExecID       = "1"
 	RelatedTradeType_CloseExecID      = "2"
 	RelatedTradeType_ParentPositionID = "3"
+
+	// enum MassStatusReqType
+	MassStatusReqType_ActiveOrders         = "11"
+	MassStatusReqType_DoneOrdersLastStatus = "12"
+	MassStatusReqType_History              = "13"
 )
