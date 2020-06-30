@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/xenaex/client-go/xena/fixjson"
 	"github.com/xenaex/client-go/xena/xmsg"
 )
 
@@ -43,7 +42,7 @@ type marketDataREST struct {
 
 func (m *marketDataREST) GetCandles(symbol string, timeFrame string, from, to time.Time) (*xmsg.MarketDataRefresh, error) {
 	method := "candles"
-	resp, body, err := m.get(newQuery("market-data", "candles", symbol, timeFrame).addQueryInt("from", from.UnixNano()).addQueryInt("to", to.UnixNano()))
+	resp, body, err := m.get(newQuery("market-data/v2", "candles", symbol, timeFrame).addQueryInt("from", from.UnixNano()).addQueryInt("to", to.UnixNano()))
 	if err != nil {
 		m.config.logger.Errorf("%s on m.get(%s, %s, %s, %s)", err, method, symbol, from, to)
 		return nil, err
@@ -52,9 +51,9 @@ func (m *marketDataREST) GetCandles(symbol string, timeFrame string, from, to ti
 		defer resp.Body.Close()
 	}
 	msg := &xmsg.MarketDataRefresh{}
-	err = fixjson.Unmarshal(body, msg)
+	err = json.Unmarshal(body, msg)
 	if err != nil {
-		m.config.logger.Errorf("%s on fixjson.Unmarshal()", err)
+		m.config.logger.Errorf("%s on json.Unmarshal()", err)
 		return nil, err
 	}
 	return msg, nil
@@ -79,7 +78,7 @@ func (m *marketDataREST) GetDom(symbol string, opts ...interface{}) (*xmsg.Marke
 		}
 	}
 
-	query := newQuery("market-data", method, symbol).
+	query := newQuery("market-data/v2", method, symbol).
 		addQueryf("aggr", &aggregatedBook).
 		addQueryf("depth", &marketDepth).
 		addQueryf("throtling", &throttling)
@@ -93,9 +92,9 @@ func (m *marketDataREST) GetDom(symbol string, opts ...interface{}) (*xmsg.Marke
 		defer resp.Body.Close()
 	}
 	msg := &xmsg.MarketDataRefresh{}
-	err = fixjson.Unmarshal(body, msg)
+	err = json.Unmarshal(body, msg)
 	if err != nil {
-		m.config.logger.Errorf("%s on fixjson.Unmarshal()", err)
+		m.config.logger.Errorf("%s on json.Unmarshal()", err)
 		return nil, err
 	}
 	return msg, nil
@@ -103,7 +102,7 @@ func (m *marketDataREST) GetDom(symbol string, opts ...interface{}) (*xmsg.Marke
 
 func (m *marketDataREST) GetTrades(symbol string, from, to time.Time, page, limit int64) (*xmsg.MarketDataRefresh, error) {
 	const method = "trades"
-	query := newQuery("market-data", method, symbol).
+	query := newQuery("market-data/v2", method, symbol).
 		addQueryInt("from", from.UnixNano()).
 		addQueryInt("to", to.UnixNano()).
 		addQueryInt("page", page).
@@ -117,9 +116,9 @@ func (m *marketDataREST) GetTrades(symbol string, from, to time.Time, page, limi
 		defer resp.Body.Close()
 	}
 	msg := &xmsg.MarketDataRefresh{}
-	err = fixjson.Unmarshal(body, msg)
+	err = json.Unmarshal(body, msg)
 	if err != nil {
-		m.config.logger.Errorf("%s on fixjson.Unmarshal()", err)
+		m.config.logger.Errorf("%s on json.Unmarshal()", err)
 		return nil, err
 	}
 	return msg, nil
@@ -127,7 +126,7 @@ func (m *marketDataREST) GetTrades(symbol string, from, to time.Time, page, limi
 
 func (m *marketDataREST) GetServerTime() (time.Time, error) {
 	const method = "server-time"
-	resp, body, err := m.get(newQuery("market-data", method))
+	resp, body, err := m.get(newQuery("market-data/v2", method))
 	if err != nil {
 		m.config.logger.Errorf("%s on m.get(%s, %s, %s, %s, %d, %d)", err, method)
 		return time.Time{}, err
@@ -136,9 +135,9 @@ func (m *marketDataREST) GetServerTime() (time.Time, error) {
 		defer resp.Body.Close()
 	}
 	msg := &xmsg.Heartbeat{}
-	err = fixjson.Unmarshal(body, msg)
+	err = json.Unmarshal(body, msg)
 	if err != nil {
-		m.config.logger.Errorf("%s on fixjson.Unmarshal()", err)
+		m.config.logger.Errorf("%s on json.Unmarshal()", err)
 		return time.Time{}, err
 	}
 	return time.Unix(0, msg.TransactTime), nil

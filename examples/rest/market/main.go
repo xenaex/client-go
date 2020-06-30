@@ -44,7 +44,7 @@ func main() {
 	}
 
 	examples["candles"] = func() {
-		resp, err = client.GetCandles(xena.BTCUSDT.String(), "1m", time.Now().Add(-5*time.Minute), time.Now())
+		resp, err = client.GetCandles(xena.XBTUSD.String(), "1m", time.Now().Add(-5*time.Minute), time.Now())
 		log.Printf("resp: %s, \nerror: %#v\n", resp, err)
 	}
 	for i, a := range os.Args {
