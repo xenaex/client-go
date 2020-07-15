@@ -126,15 +126,19 @@ type TradingClient interface {
 // DefaultTradingDisconnectHandler is a default reconnects handler.
 func DefaultTradingDisconnectHandler(client TradingClient, logger Logger) {
 	for {
-		time.Sleep(time.Second)
-		logonResponse, err := client.ConnectAndLogon()
+		logon, err := client.ConnectAndLogon()
 		if err != nil {
-			logger.Errorf("%s on client.ConnectAndLogon()\n", err)
+			logger.Errorf("Error %s on trading.ConnectAndLogon(). Sleep for %s...", err, time.Second)
+			time.Sleep(time.Second)
+			continue
 		}
-		if err == nil {
-			logger.Debugf("GOT logonResponse ", logonResponse)
-			break
+
+		if logon.RejectText != "" {
+			logger.Errorf("Got logon respons with reject %s. Sleep for %s...", logon.RejectText, time.Second)
+			time.Sleep(time.Second)
+			continue
 		}
+		break
 	}
 }
 

@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg(in *jlexer.Lexer, out *MarketDataRequestReject) {
+func easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi(in *jlexer.Lexer, out *MarketDataRequestReject) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -52,14 +52,18 @@ func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg(in *jlexer.Lexer, out
 		in.Consumed()
 	}
 }
-func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg(out *jwriter.Writer, in MarketDataRequestReject) {
+func easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi(out *jwriter.Writer, in MarketDataRequestReject) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	if in.MsgType != "" {
 		const prefix string = ",\"MsgType\":"
-		first = false
-		out.RawString(prefix[1:])
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.MsgType))
 	}
 	if in.MDStreamId != "" {
@@ -87,14 +91,14 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg(out *jwriter.Writer, 
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v MarketDataRequestReject) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg(w, v)
+	easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *MarketDataRequestReject) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg(l, v)
+	easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi(l, v)
 }
-func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg1(in *jlexer.Lexer, out *MarketDataRequest) {
+func easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi1(in *jlexer.Lexer, out *MarketDataRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -139,14 +143,18 @@ func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg1(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg1(out *jwriter.Writer, in MarketDataRequest) {
+func easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi1(out *jwriter.Writer, in MarketDataRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	if in.MsgType != "" {
 		const prefix string = ",\"MsgType\":"
-		first = false
-		out.RawString(prefix[1:])
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.MsgType))
 	}
 	if in.MDStreamId != "" {
@@ -224,14 +232,14 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg1(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v MarketDataRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg1(w, v)
+	easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi1(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *MarketDataRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg1(l, v)
+	easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi1(l, v)
 }
-func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg2(in *jlexer.Lexer, out *MarketDataRefresh) {
+func easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi2(in *jlexer.Lexer, out *MarketDataRefresh) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -250,31 +258,31 @@ func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg2(in *jlexer.Lexer, ou
 			continue
 		}
 		switch key {
-		case "MsgType":
+		case "msgType":
 			out.MsgType = string(in.String())
-		case "MDStreamId":
+		case "mdStreamId":
 			out.MDStreamId = string(in.String())
-		case "LastUpdateTime":
+		case "lastUpdateTime":
 			out.LastUpdateTime = int64(in.Int64())
-		case "MDBookType":
+		case "mdBookType":
 			out.MDBookType = string(in.String())
-		case "Symbol":
+		case "symbol":
 			out.Symbol = string(in.String())
-		case "LowRangePx":
+		case "lowRangePx":
 			out.LowRangePx = string(in.String())
-		case "HighRangePx":
+		case "highRangePx":
 			out.HighRangePx = string(in.String())
-		case "LowLimitPx":
+		case "lowLimitPx":
 			out.LowLimitPx = string(in.String())
-		case "HighLimitPx":
+		case "highLimitPx":
 			out.HighLimitPx = string(in.String())
-		case "ClearingPx":
+		case "clearingPx":
 			out.ClearingPx = string(in.String())
-		case "BestBid":
+		case "bestBid":
 			out.BestBid = string(in.String())
-		case "BestAsk":
+		case "bestAsk":
 			out.BestAsk = string(in.String())
-		case "MDEntry":
+		case "mdEntry":
 			if in.IsNull() {
 				in.Skip()
 				out.MDEntry = nil
@@ -305,7 +313,7 @@ func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg2(in *jlexer.Lexer, ou
 				}
 				in.Delim(']')
 			}
-		case "Ratios":
+		case "ratios":
 			if in.IsNull() {
 				in.Skip()
 				out.Ratios = nil
@@ -346,18 +354,22 @@ func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg2(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer, in MarketDataRefresh) {
+func easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi2(out *jwriter.Writer, in MarketDataRefresh) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	if in.MsgType != "" {
-		const prefix string = ",\"MsgType\":"
-		first = false
-		out.RawString(prefix[1:])
+		const prefix string = ",\"msgType\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.MsgType))
 	}
 	if in.MDStreamId != "" {
-		const prefix string = ",\"MDStreamId\":"
+		const prefix string = ",\"mdStreamId\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -367,7 +379,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.MDStreamId))
 	}
 	if in.LastUpdateTime != 0 {
-		const prefix string = ",\"LastUpdateTime\":"
+		const prefix string = ",\"lastUpdateTime\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -377,7 +389,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.Int64(int64(in.LastUpdateTime))
 	}
 	if in.MDBookType != "" {
-		const prefix string = ",\"MDBookType\":"
+		const prefix string = ",\"mdBookType\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -387,7 +399,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.MDBookType))
 	}
 	if in.Symbol != "" {
-		const prefix string = ",\"Symbol\":"
+		const prefix string = ",\"symbol\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -397,7 +409,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.Symbol))
 	}
 	if in.LowRangePx != "" {
-		const prefix string = ",\"LowRangePx\":"
+		const prefix string = ",\"lowRangePx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -407,7 +419,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.LowRangePx))
 	}
 	if in.HighRangePx != "" {
-		const prefix string = ",\"HighRangePx\":"
+		const prefix string = ",\"highRangePx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -417,7 +429,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.HighRangePx))
 	}
 	if in.LowLimitPx != "" {
-		const prefix string = ",\"LowLimitPx\":"
+		const prefix string = ",\"lowLimitPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -427,7 +439,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.LowLimitPx))
 	}
 	if in.HighLimitPx != "" {
-		const prefix string = ",\"HighLimitPx\":"
+		const prefix string = ",\"highLimitPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -437,7 +449,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.HighLimitPx))
 	}
 	if in.ClearingPx != "" {
-		const prefix string = ",\"ClearingPx\":"
+		const prefix string = ",\"clearingPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -447,7 +459,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.ClearingPx))
 	}
 	if in.BestBid != "" {
-		const prefix string = ",\"BestBid\":"
+		const prefix string = ",\"bestBid\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -457,7 +469,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.BestBid))
 	}
 	if in.BestAsk != "" {
-		const prefix string = ",\"BestAsk\":"
+		const prefix string = ",\"bestAsk\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -467,7 +479,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		out.String(string(in.BestAsk))
 	}
 	if len(in.MDEntry) != 0 {
-		const prefix string = ",\"MDEntry\":"
+		const prefix string = ",\"mdEntry\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -490,7 +502,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 		}
 	}
 	if len(in.Ratios) != 0 {
-		const prefix string = ",\"Ratios\":"
+		const prefix string = ",\"ratios\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -517,14 +529,14 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v MarketDataRefresh) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg2(w, v)
+	easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi2(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *MarketDataRefresh) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg2(l, v)
+	easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi2(l, v)
 }
-func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg3(in *jlexer.Lexer, out *MDEntry) {
+func easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi3(in *jlexer.Lexer, out *MDEntry) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -543,49 +555,49 @@ func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg3(in *jlexer.Lexer, ou
 			continue
 		}
 		switch key {
-		case "Symbol":
+		case "symbol":
 			out.Symbol = string(in.String())
-		case "MDUpdateAction":
+		case "mdUpdateAction":
 			out.MDUpdateAction = string(in.String())
-		case "MDEntryType":
+		case "mdEntryType":
 			out.MDEntryType = string(in.String())
-		case "MDEntryPx":
+		case "mdEntryPx":
 			out.MDEntryPx = string(in.String())
-		case "MDEntrySize":
+		case "mdEntrySize":
 			out.MDEntrySize = string(in.String())
-		case "NumberOfOrders":
+		case "numberOfOrders":
 			out.NumberOfOrders = uint32(in.Uint32())
-		case "TransactTime":
+		case "transactTime":
 			out.TransactTime = int64(in.Int64())
-		case "TradeId":
+		case "tradeId":
 			out.TradeId = string(in.String())
-		case "AggressorSide":
+		case "aggressorSide":
 			out.AggressorSide = string(in.String())
-		case "FirstPx":
+		case "firstPx":
 			out.FirstPx = string(in.String())
-		case "LastPx":
+		case "lastPx":
 			out.LastPx = string(in.String())
-		case "HighPx":
+		case "highPx":
 			out.HighPx = string(in.String())
-		case "LowPx":
+		case "lowPx":
 			out.LowPx = string(in.String())
-		case "BuyVolume":
+		case "buyVolume":
 			out.BuyVolume = string(in.String())
-		case "SellVolume":
+		case "sellVolume":
 			out.SellVolume = string(in.String())
-		case "Bid":
+		case "bid":
 			out.Bid = string(in.String())
-		case "Ask":
+		case "ask":
 			out.Ask = string(in.String())
-		case "LowRangePx":
+		case "lowRangePx":
 			out.LowRangePx = string(in.String())
-		case "HighRangePx":
+		case "highRangePx":
 			out.HighRangePx = string(in.String())
-		case "LowLimitPx":
+		case "lowLimitPx":
 			out.LowLimitPx = string(in.String())
-		case "HighLimitPx":
+		case "highLimitPx":
 			out.HighLimitPx = string(in.String())
-		case "ClearingPx":
+		case "clearingPx":
 			out.ClearingPx = string(in.String())
 		default:
 			in.SkipRecursive()
@@ -597,18 +609,22 @@ func easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg3(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer, in MDEntry) {
+func easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi3(out *jwriter.Writer, in MDEntry) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	if in.Symbol != "" {
-		const prefix string = ",\"Symbol\":"
-		first = false
-		out.RawString(prefix[1:])
+		const prefix string = ",\"symbol\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.Symbol))
 	}
 	if in.MDUpdateAction != "" {
-		const prefix string = ",\"MDUpdateAction\":"
+		const prefix string = ",\"mdUpdateAction\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -618,7 +634,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.MDUpdateAction))
 	}
 	if in.MDEntryType != "" {
-		const prefix string = ",\"MDEntryType\":"
+		const prefix string = ",\"mdEntryType\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -628,7 +644,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.MDEntryType))
 	}
 	if in.MDEntryPx != "" {
-		const prefix string = ",\"MDEntryPx\":"
+		const prefix string = ",\"mdEntryPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -638,7 +654,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.MDEntryPx))
 	}
 	if in.MDEntrySize != "" {
-		const prefix string = ",\"MDEntrySize\":"
+		const prefix string = ",\"mdEntrySize\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -648,7 +664,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.MDEntrySize))
 	}
 	if in.NumberOfOrders != 0 {
-		const prefix string = ",\"NumberOfOrders\":"
+		const prefix string = ",\"numberOfOrders\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -658,7 +674,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.Uint32(uint32(in.NumberOfOrders))
 	}
 	if in.TransactTime != 0 {
-		const prefix string = ",\"TransactTime\":"
+		const prefix string = ",\"transactTime\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -668,7 +684,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.Int64(int64(in.TransactTime))
 	}
 	if in.TradeId != "" {
-		const prefix string = ",\"TradeId\":"
+		const prefix string = ",\"tradeId\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -678,7 +694,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.TradeId))
 	}
 	if in.AggressorSide != "" {
-		const prefix string = ",\"AggressorSide\":"
+		const prefix string = ",\"aggressorSide\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -688,7 +704,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.AggressorSide))
 	}
 	if in.FirstPx != "" {
-		const prefix string = ",\"FirstPx\":"
+		const prefix string = ",\"firstPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -698,7 +714,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.FirstPx))
 	}
 	if in.LastPx != "" {
-		const prefix string = ",\"LastPx\":"
+		const prefix string = ",\"lastPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -708,7 +724,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.LastPx))
 	}
 	if in.HighPx != "" {
-		const prefix string = ",\"HighPx\":"
+		const prefix string = ",\"highPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -718,7 +734,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.HighPx))
 	}
 	if in.LowPx != "" {
-		const prefix string = ",\"LowPx\":"
+		const prefix string = ",\"lowPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -728,7 +744,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.LowPx))
 	}
 	if in.BuyVolume != "" {
-		const prefix string = ",\"BuyVolume\":"
+		const prefix string = ",\"buyVolume\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -738,7 +754,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.BuyVolume))
 	}
 	if in.SellVolume != "" {
-		const prefix string = ",\"SellVolume\":"
+		const prefix string = ",\"sellVolume\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -748,7 +764,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.SellVolume))
 	}
 	if in.Bid != "" {
-		const prefix string = ",\"Bid\":"
+		const prefix string = ",\"bid\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -758,7 +774,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.Bid))
 	}
 	if in.Ask != "" {
-		const prefix string = ",\"Ask\":"
+		const prefix string = ",\"ask\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -768,7 +784,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.Ask))
 	}
 	if in.LowRangePx != "" {
-		const prefix string = ",\"LowRangePx\":"
+		const prefix string = ",\"lowRangePx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -778,7 +794,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.LowRangePx))
 	}
 	if in.HighRangePx != "" {
-		const prefix string = ",\"HighRangePx\":"
+		const prefix string = ",\"highRangePx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -788,7 +804,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.HighRangePx))
 	}
 	if in.LowLimitPx != "" {
-		const prefix string = ",\"LowLimitPx\":"
+		const prefix string = ",\"lowLimitPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -798,7 +814,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.LowLimitPx))
 	}
 	if in.HighLimitPx != "" {
-		const prefix string = ",\"HighLimitPx\":"
+		const prefix string = ",\"highLimitPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -808,7 +824,7 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 		out.String(string(in.HighLimitPx))
 	}
 	if in.ClearingPx != "" {
-		const prefix string = ",\"ClearingPx\":"
+		const prefix string = ",\"clearingPx\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -822,10 +838,109 @@ func easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v MDEntry) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC4e6768eEncodeGithubComXenaexClientGoXenaXmsg3(w, v)
+	easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi3(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *MDEntry) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC4e6768eDecodeGithubComXenaexClientGoXenaXmsg3(l, v)
+	easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi3(l, v)
+}
+func easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi4(in *jlexer.Lexer, out *Bars) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeString()
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "mdEntry":
+			if in.IsNull() {
+				in.Skip()
+				out.MDEntry = nil
+			} else {
+				in.Delim('[')
+				if out.MDEntry == nil {
+					if !in.IsDelim(']') {
+						out.MDEntry = make([]*MDEntry, 0, 8)
+					} else {
+						out.MDEntry = []*MDEntry{}
+					}
+				} else {
+					out.MDEntry = (out.MDEntry)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v7 *MDEntry
+					if in.IsNull() {
+						in.Skip()
+						v7 = nil
+					} else {
+						if v7 == nil {
+							v7 = new(MDEntry)
+						}
+						(*v7).UnmarshalEasyJSON(in)
+					}
+					out.MDEntry = append(out.MDEntry, v7)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi4(out *jwriter.Writer, in Bars) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if len(in.MDEntry) != 0 {
+		const prefix string = ",\"mdEntry\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
+			out.RawByte('[')
+			for v8, v9 := range in.MDEntry {
+				if v8 > 0 {
+					out.RawByte(',')
+				}
+				if v9 == nil {
+					out.RawString("null")
+				} else {
+					(*v9).MarshalEasyJSON(out)
+				}
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Bars) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonC4e6768eEncodeGitXenaIoXenaInterfacesPublicApi4(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Bars) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonC4e6768eDecodeGitXenaIoXenaInterfacesPublicApi4(l, v)
 }
